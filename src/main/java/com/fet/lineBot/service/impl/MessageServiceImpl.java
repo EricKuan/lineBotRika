@@ -72,7 +72,7 @@ public class MessageServiceImpl implements MessageService {
 		String replyMessage = null;
 		if(replyList.size()>0) {
 			for(ReplyMapping item:replyList) {
-				replyRepository.deleteById((long) item.getId());
+				replyRepository.deleteById(Long.valueOf(item.getId()));
 			}
 			replyMessage =  "わかった";
 		}else {

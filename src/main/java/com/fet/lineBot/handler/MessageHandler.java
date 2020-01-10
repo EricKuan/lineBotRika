@@ -2,6 +2,7 @@ package com.fet.lineBot.handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 
 import com.fet.lineBot.service.MessageService;
 import com.linecorp.bot.model.event.Event;
@@ -45,6 +46,10 @@ public class MessageHandler {
         
 //        rtnMsg = messageService.queryElectionData(message);
         rtnMsg = messageService.queryReplyMessage(message);
+        
+        if(StringUtils.isEmpty(rtnMsg)) {
+        	return null;
+        }
         return new TextMessage(rtnMsg);
     }
 

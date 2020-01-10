@@ -24,3 +24,7 @@ line.bot:
 #
 #logging.level:
 #   com.linecorp.bot.client.wire: INFO
+
+rikaService:
+ stickerId: 99024854
+ messagePrefix: call

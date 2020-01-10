@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fet.lineBot.service.MessageService;
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MessageEvent;
+import com.linecorp.bot.model.event.message.StickerMessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
@@ -28,4 +29,13 @@ public class MessageHandler {
     public void handleDefaultMessageEvent(Event event) {
         System.out.println("event: " + event);
     }
+    
+    @EventMapping
+    public TextMessage handleStickerMessageEvent(MessageEvent<StickerMessageContent> event) {
+        System.out.println("event: " + event);
+        String stickId = event.getMessage().getStickerId();
+        String rtnMsg = messageService.getStickerResponse(stickId);
+        return new TextMessage(rtnMsg);
+    }
+    
 }

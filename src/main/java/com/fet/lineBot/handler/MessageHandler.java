@@ -1,6 +1,7 @@
 package com.fet.lineBot.handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.fet.lineBot.service.MessageService;
 import com.linecorp.bot.model.event.Event;
@@ -17,11 +18,23 @@ public class MessageHandler {
 	@Autowired
 	MessageService messageService;
 	
+	@Value("${rikaService.settingPrefix}")
+	private String SETTING_PREFIX;
+	
 	@EventMapping
     public TextMessage handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
         System.out.println("event: " + event);
         String message = event.getMessage().getText();
-        String rtnMsg = messageService.queryElectionData(message);
+        String rtnMsg;
+        /* 設定內容 */
+        if(0 == message.indexOf(SETTING_PREFIX)){
+        	String[] split = message.split(" ");
+        	String[] mapping = split[1].split(",");
+        	rtnMsg = messageService.saveMessageMapping(mapping[0], mapping[1]);
+        	return new TextMessage(rtnMsg);
+        }
+        
+        rtnMsg = messageService.queryElectionData(message);
         return new TextMessage(rtnMsg);
     }
 
@@ -34,7 +47,7 @@ public class MessageHandler {
     public TextMessage handleStickerMessageEvent(MessageEvent<StickerMessageContent> event) {
         System.out.println("event: " + event);
         String stickId = event.getMessage().getStickerId();
-        String rtnMsg = messageService.getStickerResponse(stickId);
+        String rtnMsg = messageService.queryStickerResponse(stickId);
         return new TextMessage(rtnMsg);
     }
     

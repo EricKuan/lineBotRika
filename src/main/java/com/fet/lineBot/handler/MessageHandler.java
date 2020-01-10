@@ -34,7 +34,8 @@ public class MessageHandler {
         	return new TextMessage(rtnMsg);
         }
         
-        rtnMsg = messageService.queryElectionData(message);
+//        rtnMsg = messageService.queryElectionData(message);
+        rtnMsg = messageService.queryReplyMessage(message);
         return new TextMessage(rtnMsg);
     }
 

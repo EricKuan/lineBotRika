@@ -1,5 +1,7 @@
 package com.fet.lineBot.service.impl;
 
+import java.util.List;
+
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +53,17 @@ public class MessageServiceImpl implements MessageService {
 		reply.setReplyMessage(replymessage);
 		replyRepository.save(reply);
 		return "success";
+	}
+
+	@Override
+	public String queryReplyMessage(String message) {
+		List<ReplyMapping> reply = replyRepository.findByMessage(message);
+		String replyMessage = null;
+		if(reply.size()>0) {
+			replyMessage = reply.get(0).getReplyMessage();
+		}
+		
+		return replyMessage;
 	}
 
 }

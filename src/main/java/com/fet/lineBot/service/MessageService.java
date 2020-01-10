@@ -8,4 +8,6 @@ public interface MessageService {
 	
 	public String saveMessageMapping(String message, String replymessage);
 	
+	public String queryReplyMessage(String message);
+	
 }

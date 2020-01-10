@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
+import com.fet.lineBot.service.ClampService;
 import com.fet.lineBot.service.MessageService;
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MessageEvent;
@@ -18,11 +19,15 @@ public class MessageHandler {
 	
 	@Autowired
 	MessageService messageService;
+	@Autowired
+	ClampService clampService;
 	
 	@Value("${rikaService.settingPrefix}")
 	private String SETTING_PREFIX;
 	@Value("${rikaService.deletePrefix}")
 	private String DELETE_PREFIX;
+	@Value("${rikaService.vote}")
+	private String VOTE;
 	
 	@EventMapping
     public TextMessage handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
@@ -43,6 +48,12 @@ public class MessageHandler {
         	rtnMsg = messageService.deleteReplyMessage(split[1]);
         	return new TextMessage(rtnMsg);
         }
+        
+        if(0 == message.indexOf(VOTE)){
+        	rtnMsg = clampService.queryVoteResult();
+        	return new TextMessage(rtnMsg);
+        }
+        
         
 //        rtnMsg = messageService.queryElectionData(message);
         rtnMsg = messageService.queryReplyMessage(message);

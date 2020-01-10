@@ -31,6 +31,7 @@ rikaService:
  settingPrefix: "六花請記住,看到"
  deletePrefix: "六花請忘記"
  messageMaxLength: 30
+ vote: "六花回報計票"
  
 spring:
  datasource:

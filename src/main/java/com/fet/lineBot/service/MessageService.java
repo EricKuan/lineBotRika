@@ -4,6 +4,8 @@ public interface MessageService {
 	
 	public String queryElectionData(String message);
 	
-	public String getStickerResponse(String stickId);
+	public String queryStickerResponse(String stickId);
+	
+	public String saveMessageMapping(String message, String replymessage);
 	
 }

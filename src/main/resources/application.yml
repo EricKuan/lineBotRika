@@ -28,3 +28,18 @@ line.bot:
 rikaService:
  stickerId: 99024854
  messagePrefix: call
+ settingPrefix: repl
+ 
+spring:
+ datasource:
+  driverClassName: org.postgresql.Driver
+  maxActive: 10
+  maxIdle: 5
+  minIdle: 2
+  initialSize: 5
+  removeAbandoned: true
+ jpa:
+  properties:
+   hibernate:
+    hbm2ddl:
+     auto: update

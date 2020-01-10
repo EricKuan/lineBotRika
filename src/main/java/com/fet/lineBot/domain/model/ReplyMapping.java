@@ -15,7 +15,7 @@ public class ReplyMapping {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
+	private long id;
 	@Column(name = "MESSAGE")
 	private String message;
 	@Column(name = "REPLY_MESSAGE")

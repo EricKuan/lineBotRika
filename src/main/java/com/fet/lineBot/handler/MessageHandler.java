@@ -1,5 +1,8 @@
 package com.fet.lineBot.handler;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.fet.lineBot.service.MessageService;
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
@@ -9,17 +12,16 @@ import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 
 @LineMessageHandler
 public class MessageHandler {
-
-	private static String MESSAGE_PREFIX = "call";
+	
+	@Autowired
+	MessageService messageService;
 	
 	@EventMapping
     public TextMessage handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
         System.out.println("event: " + event);
         String message = event.getMessage().getText();
-        if(0==message.indexOf(MESSAGE_PREFIX)) {
-        	return new TextMessage("なに?" + message + "test");
-        }
-        return new TextMessage("");
+        String rtnMsg = messageService.queryElectionData(message);
+        return new TextMessage(rtnMsg);
     }
 
     @EventMapping

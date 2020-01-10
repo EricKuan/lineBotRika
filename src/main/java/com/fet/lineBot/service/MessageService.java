@@ -10,4 +10,6 @@ public interface MessageService {
 	
 	public String queryReplyMessage(String message);
 	
+	public String deleteReplyMessage(String message);
+	
 }

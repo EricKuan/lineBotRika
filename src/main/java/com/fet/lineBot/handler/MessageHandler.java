@@ -20,6 +20,8 @@ public class MessageHandler {
 	
 	@Value("${rikaService.settingPrefix}")
 	private String SETTING_PREFIX;
+	@Value("${rikaService.deletePrefix}")
+	private String DELETE_PREFIX;
 	
 	@EventMapping
     public TextMessage handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
@@ -28,9 +30,16 @@ public class MessageHandler {
         String rtnMsg;
         /* 設定內容 */
         if(0 == message.indexOf(SETTING_PREFIX)){
-        	String[] split = message.split(" ");
-        	String[] mapping = split[1].split(",");
+        	String[] split = message.split("看到");
+        	String[] mapping = split[1].split("回");
         	rtnMsg = messageService.saveMessageMapping(mapping[0], mapping[1]);
+        	return new TextMessage(rtnMsg);
+        }
+        
+        if(0 == message.indexOf(DELETE_PREFIX)){
+        	String[] split = message.split("忘記");
+        	
+        	rtnMsg = messageService.deleteReplyMessage(split[1]);
         	return new TextMessage(rtnMsg);
         }
         

@@ -52,7 +52,7 @@ public class MessageServiceImpl implements MessageService {
 		reply.setMessage(message);
 		reply.setReplyMessage(replymessage);
 		replyRepository.save(reply);
-		return "success";
+		return "わかった";
 	}
 
 	@Override
@@ -64,6 +64,16 @@ public class MessageServiceImpl implements MessageService {
 		}
 		
 		return replyMessage;
+	}
+
+	@Override
+	public String deleteReplyMessage(String message) {
+		long result = replyRepository.deleteByMessage(message);
+		if(result>0) {
+			return "わかった";
+		}
+		return "なに?";
+		
 	}
 
 }

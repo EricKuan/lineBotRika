@@ -68,11 +68,17 @@ public class MessageServiceImpl implements MessageService {
 
 	@Override
 	public String deleteReplyMessage(String message) {
-		long result = replyRepository.deleteByMessage(message);
-		if(result>0) {
-			return "わかった";
+		List<ReplyMapping> replyList = replyRepository.findByMessage(message);
+		String replyMessage = null;
+		if(replyList.size()>0) {
+			for(ReplyMapping item:replyList) {
+				replyRepository.deleteById((long) item.getId());
+			}
+			replyMessage =  "わかった";
+		}else {
+			replyMessage ="なに?"; 
 		}
-		return "なに?";
+		return replyMessage;
 		
 	}
 

@@ -17,7 +17,7 @@ public class MessageHandler {
         System.out.println("event: " + event);
         String message = event.getMessage().getText();
         if(0==message.indexOf(MESSAGE_PREFIX)) {
-        	return new TextMessage("なに?" + message);
+        	return new TextMessage("なに?" + message + "test");
         }
         return new TextMessage("");
     }

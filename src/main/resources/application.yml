@@ -28,7 +28,8 @@ line.bot:
 rikaService:
  stickerId: 99024854
  messagePrefix: call
- settingPrefix: repl
+ settingPrefix: "六花請記住,看到"
+ deletePrefix: "六花請忘記"
  
 spring:
  datasource:

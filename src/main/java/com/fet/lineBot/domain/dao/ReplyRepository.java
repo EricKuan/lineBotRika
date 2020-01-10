@@ -10,5 +10,7 @@ public interface  ReplyRepository extends CrudRepository<ReplyMapping, Long>{
 	List<ReplyMapping> findAll();
 	
 	List<ReplyMapping> findByMessage(String message);
+	
+	long deleteByMessage(String message);
 
 }

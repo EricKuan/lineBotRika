@@ -32,7 +32,7 @@ public class MessageServiceImpl implements MessageService {
 	
 	@Override
 	public String queryElectionData(String message) {
-		String rtnMsg = null;
+		String rtnMsg = "";
 		if (0 == message.indexOf(MESSAGE_PREFIX)) {
 			rtnMsg = "なに?" + message + "test";
 		}
@@ -42,7 +42,7 @@ public class MessageServiceImpl implements MessageService {
 
 	@Override
 	public String queryStickerResponse(String stickId) {
-		String rtnMsg = null;
+		String rtnMsg = "";
 		if(STICKER_ID.equalsIgnoreCase(stickId)) {
 			rtnMsg = "気持ちわるっ";
 		}
@@ -65,7 +65,7 @@ public class MessageServiceImpl implements MessageService {
 	@Override
 	public String queryReplyMessage(String message) {
 		List<ReplyMapping> reply = replyRepository.findByMessage(message);
-		String replyMessage = null;
+		String replyMessage = "";
 		if(reply.size()>0) {
 			replyMessage = reply.get(0).getReplyMessage();
 		}

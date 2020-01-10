@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.fet.lineBot.domain.dao.ReplyRepository;
 import com.fet.lineBot.domain.model.ReplyMapping;
@@ -19,6 +20,8 @@ public class MessageServiceImpl implements MessageService {
 	private String MESSAGE_PREFIX;
 	@Value("${rikaService.stickerId}")
 	private String STICKER_ID;
+	@Value("${rikaService.messageMaxLength}")
+	private int MAX_LENGTH;
 
 	
 	@Autowired
@@ -49,6 +52,10 @@ public class MessageServiceImpl implements MessageService {
 	@Override
 	public String saveMessageMapping(String message, String replymessage) {
 		ReplyMapping reply = new ReplyMapping();
+		if(StringUtils.isEmpty(message) || StringUtils.isEmpty(replymessage) 
+				||message.length()>MAX_LENGTH 	|| replymessage.length()>MAX_LENGTH) {
+			return "わかんない";
+		}
 		reply.setMessage(message);
 		reply.setReplyMessage(replymessage);
 		replyRepository.save(reply);

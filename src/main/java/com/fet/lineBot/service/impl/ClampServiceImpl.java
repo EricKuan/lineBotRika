@@ -37,18 +37,34 @@ public class ClampServiceImpl implements ClampService {
 					.getPage("https://www.cec.gov.tw/pc/zh_TW/P1/n00000000000000000.html");
 			webClient.waitForBackgroundJavaScript(200);
 
-			logger.info(htmlPage.asXml());
+//			logger.info(htmlPage.asXml());
 			HtmlElement elements = htmlPage.getDocumentElement();
 			List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='trT']");
+			List<HtmlTableRow> footer = htmlPage.getByXPath( "//tr[@class='trFooterT']");
 //			logger.info(new Gson().toJson(elementList));
 			logger.info("Table Row: " + elementList.size());
+//			投開票所數　已送/應送: 42/17226
+			logger.info(footer.get(0).getCell(0).asText());
+			String voteBox = footer.get(0).getCell(0).asText();
+			logger.info(voteBox);
+			logger.info(voteBox.split(" ").length);
+			String[] boxsplit= voteBox.split(" ");
+//			for(String box:boxsplit) {
+//				logger.info(box);
+//			}
+			String[] ticketBoxs =  voteBox.split(" ")[1].split("/");
+			
+//			for(String box:ticketBoxs) {
+//				logger.info("count: " + box);
+//			}
+			
 			int hanCount;
 			int thasCount;
 			StringBuffer sb = new StringBuffer();
-			logger.info(elementList.get(0).getCell(1).asText());
-			logger.info(elementList.get(0).getCell(2).asText());
-			logger.info(elementList.get(0).getCell(4).asText());
-			logger.info(elementList.get(0).getCell(5).asText());
+//			logger.info(elementList.get(0).getCell(1).asText());
+//			logger.info(elementList.get(0).getCell(2).asText());
+//			logger.info(elementList.get(0).getCell(4).asText());
+//			logger.info(elementList.get(0).getCell(5).asText());
 			
 			// 宋楚瑜
 			sb.append(elementList.get(0).getCell(1).asText());
@@ -60,10 +76,10 @@ public class ClampServiceImpl implements ClampService {
 			sb.append(elementList.get(0).getCell(5).asText());
 			sb.append("%\n");
 			
-			logger.info(elementList.get(1).getCell(1).asText());
-			logger.info(elementList.get(1).getCell(2).asText());
-			logger.info(elementList.get(1).getCell(4).asText());
-			logger.info(elementList.get(1).getCell(5).asText());
+//			logger.info(elementList.get(1).getCell(1).asText());
+//			logger.info(elementList.get(1).getCell(2).asText());
+//			logger.info(elementList.get(1).getCell(4).asText());
+//			logger.info(elementList.get(1).getCell(5).asText());
 			
 			// 韓國瑜
 			sb.append(elementList.get(1).getCell(1).asText());
@@ -76,10 +92,10 @@ public class ClampServiceImpl implements ClampService {
 			sb.append(elementList.get(1).getCell(5).asText());
 			sb.append("%\n");
 
-			logger.info(elementList.get(2).getCell(1).asText());
-			logger.info(elementList.get(2).getCell(2).asText());
-			logger.info(elementList.get(2).getCell(4).asText());
-			logger.info(elementList.get(2).getCell(5).asText());
+//			logger.info(elementList.get(2).getCell(1).asText());
+//			logger.info(elementList.get(2).getCell(2).asText());
+//			logger.info(elementList.get(2).getCell(4).asText());
+//			logger.info(elementList.get(2).getCell(5).asText());
 			
 			// 蔡英文
 			sb.append(elementList.get(2).getCell(1).asText());
@@ -94,7 +110,8 @@ public class ClampServiceImpl implements ClampService {
 			hanCount = Integer.valueOf(elementList.get(1).getCell(4).asText().replaceAll(",", ""));
 			thasCount = Integer.valueOf(elementList.get(2).getCell(4).asText().replaceAll(",", ""));
 			
-			sb.append("總機先生目前贏 " + (hanCount - thasCount) +" 張選票");
+			sb.append("\n總機先生目前贏 " + (hanCount - thasCount) +" 張選票!\n");
+			sb.append("剩餘Box: " + (Integer.valueOf(ticketBoxs[1].substring(0, 5)) - Integer.valueOf(ticketBoxs[0].trim())) + "\n");
 			// HtmlTextInput account = (HtmlTextInput) htmlPage.getElementById("ACCOUNT");
 			// account.setText(conf.userName);
 			// HtmlPasswordInput passwd = (HtmlPasswordInput)

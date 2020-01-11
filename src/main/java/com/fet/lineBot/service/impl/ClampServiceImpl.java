@@ -111,7 +111,7 @@ public class ClampServiceImpl implements ClampService {
 			thasCount = Integer.valueOf(elementList.get(2).getCell(4).asText().replaceAll(",", ""));
 			
 			sb.append("\n總機先生目前贏 " + (hanCount - thasCount) +" 張選票!\n");
-			sb.append("剩餘Box: " + (Integer.valueOf(ticketBoxs[1].substring(0, 5)) - Integer.valueOf(ticketBoxs[0].trim())) + "\n");
+			sb.append("總統票剩餘Box: " + (Integer.valueOf(ticketBoxs[1].substring(0, 5)) - Integer.valueOf(ticketBoxs[0].trim())) + "\n");
 			// HtmlTextInput account = (HtmlTextInput) htmlPage.getElementById("ACCOUNT");
 			// account.setText(conf.userName);
 			// HtmlPasswordInput passwd = (HtmlPasswordInput)
@@ -139,7 +139,37 @@ public class ClampServiceImpl implements ClampService {
 			// webClient.close();
 			//
 			// }
+			htmlPage = webClient
+					.getPage("https://www.cec.gov.tw/pc/zh_TW/L4/n00000000000000000.html");
+			webClient.waitForBackgroundJavaScript(200);
+			elementList = htmlPage.getByXPath( "//tr[@class='trT']");
+			for(HtmlTableRow row: elementList) {
+				logger.info(row.getCell(0).asText());
+				logger.info(row.getCell(1).asText());
+				logger.info(row.getCell(2).asText());
+				logger.info(row.getCell(3).asText());
+			}
+			footer = htmlPage.getByXPath( "//tr[@class='trFooterT']");
+			ticketBoxs =  voteBox.split(" ")[1].split("/");
+			sb.append("\n");
+			sb.append(elementList.get(5).getCell(1).asText());
+			sb.append("/");
+			sb.append(elementList.get(5).getCell(3).asText());
+			sb.append("%\n");
+			sb.append(elementList.get(8).getCell(1).asText());
+			sb.append("/");
+			sb.append(elementList.get(8).getCell(3).asText());
+			sb.append("%\n");
+			sb.append(elementList.get(13).getCell(1).asText());
+			sb.append("/");
+			sb.append(elementList.get(13).getCell(3).asText());
+			sb.append("%\n");
+			sb.append("政黨票剩餘Box: " + (Integer.valueOf(ticketBoxs[1].substring(0, 5)) - Integer.valueOf(ticketBoxs[0].trim())) + "\n");
 			sb.append("\n心存善念，盡力而為");
+			
+			
+			
+			
 			rtnMsg = sb.toString();
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -143,12 +143,12 @@ public class ClampServiceImpl implements ClampService {
 					.getPage("https://www.cec.gov.tw/pc/zh_TW/L4/n00000000000000000.html");
 			webClient.waitForBackgroundJavaScript(200);
 			elementList = htmlPage.getByXPath( "//tr[@class='trT']");
-			for(HtmlTableRow row: elementList) {
-				logger.info(row.getCell(0).asText());
-				logger.info(row.getCell(1).asText());
-				logger.info(row.getCell(2).asText());
-				logger.info(row.getCell(3).asText());
-			}
+//			for(HtmlTableRow row: elementList) {
+//				logger.info(row.getCell(0).asText());
+//				logger.info(row.getCell(1).asText());
+//				logger.info(row.getCell(2).asText());
+//				logger.info(row.getCell(3).asText());
+//			}
 			footer = htmlPage.getByXPath( "//tr[@class='trFooterT']");
 			ticketBoxs =  voteBox.split(" ")[1].split("/");
 			sb.append("\n");

@@ -59,7 +59,7 @@ public class MessageHandler {
         	StringBuffer sb = new StringBuffer();
         	sb.append("記住關鍵字: 六花請記住,看到[關鍵字]回[回應訊息]\n");
         	sb.append("忘記關鍵字: 六花請忘記[關鍵字]\n");
-        	sb.append("2016總統選舉選票計數： 六花回報計票");
+        	sb.append("2018總統選舉選票計數： 六花回報計票");
         	rtnMsg = sb.toString();
         	return new TextMessage(rtnMsg);
         }

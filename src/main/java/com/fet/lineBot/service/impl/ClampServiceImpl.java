@@ -34,53 +34,53 @@ public class ClampServiceImpl implements ClampService {
 			webClient.getOptions().setDoNotTrackEnabled(true);
 			webClient.setAjaxController(new NicelyResynchronizingAjaxController());
 			HtmlPage htmlPage = webClient
-					.getPage("https://db.cec.gov.tw/histQuery.jsp?voteCode=20160101P1A1&qryType=ctks");
-			webClient.waitForBackgroundJavaScript(1500);
+					.getPage("https://www.cec.gov.tw/pc/zh_TW/P1/n00000000000000000.html");
+//			webClient.waitForBackgroundJavaScript(1500);
 
-//			logger.info(htmlPage.asXml());
+			logger.info(htmlPage.asXml());
 			HtmlElement elements = htmlPage.getDocumentElement();
-			List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='data']");
+			List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='trT']");
 //			logger.info(new Gson().toJson(elementList));
 			logger.info("Table Row: " + elementList.size());
 			StringBuffer sb = new StringBuffer();
 			logger.info(elementList.get(0).getCell(1).asText());
+			logger.info(elementList.get(0).getCell(2).asText());
 			logger.info(elementList.get(0).getCell(4).asText());
 			logger.info(elementList.get(0).getCell(5).asText());
-			logger.info(elementList.get(0).getCell(6).asText());
 			
 			sb.append(elementList.get(0).getCell(1).asText());
 			sb.append("/");
+			sb.append(elementList.get(0).getCell(2).asText().substring(0,3));
+			sb.append("/");
+			sb.append(elementList.get(0).getCell(4).asText());
+			sb.append("/");
 			sb.append(elementList.get(0).getCell(5).asText());
-			sb.append("/");
-			sb.append(elementList.get(0).getCell(6).asText());
-			sb.append("/");
-			sb.append(elementList.get(0).getCell(7).asText());
 			sb.append("\n");
 			
-			logger.info(elementList.get(2).getCell(0).asText());
+			logger.info(elementList.get(1).getCell(1).asText());
+			logger.info(elementList.get(1).getCell(2).asText());
+			logger.info(elementList.get(1).getCell(4).asText());
+			logger.info(elementList.get(1).getCell(5).asText());
+			sb.append(elementList.get(1).getCell(1).asText());
+			sb.append("/");
+			sb.append(elementList.get(1).getCell(2).asText().substring(0,3));
+			sb.append("/");
+			sb.append(elementList.get(1).getCell(4).asText());
+			sb.append("/");
+			sb.append(elementList.get(1).getCell(5).asText());
+			sb.append("\n");
+
+			logger.info(elementList.get(2).getCell(1).asText());
+			logger.info(elementList.get(2).getCell(2).asText());
 			logger.info(elementList.get(2).getCell(4).asText());
 			logger.info(elementList.get(2).getCell(5).asText());
-			logger.info(elementList.get(2).getCell(6).asText());
-			sb.append(elementList.get(2).getCell(0).asText());
+			sb.append(elementList.get(2).getCell(1).asText());
+			sb.append("/");
+			sb.append(elementList.get(2).getCell(2).asText().substring(0,3));
 			sb.append("/");
 			sb.append(elementList.get(2).getCell(4).asText());
 			sb.append("/");
 			sb.append(elementList.get(2).getCell(5).asText());
-			sb.append("/");
-			sb.append(elementList.get(2).getCell(6).asText());
-			sb.append("\n");
-
-			logger.info(elementList.get(4).getCell(0).asText());
-			logger.info(elementList.get(4).getCell(4).asText());
-			logger.info(elementList.get(4).getCell(5).asText());
-			logger.info(elementList.get(4).getCell(6).asText());
-			sb.append(elementList.get(4).getCell(0).asText());
-			sb.append("/");
-			sb.append(elementList.get(4).getCell(4).asText());
-			sb.append("/");
-			sb.append(elementList.get(4).getCell(5).asText());
-			sb.append("/");
-			sb.append(elementList.get(4).getCell(6).asText());
 			
 			// HtmlTextInput account = (HtmlTextInput) htmlPage.getElementById("ACCOUNT");
 			// account.setText(conf.userName);
@@ -109,7 +109,7 @@ public class ClampServiceImpl implements ClampService {
 			// webClient.close();
 			//
 			// }
-			
+			sb.append("\n心存善念，盡力而為");
 			rtnMsg = sb.toString();
 		} catch (Exception e) {
 			e.printStackTrace();

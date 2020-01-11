@@ -35,7 +35,7 @@ public class ClampServiceImpl implements ClampService {
 			webClient.setAjaxController(new NicelyResynchronizingAjaxController());
 			HtmlPage htmlPage = webClient
 					.getPage("https://www.cec.gov.tw/pc/zh_TW/P1/n00000000000000000.html");
-//			webClient.waitForBackgroundJavaScript(1500);
+			webClient.waitForBackgroundJavaScript(200);
 
 			logger.info(htmlPage.asXml());
 			HtmlElement elements = htmlPage.getDocumentElement();

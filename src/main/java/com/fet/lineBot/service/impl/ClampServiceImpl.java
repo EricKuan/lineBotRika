@@ -81,7 +81,6 @@ public class ClampServiceImpl implements ClampService {
 			sb.append(elementList.get(4).getCell(5).asText());
 			sb.append("/");
 			sb.append(elementList.get(4).getCell(6).asText());
-			sb.append("\n");
 			
 			// HtmlTextInput account = (HtmlTextInput) htmlPage.getElementById("ACCOUNT");
 			// account.setText(conf.userName);

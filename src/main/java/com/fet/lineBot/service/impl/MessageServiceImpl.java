@@ -22,6 +22,8 @@ public class MessageServiceImpl implements MessageService {
 	private String STICKER_ID;
 	@Value("${rikaService.messageMaxLength}")
 	private int MAX_LENGTH;
+	@Value("${rikaService.blockKeyWord}")
+	private String BLOCK_KEYWORD;
 
 	
 	@Autowired
@@ -53,7 +55,8 @@ public class MessageServiceImpl implements MessageService {
 	public String saveMessageMapping(String message, String replymessage) {
 		ReplyMapping reply = new ReplyMapping();
 		if(StringUtils.isEmpty(message) || StringUtils.isEmpty(replymessage) 
-				||message.length()>MAX_LENGTH 	|| replymessage.length()>MAX_LENGTH) {
+				||message.length()>MAX_LENGTH 	|| replymessage.length()>MAX_LENGTH
+				|| BLOCK_KEYWORD.indexOf(message)>0 ) {
 			return "わかんない";
 		}
 		reply.setMessage(message);

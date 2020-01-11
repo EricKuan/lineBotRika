@@ -32,6 +32,8 @@ rikaService:
  deletePrefix: "六花請忘記"
  messageMaxLength: 30
  vote: "六花回報計票"
+ helpKeyword: "六花使用說明"
+ blockKeyWord: "小粉紅,粉紅,課長,"
  
 spring:
  datasource:

@@ -22,6 +22,8 @@ public class MessageHandler {
 	@Autowired
 	ClampService clampService;
 	
+	@Value("${rikaService.helpKeyword}")
+	private String HELP_KEYWORD;
 	@Value("${rikaService.settingPrefix}")
 	private String SETTING_PREFIX;
 	@Value("${rikaService.deletePrefix}")
@@ -51,6 +53,14 @@ public class MessageHandler {
         
         if(0 == message.indexOf(VOTE)){
         	rtnMsg = clampService.queryVoteResult();
+        	return new TextMessage(rtnMsg);
+        }
+        if(0 == message.indexOf(HELP_KEYWORD)){
+        	StringBuffer sb = new StringBuffer();
+        	sb.append("記住關鍵字: 六花請記住,看到[關鍵字]回[回應訊息]\n");
+        	sb.append("忘記關鍵字: 六花請忘記[關鍵字]\n");
+        	sb.append("2016總統選舉選票計數： 六花回報計票");
+        	rtnMsg = sb.toString();
         	return new TextMessage(rtnMsg);
         }
         

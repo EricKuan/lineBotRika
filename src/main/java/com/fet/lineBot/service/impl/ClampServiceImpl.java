@@ -164,6 +164,10 @@ public class ClampServiceImpl implements ClampService {
 			sb.append("/");
 			sb.append(elementList.get(13).getCell(3).asText());
 			sb.append("%\n");
+			sb.append(elementList.get(14).getCell(1).asText());
+			sb.append("/");
+			sb.append(elementList.get(14).getCell(3).asText());
+			sb.append("%\n");
 			sb.append("政黨票剩餘Box: " + (Integer.valueOf(ticketBoxs[1].substring(0, 5)) - Integer.valueOf(ticketBoxs[0].trim())) + "\n");
 			sb.append("\n心存善念，盡力而為");
 			

@@ -91,8 +91,8 @@ public class ClampServiceImpl implements ClampService {
 			sb.append(elementList.get(2).getCell(5).asText());
 			sb.append("%\n");
 			
-			hanCount = Integer.valueOf(elementList.get(1).getCell(4).asText());
-			thasCount = Integer.valueOf(elementList.get(2).getCell(4).asText());
+			hanCount = Integer.valueOf(elementList.get(1).getCell(4).asText().replaceAll(",", ""));
+			thasCount = Integer.valueOf(elementList.get(2).getCell(4).asText().replaceAll(",", ""));
 			
 			sb.append("總總機目前贏 " + (hanCount - thasCount) +" 張選票");
 			// HtmlTextInput account = (HtmlTextInput) htmlPage.getElementById("ACCOUNT");

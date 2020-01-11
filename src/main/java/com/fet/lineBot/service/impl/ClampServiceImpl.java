@@ -42,12 +42,15 @@ public class ClampServiceImpl implements ClampService {
 			List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='trT']");
 //			logger.info(new Gson().toJson(elementList));
 			logger.info("Table Row: " + elementList.size());
+			int hanCount;
+			int thasCount;
 			StringBuffer sb = new StringBuffer();
 			logger.info(elementList.get(0).getCell(1).asText());
 			logger.info(elementList.get(0).getCell(2).asText());
 			logger.info(elementList.get(0).getCell(4).asText());
 			logger.info(elementList.get(0).getCell(5).asText());
 			
+			// 宋楚瑜
 			sb.append(elementList.get(0).getCell(1).asText());
 			sb.append("/");
 			sb.append(elementList.get(0).getCell(2).asText().substring(0,3));
@@ -55,25 +58,30 @@ public class ClampServiceImpl implements ClampService {
 			sb.append(elementList.get(0).getCell(4).asText());
 			sb.append("/");
 			sb.append(elementList.get(0).getCell(5).asText());
-			sb.append("\n");
+			sb.append("%\n");
 			
 			logger.info(elementList.get(1).getCell(1).asText());
 			logger.info(elementList.get(1).getCell(2).asText());
 			logger.info(elementList.get(1).getCell(4).asText());
 			logger.info(elementList.get(1).getCell(5).asText());
+			
+			// 韓國瑜
 			sb.append(elementList.get(1).getCell(1).asText());
 			sb.append("/");
 			sb.append(elementList.get(1).getCell(2).asText().substring(0,3));
 			sb.append("/");
 			sb.append(elementList.get(1).getCell(4).asText());
+			
 			sb.append("/");
 			sb.append(elementList.get(1).getCell(5).asText());
-			sb.append("\n");
+			sb.append("%\n");
 
 			logger.info(elementList.get(2).getCell(1).asText());
 			logger.info(elementList.get(2).getCell(2).asText());
 			logger.info(elementList.get(2).getCell(4).asText());
 			logger.info(elementList.get(2).getCell(5).asText());
+			
+			// 蔡英文
 			sb.append(elementList.get(2).getCell(1).asText());
 			sb.append("/");
 			sb.append(elementList.get(2).getCell(2).asText().substring(0,3));
@@ -81,7 +89,12 @@ public class ClampServiceImpl implements ClampService {
 			sb.append(elementList.get(2).getCell(4).asText());
 			sb.append("/");
 			sb.append(elementList.get(2).getCell(5).asText());
+			sb.append("%\n");
 			
+			hanCount = Integer.valueOf(elementList.get(1).getCell(4).asText());
+			thasCount = Integer.valueOf(elementList.get(2).getCell(4).asText());
+			
+			sb.append("總總機目前贏 " + (hanCount - thasCount) +" 張選票");
 			// HtmlTextInput account = (HtmlTextInput) htmlPage.getElementById("ACCOUNT");
 			// account.setText(conf.userName);
 			// HtmlPasswordInput passwd = (HtmlPasswordInput)

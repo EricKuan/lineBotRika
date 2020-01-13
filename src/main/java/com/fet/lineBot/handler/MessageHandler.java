@@ -30,6 +30,8 @@ public class MessageHandler {
 	private String DELETE_PREFIX;
 	@Value("${rikaService.vote}")
 	private String VOTE;
+	@Value("${rikaService.listAllKeyWord}")
+	private String ALL_KEYWORD;
 	
 	@EventMapping
     public TextMessage handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
@@ -61,6 +63,11 @@ public class MessageHandler {
         	sb.append("忘記關鍵字: 六花請忘記[關鍵字]\n");
         	sb.append("2018總統選舉選票計數： 六花回報計票");
         	rtnMsg = sb.toString();
+        	return new TextMessage(rtnMsg);
+        }
+        
+        if(0 == message.indexOf(ALL_KEYWORD)){
+        	rtnMsg = messageService.listMessage();
         	return new TextMessage(rtnMsg);
         }
         

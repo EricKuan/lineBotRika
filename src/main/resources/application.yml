@@ -33,7 +33,8 @@ rikaService:
  messageMaxLength: 30
  vote: "六花回報計票"
  helpKeyword: "六花使用說明"
- blockKeyWord: "小粉紅,粉紅,課長,"
+ blockKeyWord: "小粉紅,粉紅,課長,粉紅課長"
+ listAllKeyWord: "六花請列出關鍵字"
  
 spring:
  datasource:

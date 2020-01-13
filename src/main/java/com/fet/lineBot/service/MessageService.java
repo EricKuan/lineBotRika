@@ -12,4 +12,6 @@ public interface MessageService {
 	
 	public String deleteReplyMessage(String message);
 	
+	public String listMessage();
+	
 }

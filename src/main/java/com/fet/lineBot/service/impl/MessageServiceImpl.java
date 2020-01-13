@@ -76,13 +76,14 @@ public class MessageServiceImpl implements MessageService {
 		Message rtnMsg;
 		if (reply.size() > 0) {
 			replyMessage = reply.get(0);
-			switch(replyMessage.getReplyType()) {
-				case "Image":
-					rtnMsg = new  ImageMessage(replyMessage.getReplyMessage(), replyMessage.getReplyMessage());
-					return rtnMsg;
-				default:
-					rtnMsg = new TextMessage(replyMessage.getReplyMessage());
-					return rtnMsg;
+			if(null==replyMessage.getReplyType()||"Text".equalsIgnoreCase(replyMessage.getReplyType())) {
+				rtnMsg = new TextMessage(replyMessage.getReplyMessage());
+				return rtnMsg;
+			}
+			
+			if("Image".equalsIgnoreCase(replyMessage.getReplyType())) {
+				rtnMsg = new  ImageMessage(replyMessage.getReplyMessage(), replyMessage.getReplyMessage());
+				return rtnMsg;
 			}
 		}
 		return null;

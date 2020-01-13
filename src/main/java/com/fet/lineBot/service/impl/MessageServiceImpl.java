@@ -12,6 +12,9 @@ import org.springframework.util.StringUtils;
 import com.fet.lineBot.domain.dao.ReplyRepository;
 import com.fet.lineBot.domain.model.ReplyMapping;
 import com.fet.lineBot.service.MessageService;
+import com.linecorp.bot.model.message.ImageMessage;
+import com.linecorp.bot.model.message.Message;
+import com.linecorp.bot.model.message.TextMessage;
 
 @Service
 public class MessageServiceImpl implements MessageService {
@@ -27,7 +30,8 @@ public class MessageServiceImpl implements MessageService {
 
 	@Autowired
 	ReplyRepository replyRepository;
-
+	
+	
 	@Autowired
 	DataSource dataSource;
 
@@ -65,14 +69,22 @@ public class MessageServiceImpl implements MessageService {
 	}
 
 	@Override
-	public String queryReplyMessage(String message) {
+	public Message queryReplyMessage(String message) {
 		List<ReplyMapping> reply = replyRepository.findByMessage(message);
-		String replyMessage = "";
+		ReplyMapping replyMessage =null;
+		Message rtnMsg;
 		if (reply.size() > 0) {
-			replyMessage = reply.get(0).getReplyMessage();
+			replyMessage = reply.get(0);
+			switch(replyMessage.getReplyType()) {
+				case "Image":
+					rtnMsg = new  ImageMessage(replyMessage.getReplyMessage(), replyMessage.getReplyMessage());
+					return rtnMsg;
+				default:
+					rtnMsg = new TextMessage(replyMessage.getReplyMessage());
+					return rtnMsg;
+			}
 		}
-
-		return replyMessage;
+		return null;
 	}
 
 	@Override
@@ -103,6 +115,21 @@ public class MessageServiceImpl implements MessageService {
 		}
 
 		return sb.toString();
+	}
+
+	@Override
+	public String saveImageMapping(String message, String replyUrl, String senderId) {
+		if (StringUtils.isEmpty(message) || StringUtils.isEmpty(replyUrl) || message.length() > MAX_LENGTH
+				|| replyUrl.length() > MAX_LENGTH || BLOCK_KEYWORD.indexOf(message) > 0) {
+			return "わかんない";
+		}
+		ReplyMapping reply = new ReplyMapping();
+		reply.setMessage(message);
+		reply.setReplyMessage(replyUrl);
+		reply.setReplyType("Image");
+		reply.setCommitUserID(senderId);
+		replyRepository.save(reply);
+		return "わかった";
 	}
 
 }

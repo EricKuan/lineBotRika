@@ -51,7 +51,7 @@ public class MessageServiceImpl implements MessageService {
 	}
 
 	@Override
-	public String saveMessageMapping(String message, String replymessage) {
+	public String saveMessageMapping(String message, String replymessage, String userId) {
 		ReplyMapping reply = new ReplyMapping();
 		if (StringUtils.isEmpty(message) || StringUtils.isEmpty(replymessage) || message.length() > MAX_LENGTH
 				|| replymessage.length() > MAX_LENGTH || BLOCK_KEYWORD.indexOf(message) > 0) {
@@ -59,6 +59,7 @@ public class MessageServiceImpl implements MessageService {
 		}
 		reply.setMessage(message);
 		reply.setReplyMessage(replymessage);
+		reply.setCommitUserID(userId);
 		replyRepository.save(reply);
 		return "わかった";
 	}

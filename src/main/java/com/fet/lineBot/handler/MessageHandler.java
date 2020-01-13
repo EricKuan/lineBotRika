@@ -42,7 +42,7 @@ public class MessageHandler {
         if(0 == message.indexOf(SETTING_PREFIX)){
         	String[] split = message.split("看到");
         	String[] mapping = split[1].split("回");
-        	rtnMsg = messageService.saveMessageMapping(mapping[0], mapping[1], event.getMessage().getId());
+        	rtnMsg = messageService.saveMessageMapping(mapping[0], mapping[1], event.getSource().getSenderId());
         	return new TextMessage(rtnMsg);
         }
         

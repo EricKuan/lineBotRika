@@ -6,7 +6,7 @@ public interface MessageService {
 	
 	public String queryStickerResponse(String stickId);
 	
-	public String saveMessageMapping(String message, String replymessage, String userId);
+	public String saveMessageMapping(String message, String replymessage, String senderId);
 	
 	public String queryReplyMessage(String message);
 	

@@ -12,6 +12,7 @@ import org.springframework.util.StringUtils;
 import com.fet.lineBot.domain.dao.ReplyRepository;
 import com.fet.lineBot.domain.model.ReplyMapping;
 import com.fet.lineBot.service.MessageService;
+import com.google.gson.Gson;
 import com.linecorp.bot.model.message.ImageMessage;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
@@ -105,16 +106,8 @@ public class MessageServiceImpl implements MessageService {
 
 	@Override
 	public String listMessage() {
-		StringBuffer sb = new StringBuffer();
 		List<ReplyMapping> replyList = replyRepository.findAll();
-		for (ReplyMapping item : replyList) {
-			sb.append(item.getId() + ", ");
-			sb.append(item.getMessage() + ", ");
-			sb.append(item.getReplyMessage() + ", ");
-			sb.append(item.getCommitUserID() + "\n");
-		}
-
-		return sb.toString();
+		return new Gson().toJson(replyList);
 	}
 
 	@Override

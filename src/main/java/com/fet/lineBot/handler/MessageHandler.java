@@ -66,11 +66,6 @@ public class MessageHandler {
         	return new TextMessage(rtnMsg);
         }
         
-        if(0 == message.indexOf(ALL_KEYWORD)){
-        	rtnMsg = messageService.listMessage();
-        	return new TextMessage(rtnMsg);
-        }
-        
         
 //        rtnMsg = messageService.queryElectionData(message);
         rtnMsg = messageService.queryReplyMessage(message);

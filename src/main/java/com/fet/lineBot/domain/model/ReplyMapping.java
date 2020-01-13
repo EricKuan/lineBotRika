@@ -18,6 +18,8 @@ public class ReplyMapping {
 	private long id;
 	@Column(name = "MESSAGE")
 	private String message;
+	@Column(name = "REPLY_TYPE")
+	private String replyType;
 	@Column(name = "REPLY_MESSAGE")
 	private String replyMessage;
 	@Column(name = "COMMIT_USER_ID")

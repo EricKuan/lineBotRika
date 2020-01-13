@@ -20,5 +20,7 @@ public class ReplyMapping {
 	private String message;
 	@Column(name = "REPLY_MESSAGE")
 	private String replyMessage;
+	@Column(name = "COMMIT_USER_ID")
+	private String commitUserID;
 	
 }

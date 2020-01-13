@@ -25,13 +25,12 @@ public class MessageServiceImpl implements MessageService {
 	@Value("${rikaService.blockKeyWord}")
 	private String BLOCK_KEYWORD;
 
-	
 	@Autowired
 	ReplyRepository replyRepository;
-	
+
 	@Autowired
 	DataSource dataSource;
-	
+
 	@Override
 	public String queryElectionData(String message) {
 		String rtnMsg = "";
@@ -45,7 +44,7 @@ public class MessageServiceImpl implements MessageService {
 	@Override
 	public String queryStickerResponse(String stickId) {
 		String rtnMsg = "";
-		if(STICKER_ID.equalsIgnoreCase(stickId)) {
+		if (STICKER_ID.equalsIgnoreCase(stickId)) {
 			rtnMsg = "気持ちわるっ";
 		}
 		return rtnMsg;
@@ -54,9 +53,8 @@ public class MessageServiceImpl implements MessageService {
 	@Override
 	public String saveMessageMapping(String message, String replymessage) {
 		ReplyMapping reply = new ReplyMapping();
-		if(StringUtils.isEmpty(message) || StringUtils.isEmpty(replymessage) 
-				||message.length()>MAX_LENGTH 	|| replymessage.length()>MAX_LENGTH
-				|| BLOCK_KEYWORD.indexOf(message)>0 ) {
+		if (StringUtils.isEmpty(message) || StringUtils.isEmpty(replymessage) || message.length() > MAX_LENGTH
+				|| replymessage.length() > MAX_LENGTH || BLOCK_KEYWORD.indexOf(message) > 0) {
 			return "わかんない";
 		}
 		reply.setMessage(message);
@@ -69,10 +67,10 @@ public class MessageServiceImpl implements MessageService {
 	public String queryReplyMessage(String message) {
 		List<ReplyMapping> reply = replyRepository.findByMessage(message);
 		String replyMessage = "";
-		if(reply.size()>0) {
+		if (reply.size() > 0) {
 			replyMessage = reply.get(0).getReplyMessage();
 		}
-		
+
 		return replyMessage;
 	}
 
@@ -80,16 +78,30 @@ public class MessageServiceImpl implements MessageService {
 	public String deleteReplyMessage(String message) {
 		List<ReplyMapping> replyList = replyRepository.findByMessage(message);
 		String replyMessage = null;
-		if(replyList.size()>0) {
-			for(ReplyMapping item:replyList) {
+		if (replyList.size() > 0) {
+			for (ReplyMapping item : replyList) {
 				replyRepository.deleteById(Long.valueOf(item.getId()));
 			}
-			replyMessage =  "わかった";
-		}else {
-			replyMessage ="なに?"; 
+			replyMessage = "わかった";
+		} else {
+			replyMessage = "なに?";
 		}
 		return replyMessage;
-		
+
+	}
+
+	@Override
+	public String listMessage() {
+		StringBuffer sb = new StringBuffer();
+		List<ReplyMapping> replyList = replyRepository.findAll();
+		for (ReplyMapping item : replyList) {
+			sb.append(item.getId() + ", ");
+			sb.append(item.getMessage() + ", ");
+			sb.append(item.getReplyMessage() + ", ");
+			sb.append(item.getCommitUserID() + "\n");
+		}
+
+		return sb.toString();
 	}
 
 }

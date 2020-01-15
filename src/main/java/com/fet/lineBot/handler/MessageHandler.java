@@ -1,15 +1,22 @@
 package com.fet.lineBot.handler;
 
+import java.util.concurrent.ExecutionException;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.StringUtils;
 
 import com.fet.lineBot.service.ClampService;
 import com.fet.lineBot.service.MessageService;
+import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.StickerMessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
+import com.linecorp.bot.model.event.source.GroupSource;
+import com.linecorp.bot.model.event.source.RoomSource;
+import com.linecorp.bot.model.event.source.Source;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
@@ -18,10 +25,15 @@ import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 @LineMessageHandler
 public class MessageHandler {
 	
+	private static final Logger logger = LogManager.getLogger(MessageHandler.class);
+	
 	@Autowired
 	MessageService messageService;
 	@Autowired
 	ClampService clampService;
+	
+	@Autowired
+    private LineMessagingClient lineMessagingClient;
 	
 	@Value("${rikaService.helpKeyword}")
 	private String HELP_KEYWORD;
@@ -76,6 +88,23 @@ public class MessageHandler {
         	String[] mapping = split[1].split("回");
         	rtnMsg = messageService.saveImageMapping(mapping[0], mapping[1], event.getSource().getSenderId());
         	return new TextMessage(rtnMsg);
+        }
+        
+        if(0 == message.indexOf("bye")) {
+        	Source source = event.getSource();
+        	if (source instanceof GroupSource) {
+                try {
+					lineMessagingClient.leaveGroup(((GroupSource) source).getGroupId()).get();
+				} catch (InterruptedException | ExecutionException e) {
+					logger.error(e);
+				}
+            } else if (source instanceof RoomSource) {
+                try {
+					lineMessagingClient.leaveRoom(((RoomSource) source).getRoomId()).get();
+				} catch (InterruptedException | ExecutionException e) {
+					logger.error(e);
+				}
+            }
         }
         
 //        rtnMsg = messageService.queryElectionData(message);

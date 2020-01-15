@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import static java.util.Collections.singletonList;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,7 +141,9 @@ public class MessageHandler {
 		System.out.println("event: " + event);
 		String stickId = event.getMessage().getStickerId();
 		String rtnMsg = messageService.queryStickerResponse(stickId);
-		reply(event.getReplyToken(), new TextMessage(rtnMsg));
+		if(StringUtils.isNotBlank(rtnMsg)) {
+			reply(event.getReplyToken(), new TextMessage(rtnMsg));
+		}
 		return;
 	}
 

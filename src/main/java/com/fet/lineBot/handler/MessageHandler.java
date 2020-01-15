@@ -95,12 +95,14 @@ public class MessageHandler {
         	if (source instanceof GroupSource) {
                 try {
 					lineMessagingClient.leaveGroup(((GroupSource) source).getGroupId()).get();
+					return null;
 				} catch (InterruptedException | ExecutionException e) {
 					logger.error(e);
 				}
             } else if (source instanceof RoomSource) {
                 try {
 					lineMessagingClient.leaveRoom(((RoomSource) source).getRoomId()).get();
+					return null;
 				} catch (InterruptedException | ExecutionException e) {
 					logger.error(e);
 				}

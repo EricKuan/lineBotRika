@@ -122,7 +122,10 @@ public class MessageHandler {
 			}
 		}
 
-		reply(event.getReplyToken(), messageService.queryReplyMessage(message));
+		Message rtnMsgObj = messageService.queryReplyMessage(message);
+		if(rtnMsgObj!=null) {
+			reply(event.getReplyToken(), messageService.queryReplyMessage(message));
+		}
 		return;
 
 	}

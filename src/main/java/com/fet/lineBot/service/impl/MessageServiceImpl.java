@@ -1,9 +1,13 @@
 package com.fet.lineBot.service.impl;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,8 @@ import com.linecorp.bot.model.message.TextMessage;
 @Service
 public class MessageServiceImpl implements MessageService {
 
+	private static final Logger logger = LogManager.getLogger(MessageService.class);
+	
 	@Value("${rikaService.messagePrefix}")
 	private String MESSAGE_PREFIX;
 	@Value("${rikaService.stickerId}")
@@ -82,7 +88,13 @@ public class MessageServiceImpl implements MessageService {
 			}
 			
 			if("Image".equalsIgnoreCase(replyMessage.getReplyType())) {
-				rtnMsg = new  ImageMessage(replyMessage.getReplyMessage(), replyMessage.getReplyMessage());
+				try {
+					rtnMsg = new  ImageMessage(new URI(replyMessage.getReplyMessage()), new URI(replyMessage.getReplyMessage()));
+				} catch (URISyntaxException e) {
+					logger.error(e);
+					return new TextMessage("錯誤");
+				}
+				
 				return rtnMsg;
 			}
 		}

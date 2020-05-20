@@ -33,7 +33,7 @@ rikaService:
  messageMaxLength: 200
  vote: "六花回報計票"
  helpKeyword: "六花使用說明"
- blockKeyWord: "小粉紅,粉紅,課長,粉紅課長"
+ blockKeyWord: {$blockWord}
  listAllKeyWord: "六花請列出關鍵字"
  imageKeyWord: "六花請回圖看到"
  

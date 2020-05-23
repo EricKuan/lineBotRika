@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "LINE_BOT_REPLY_MAPPING")
+@Table(name = "MEMBER")
 @Data
 public class MemberData {
 

@@ -53,3 +53,9 @@ spring:
       non_contextual_creation: true
     hbm2ddl:
      auto: update
+ thymeleaf:
+  prefix: classpath:/templates
+  suffix: .html
+  mode: HTML5
+  encoding: UTF-8
+  cache: false

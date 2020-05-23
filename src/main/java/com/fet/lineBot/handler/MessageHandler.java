@@ -152,7 +152,6 @@ public class MessageHandler {
 				expiraD.add(Calendar.MONTH, 1);
 				member.setExpirationDate(expiraD.getTime());
 				member.setLineName(userProfileResponse.getDisplayName());
-				member.setLineId(userProfileResponse.getUserId());
 				memberDataRepo.save(member);
 				message = "好喔～已幫您加入會員";
 			}

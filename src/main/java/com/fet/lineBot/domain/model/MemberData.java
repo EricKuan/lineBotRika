@@ -21,8 +21,6 @@ public class MemberData {
 	private long id;
 	@Column(name = "USER_ID")
 	private String userId;
-	@Column(name = "LINE_ID")
-	private String lineId;
 	@Column(name = "LINE_NAME")
 	private String lineName;
 	@Column(name = "EXPIRATION_DATE")

@@ -7,12 +7,12 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <body> 
 <h1 th:inline="text">玻璃的另一側</h1> 
 <p th:text="${hello}"></p> 
-<a href="${linkBack}" >往前一話</a>
+<a th:href="${linkBack}" >往前一話</a>
 <table border="1">
 	<tr th:each="m : ${imgList}">
 		<td ><img th:src="${m}"></td>
 	</tr>
 </table>
-<a href="${linkForward}" >往下一話</a>
+<a th:href="${linkForward}" >往下一話</a>
 </body> 
 </html> 

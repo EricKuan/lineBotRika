@@ -2,16 +2,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" 
 xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"> 
 <head> 
-<title>Hello World!</title> 
+<title>玻璃的另一側</title> 
 </head> 
 <body> 
-<h1 th:inline="text">Hello.v.2</h1> 
+<h1 th:inline="text">玻璃的另一側</h1> 
 <p th:text="${hello}"></p> 
-
+<a href="${linkBack}" >往前一話</a>
 <table border="1">
 	<tr th:each="m : ${imgList}">
 		<td ><img th:src="${m}"></td>
 	</tr>
 </table>
+<a href="${linkForward}" >往下一話</a>
 </body> 
 </html> 

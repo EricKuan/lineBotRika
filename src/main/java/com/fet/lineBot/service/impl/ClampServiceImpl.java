@@ -8,8 +8,11 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fet.lineBot.domain.dao.MangaDataRepository;
+import com.fet.lineBot.domain.model.MangaData;
 import com.fet.lineBot.service.ClampService;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -23,6 +26,9 @@ public class ClampServiceImpl implements ClampService {
 
 	private static final Logger logger = LogManager.getLogger(ClampServiceImpl.class);
 
+	@Autowired
+	MangaDataRepository mangaDataRepository;
+	
 	@Override
 	public String queryVoteResult() {
 		String rtnMsg = "";
@@ -190,9 +196,23 @@ public class ClampServiceImpl implements ClampService {
 		String baseUrl = "https://manmankan.cc/manhua/41287/";
 		List<String> pictureUrl =null ;
 		try {
-			List<String> chapterList =  getTopics(baseUrl);
+			List<MangaData> mangaList = mangaDataRepository.findByMangaIdAndChapterNo(1, storyNum);
+			if(mangaList.size()<1) {
+				List<String> chapterList =  getTopics(baseUrl);
+				pictureUrl = getPicturs(chapterList.get(storyNum));
+				mangaList = new ArrayList<MangaData>();
+				for(int i=0;i<pictureUrl.size();i++) {
+					MangaData mangaData = new MangaData();
+					mangaData.setChapterNo(storyNum);
+					mangaData.setPictureNo(i);
+					mangaData.setMangaId(1);
+					mangaDataRepository.save(mangaData);
+				}
+				return pictureUrl;
+			}
 			
-			pictureUrl = getPicturs(chapterList.get(storyNum));
+			pictureUrl = mangaList.stream().map(MangaData::getUrl).collect(Collectors.toList());
+			
 			
 		} catch (Exception e) {
 			e.printStackTrace();

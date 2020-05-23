@@ -22,8 +22,8 @@ public class TemplateController {
 		imgList = clampService.queryAnotherSide(storyNum); 
 		
 		map.put("imgList", imgList);
-		map.put("linkBack","https://linebotrika.herokuapp.com/hello/" + (storyNum-1));
-		map.put("linkForward","https://linebotrika.herokuapp.com/hello/" + (storyNum+1));
+		map.put("linkBack","https://linebotrika.herokuapp.com/hello/" + (storyNum+1));
+		map.put("linkForward","https://linebotrika.herokuapp.com/hello/" + (storyNum-1));
 		return "/hello";
 
 	}

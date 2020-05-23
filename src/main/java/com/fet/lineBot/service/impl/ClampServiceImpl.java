@@ -205,11 +205,11 @@ public class ClampServiceImpl implements ClampService {
 		WebClient webClient = getWebClient();
 		HtmlPage htmlPage = webClient
 				.getPage(baseUrl);
-		webClient.waitForBackgroundJavaScript(2000);
+		webClient.waitForBackgroundJavaScript(200);
 
-		logger.info(htmlPage.getElementById("mh-chapter-list-ol-0").asXml());
+//		logger.info(htmlPage.getElementById("mh-chapter-list-ol-0").asXml());
 		List<DomElement> aList = htmlPage.getByXPath("//ul[@id='mh-chapter-list-ol-0']/li/a");
-		logger.info(aList.get(0).getAttribute("href"));
+//		logger.info(aList.get(0).getAttribute("href"));
 		List<String> urlList = aList.stream().map(element -> "https://manmankan.cc" + element.getAttribute("href")).collect(Collectors.toList());
 		
 		webClient.close();
@@ -223,7 +223,7 @@ public class ClampServiceImpl implements ClampService {
 		HtmlPage htmlPage = webClient
 				.getPage(url + "#@page=" + i);
 			webClient.waitForBackgroundJavaScript(200);
-			logger.info("IMGUel" +  htmlPage.getElementByName("page_1").getAttribute("src"));
+//			logger.info("IMGUel" +  htmlPage.getElementByName("page_1").getAttribute("src"));
 			String imgUrl = htmlPage.getElementByName("page_1").getAttribute("src");
 			if(imgUrl.contains("undefined")) {
 				break;

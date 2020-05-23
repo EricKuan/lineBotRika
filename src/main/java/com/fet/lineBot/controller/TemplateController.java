@@ -15,7 +15,7 @@ public class TemplateController {
 		List<String> imgList  = new ArrayList<String>();
 		imgList.add("https://i.imgur.com/AtgGAta.jpg");
 		imgList.add("https://i.imgur.com/U69o62H.jpg");
-		map.put("imageList", imgList);
+		map.put("imgList", imgList);
 		return "/hello";
 		
 	}

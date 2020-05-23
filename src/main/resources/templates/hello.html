@@ -9,7 +9,7 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <p th:text="${hello}"></p> 
 
 <table border="1">
-	<tr th:each="m : ${imgList}"><!-- 其中m是個臨時變數，像for(User u : userList)那樣中的u-->
+	<tr th:each="m : ${imgList}">
 		<td ><img th:src="${m}"></td>
 	</tr>
 </table>

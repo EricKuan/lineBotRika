@@ -145,7 +145,8 @@ public class MessageHandler {
 				memberDataRepo.save(member);
 				message = "好喔～已幫您加入會員";
 			}
-			reply(event.getReplyToken(), messageService.queryReplyMessage(message));
+			reply(event.getReplyToken(), new TextMessage(message));
+			return;
 		}
 		
 		if("六花我的會員還有多久".equalsIgnoreCase(message)) {
@@ -157,7 +158,8 @@ public class MessageHandler {
 			}else {
 				message = "您還不是會員喔";
 			}
-			reply(event.getReplyToken(), messageService.queryReplyMessage(message));
+			reply(event.getReplyToken(), new TextMessage(message));
+			return;
 		}
 		
 		Message rtnMsgObj = messageService.queryReplyMessage(message);

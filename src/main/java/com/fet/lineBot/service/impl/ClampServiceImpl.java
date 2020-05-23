@@ -206,6 +206,7 @@ public class ClampServiceImpl implements ClampService {
 					mangaData.setChapterNo(storyNum);
 					mangaData.setPictureNo(i);
 					mangaData.setMangaId(1);
+					mangaData.setUrl(pictureUrl.get(i));
 					mangaDataRepository.save(mangaData);
 				}
 				return pictureUrl;

@@ -162,6 +162,19 @@ public class MessageHandler {
 			return;
 		}
 		
+		if("六花我要取消會員".equalsIgnoreCase(message)) {
+			String userId = event.getSource().getUserId();
+			Optional<MemberData> memberOpt = Optional.ofNullable(memberDataRepo.findByUserId(userId));
+			if(memberOpt.isPresent()) {
+				memberDataRepo.delete(memberOpt.get());
+				message = "已取消您的會員";
+			}else {
+				message = "您還不是會員喔";
+			}
+			reply(event.getReplyToken(), new TextMessage(message));
+			return;
+		}
+		
 		Message rtnMsgObj = messageService.queryReplyMessage(message);
 		if(rtnMsgObj!=null) {
 			reply(event.getReplyToken(), messageService.queryReplyMessage(message));

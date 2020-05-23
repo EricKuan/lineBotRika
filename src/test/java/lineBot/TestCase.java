@@ -1,19 +1,11 @@
 package lineBot;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
+import java.util.List;
 
-import com.fet.lineBot.Application;
-import com.fet.lineBot.service.ClampService;
+import org.junit.Test;
+
 import com.fet.lineBot.service.impl.ClampServiceImpl;
+import com.google.gson.Gson;
 
 
 //@RunWith(SpringJUnit4ClassRunner.class)
@@ -29,4 +21,10 @@ public class TestCase {
 		System.out.println(msg);
 	}
 
+	@Test
+	public void test02() {
+		ClampServiceImpl service = new ClampServiceImpl();
+		List<String> urlList = service.queryAnotherSide(1);
+		System.out.println(new Gson().toJson(urlList));
+	}
 }

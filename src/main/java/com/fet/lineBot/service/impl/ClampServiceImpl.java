@@ -1,6 +1,10 @@
 package com.fet.lineBot.service.impl;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,10 +13,10 @@ import org.springframework.stereotype.Service;
 import com.fet.lineBot.service.ClampService;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
-import com.google.gson.Gson;
 
 @Service
 public class ClampServiceImpl implements ClampService {
@@ -182,4 +186,81 @@ public class ClampServiceImpl implements ClampService {
 		return rtnMsg;
 	}
 
+	public List<String> queryAnotherSide(int storyNum) {
+		String baseUrl = "https://manmankan.cc/manhua/41287/";
+		List<String> pictureUrl =null ;
+		try {
+			List<String> chapterList =  getTopics(baseUrl);
+			
+			pictureUrl = getPicturs(chapterList.get(storyNum));
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return pictureUrl;
+	}
+
+	private List<String> getTopics(String baseUrl) throws IOException, MalformedURLException {
+		WebClient webClient = getWebClient();
+		HtmlPage htmlPage = webClient
+				.getPage(baseUrl);
+		webClient.waitForBackgroundJavaScript(2000);
+
+		logger.info(htmlPage.getElementById("mh-chapter-list-ol-0").asXml());
+		List<DomElement> aList = htmlPage.getByXPath("//ul[@id='mh-chapter-list-ol-0']/li/a");
+		logger.info(aList.get(0).getAttribute("href"));
+		List<String> urlList = aList.stream().map(element -> "https://manmankan.cc" + element.getAttribute("href")).collect(Collectors.toList());
+		
+		webClient.close();
+		return urlList;
+	}
+	
+	private List<String> getPicturs(String url) throws IOException, MalformedURLException {
+		WebClient webClient = getJSWebClient();
+		List<String> imageUrl = new ArrayList<String>();
+		for(int i=1;i<30;i++) {
+		HtmlPage htmlPage = webClient
+				.getPage(url + "#@page=" + i);
+			webClient.waitForBackgroundJavaScript(200);
+			logger.info("IMGUel" +  htmlPage.getElementByName("page_1").getAttribute("src"));
+			String imgUrl = htmlPage.getElementByName("page_1").getAttribute("src");
+			if(imgUrl.contains("undefined")) {
+				break;
+			}
+			imageUrl.add(imgUrl);
+		}
+		webClient.close();
+		return imageUrl;
+	}
+
+
+	private WebClient getWebClient() {
+		WebClient webClient = new WebClient();
+		webClient.getOptions().setUseInsecureSSL(true);
+		webClient.getOptions().setJavaScriptEnabled(false);
+		webClient.getOptions().setCssEnabled(false);
+		webClient.getOptions().setRedirectEnabled(false);
+		webClient.getOptions().setThrowExceptionOnScriptError(false);
+		webClient.getOptions().setTimeout(10000);
+		webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
+		webClient.getOptions().setDoNotTrackEnabled(true);
+		webClient.setAjaxController(new NicelyResynchronizingAjaxController());
+		return webClient;
+	}
+	
+	private WebClient getJSWebClient() {
+		WebClient webClient = new WebClient();
+		webClient.getOptions().setUseInsecureSSL(true);
+		webClient.getOptions().setJavaScriptEnabled(true);
+		webClient.getOptions().setCssEnabled(false);
+		webClient.getOptions().setRedirectEnabled(false);
+		webClient.getOptions().setThrowExceptionOnScriptError(false);
+		webClient.getOptions().setTimeout(10000);
+		webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
+		webClient.getOptions().setDoNotTrackEnabled(true);
+		webClient.setAjaxController(new NicelyResynchronizingAjaxController());
+		return webClient;
+	}
+	
 }

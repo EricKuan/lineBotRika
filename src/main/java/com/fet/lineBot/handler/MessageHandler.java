@@ -29,6 +29,7 @@ import com.linecorp.bot.model.event.source.RoomSource;
 import com.linecorp.bot.model.event.source.Source;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
+import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
@@ -137,11 +138,21 @@ public class MessageHandler {
 			if (memberOpt.isPresent()) {
 				message = "您已是會員";
 			} else {
+				final UserProfileResponse userProfileResponse;
+				try {
+					userProfileResponse = lineMessagingClient.getProfile(userId).get();
+				} catch (Exception e) {
+					logger.error(e);
+					reply(event.getReplyToken(), new TextMessage("取得您的資料發生問題，請洽 line"));
+					return;
+				}
 				MemberData member = new MemberData();
 				member.setUserId(event.getSource().getUserId());
 				Calendar expiraD = Calendar.getInstance();
 				expiraD.add(Calendar.MONTH, 1);
 				member.setExpirationDate(expiraD.getTime());
+				member.setLineName(userProfileResponse.getDisplayName());
+				member.setLineId(userProfileResponse.getUserId());
 				memberDataRepo.save(member);
 				message = "好喔～已幫您加入會員";
 			}

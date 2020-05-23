@@ -1,8 +1,12 @@
 package com.fet.lineBot.handler;
 
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 import static java.util.Collections.singletonList;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -10,6 +14,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.fet.lineBot.domain.dao.MemberDataRepository;
+import com.fet.lineBot.domain.model.MemberData;
 import com.fet.lineBot.service.ClampService;
 import com.fet.lineBot.service.MessageService;
 import com.linecorp.bot.client.LineMessagingClient;
@@ -38,6 +44,8 @@ public class MessageHandler {
 	MessageService messageService;
 	@Autowired
 	ClampService clampService;
+	@Autowired
+	MemberDataRepository memberDataRepo;
 
 	@Autowired
 	private LineMessagingClient lineMessagingClient;
@@ -123,6 +131,33 @@ public class MessageHandler {
 			}
 		}
 
+		if ("六花我要加入會員".equalsIgnoreCase(message)) {
+			String userId = event.getSource().getUserId();
+			Optional<MemberData> memberOpt = Optional.ofNullable(memberDataRepo.findByUserId(userId));
+			if (memberOpt.isPresent()) {
+				message = "您已是會員";
+			} else {
+				MemberData member = new MemberData();
+				member.setUserId(event.getSource().getUserId());
+				Calendar expiraD = Calendar.getInstance();
+				expiraD.add(Calendar.MONTH, 1);
+				member.setExpirationDate(expiraD.getTime());
+				memberDataRepo.save(member);
+				message = "好喔～已幫您加入會員";
+			}
+		}
+		
+		if("六花我的會員還有多久".equalsIgnoreCase(message)) {
+			String userId = event.getSource().getUserId();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+			Optional<MemberData> memberOpt = Optional.ofNullable(memberDataRepo.findByUserId(userId));
+			if(memberOpt.isPresent()) {
+				message = "您的會員到" + sdf.format(memberOpt.get().getExpirationDate());
+			}else {
+				message = "您還不是會員喔";
+			}
+		}
+		
 		Message rtnMsgObj = messageService.queryReplyMessage(message);
 		if(rtnMsgObj!=null) {
 			reply(event.getReplyToken(), messageService.queryReplyMessage(message));

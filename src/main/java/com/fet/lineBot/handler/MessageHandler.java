@@ -58,6 +58,8 @@ public class MessageHandler {
 	private String ALL_KEYWORD;
 	@Value("${rikaService.imageKeyWord}")
 	private String IMAGE_KEYWORD;
+	@Value("${rikaService.fbNewestPost}")
+	private String FB_KEYWORD;
 
 	@EventMapping
 	public void handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
@@ -127,7 +129,11 @@ public class MessageHandler {
 			}
 		}
 
-		
+		if(0==message.indexOf(FB_KEYWORD)) {
+			String url = clampService.queryFBNewestPost();
+			reply(event.getReplyToken(), new TextMessage("FB 最新一篇貼文\n" + url));
+			return;
+		}
 		
 		Message rtnMsgObj = messageService.queryReplyMessage(message);
 		if(rtnMsgObj!=null) {

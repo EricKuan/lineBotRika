@@ -36,6 +36,7 @@ rikaService:
  blockKeyWord: ${blockWord}
  listAllKeyWord: ${listAllKeyWord}
  imageKeyWord: ${imageKeyWord}
+ fbNewestPost: ${fbNewestPost}
  
 spring:
  datasource:

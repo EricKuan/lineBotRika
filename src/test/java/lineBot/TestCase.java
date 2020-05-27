@@ -27,4 +27,11 @@ public class TestCase {
 		List<String> urlList = service.queryAnotherSide(1);
 		System.out.println(new Gson().toJson(urlList));
 	}
+	
+	@Test
+	public void test03() {
+		ClampServiceImpl service = new ClampServiceImpl();
+		String urlList = service.queryFBNewestPost();
+		System.out.println(new Gson().toJson(urlList));
+	}
 }

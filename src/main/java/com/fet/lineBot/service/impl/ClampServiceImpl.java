@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.fet.lineBot.domain.dao.MangaDataRepository;
 import com.fet.lineBot.domain.model.MangaData;
 import com.fet.lineBot.service.ClampService;
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
@@ -282,6 +283,40 @@ public class ClampServiceImpl implements ClampService {
 		webClient.getOptions().setDoNotTrackEnabled(true);
 		webClient.setAjaxController(new NicelyResynchronizingAjaxController());
 		return webClient;
+	}
+
+	@Override
+	public String queryFBNewestPost() {
+		String url = "https://www.facebook.com/Wishswing/";
+		WebClient webClient = getJSWebClient();
+		String rtnUrl = null;
+		try {
+			HtmlPage htmlPage = webClient	.getPage(url);
+			webClient.waitForBackgroundJavaScript(200);
+			List<DomElement> aList = htmlPage.getByXPath("//a[@class='see_more_link']");
+			long postNum = 0;
+			for(DomElement element:aList) {
+//				logger.info(element.asXml());
+				logger.info(element.getAttribute("href").toString());
+				String[] split = element.getAttribute("href").toString().split("/");
+				String num = split[split.length-1];
+				long checkPostNum = Long.valueOf(num);
+				if(checkPostNum>postNum) {
+					postNum = checkPostNum;
+				}
+			}
+			rtnUrl = "https://www.facebook.com/Wishswing/posts/" + postNum;
+		} catch (FailingHttpStatusCodeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return rtnUrl ;
 	}
 	
 }

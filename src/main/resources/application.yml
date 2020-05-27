@@ -28,14 +28,14 @@ line.bot:
 rikaService:
  stickerId: 99024854
  messagePrefix: call
- settingPrefix: "六花請記住,看到"
- deletePrefix: "六花請忘記"
+ settingPrefix: ${settingPrefix}
+ deletePrefix: ${deletePrefix}
  messageMaxLength: 200
- vote: "六花回報計票"
- helpKeyword: "六花使用說明"
+ vote: ${vote} 
+ helpKeyword: ${helpKeyword}
  blockKeyWord: ${blockWord}
- listAllKeyWord: "六花請列出關鍵字"
- imageKeyWord: "六花請回圖看到"
+ listAllKeyWord: ${listAllKeyWord}
+ imageKeyWord: ${imageKeyWord}
  
 spring:
  datasource:

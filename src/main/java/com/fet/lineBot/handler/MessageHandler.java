@@ -71,14 +71,13 @@ public class MessageHandler {
 		String message = event.getMessage().getText();
 		String rtnMsg;
 		/* 設定內容 */
-		if (0 == message.indexOf(SETTING_PREFIX)) {
+		if (0 == message.indexOf(SETTING_PREFIX) && event.getSource() instanceof UserSource) {
 			String[] split = message.split("看到");
 			String[] mapping = split[1].split("回");
-			if(event.getSource() instanceof UserSource) {
-			  rtnMsg = messageService.saveMessageMapping(mapping[0], mapping[1], event.getSource().getSenderId());
-			  reply(event.getReplyToken(), new TextMessage(rtnMsg));
-	        }
-			return;
+
+			rtnMsg = messageService.saveMessageMapping(mapping[0], mapping[1], event.getSource().getSenderId());
+			reply(event.getReplyToken(), new TextMessage(rtnMsg));
+	        return;
 		}
 
 		if (0 == message.indexOf(DELETE_PREFIX)) {
@@ -105,7 +104,7 @@ public class MessageHandler {
 			return;
 		}
 
-		if (0 == message.indexOf(IMAGE_KEYWORD)) {
+		if (0 == message.indexOf(IMAGE_KEYWORD) && event.getSource() instanceof UserSource) {
 			String[] split = message.split("看到");
 			String[] mapping = split[1].split("回");
 			rtnMsg = messageService.saveImageMapping(mapping[0], mapping[1], event.getSource().getSenderId());

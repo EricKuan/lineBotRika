@@ -37,6 +37,7 @@ rikaService:
  listAllKeyWord: ${listAllKeyWord}
  imageKeyWord: ${imageKeyWord}
  fbNewestPost: ${fbNewestPost}
+ waitForjsTime: ${waitForjsTime}
  
 spring:
  datasource:

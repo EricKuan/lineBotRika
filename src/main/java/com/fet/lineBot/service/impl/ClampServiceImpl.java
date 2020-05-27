@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fet.lineBot.domain.dao.MangaDataRepository;
@@ -30,6 +31,9 @@ public class ClampServiceImpl implements ClampService {
 	@Autowired
 	MangaDataRepository mangaDataRepository;
 	
+	@Value("${rikaService.waitForjsTime}")
+	private long JS_TIME;
+	
 	@Override
 	public String queryVoteResult() {
 		String rtnMsg = "";
@@ -46,7 +50,7 @@ public class ClampServiceImpl implements ClampService {
 			webClient.setAjaxController(new NicelyResynchronizingAjaxController());
 			HtmlPage htmlPage = webClient
 					.getPage("https://www.cec.gov.tw/pc/zh_TW/P1/n00000000000000000.html");
-			webClient.waitForBackgroundJavaScript(200);
+			webClient.waitForBackgroundJavaScript(JS_TIME);
 
 //			logger.info(htmlPage.asXml());
 			HtmlElement elements = htmlPage.getDocumentElement();
@@ -152,7 +156,7 @@ public class ClampServiceImpl implements ClampService {
 			// }
 			htmlPage = webClient
 					.getPage("https://www.cec.gov.tw/pc/zh_TW/L4/n00000000000000000.html");
-			webClient.waitForBackgroundJavaScript(200);
+			webClient.waitForBackgroundJavaScript(JS_TIME);
 			elementList = htmlPage.getByXPath( "//tr[@class='trT']");
 //			for(HtmlTableRow row: elementList) {
 //				logger.info(row.getCell(0).asText());
@@ -227,7 +231,7 @@ public class ClampServiceImpl implements ClampService {
 		WebClient webClient = getWebClient();
 		HtmlPage htmlPage = webClient
 				.getPage(baseUrl);
-		webClient.waitForBackgroundJavaScript(200);
+		webClient.waitForBackgroundJavaScript(JS_TIME);
 
 //		logger.info(htmlPage.getElementById("mh-chapter-list-ol-0").asXml());
 		List<DomElement> aList = htmlPage.getByXPath("//ul[@id='mh-chapter-list-ol-0']/li/a");
@@ -244,7 +248,7 @@ public class ClampServiceImpl implements ClampService {
 		for(int i=1;i<30;i++) {
 		HtmlPage htmlPage = webClient
 				.getPage(url + "#@page=" + i);
-			webClient.waitForBackgroundJavaScript(200);
+			webClient.waitForBackgroundJavaScript(JS_TIME);
 //			logger.info("IMGUel" +  htmlPage.getElementByName("page_1").getAttribute("src"));
 			String imgUrl = htmlPage.getElementByName("page_1").getAttribute("src");
 			if(imgUrl.contains("undefined")) {
@@ -292,7 +296,7 @@ public class ClampServiceImpl implements ClampService {
 		String rtnUrl = null;
 		try {
 			HtmlPage htmlPage = webClient	.getPage(url);
-			webClient.waitForBackgroundJavaScript(200);
+			webClient.waitForBackgroundJavaScript(JS_TIME);
 			List<DomElement> aList = htmlPage.getByXPath("//a[@class='see_more_link']");
 			long postNum = 0;
 			for(DomElement element:aList) {

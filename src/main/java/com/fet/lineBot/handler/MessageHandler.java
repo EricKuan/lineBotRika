@@ -16,6 +16,7 @@ import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.JoinEvent;
+import com.linecorp.bot.model.event.MemberJoinedEvent;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.StickerMessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
@@ -171,15 +172,15 @@ public class MessageHandler {
 	}
 
   @EventMapping
-  public void handleJoinEvent(JoinEvent event) {
+  public void handleJoinEvent(MemberJoinedEvent event) {
     logger.info("event: " + new Gson().toJson(event));
-
+    if(event.getSource() instanceof GroupSource) {
       GroupSource group = (GroupSource)event.getSource();
         String rtnMsg = "歡迎來到露露教，信露露得SSR\n 每日更新現實與童話的距離\nhttps://zh-tw.facebook.com/Wishswing";
         logger.info(event.getReplyToken());
         logger.info(rtnMsg);
         reply(event.getReplyToken(), new TextMessage(rtnMsg));
-
+    }
     
   }
 

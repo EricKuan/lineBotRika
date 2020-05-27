@@ -177,6 +177,8 @@ public class MessageHandler {
 //      GroupSource group = (GroupSource)event.getSource();
 //      if("Cedfd99b56918652ea9fa037057f3b41d".equals(group.getGroupId())) {
         String rtnMsg = "歡迎來到露露教，信露露得SSR\n 每日更新現實與童話的距離\nhttps://zh-tw.facebook.com/Wishswing";
+        logger.info(event.getReplyToken());
+        logger.info(rtnMsg);
         reply(event.getReplyToken(), new TextMessage(rtnMsg));
 //      }
     }

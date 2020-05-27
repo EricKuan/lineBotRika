@@ -27,6 +27,7 @@ import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.event.source.GroupSource;
 import com.linecorp.bot.model.event.source.RoomSource;
 import com.linecorp.bot.model.event.source.Source;
+import com.linecorp.bot.model.event.source.UserSource;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.profile.UserProfileResponse;
@@ -73,8 +74,10 @@ public class MessageHandler {
 		if (0 == message.indexOf(SETTING_PREFIX)) {
 			String[] split = message.split("看到");
 			String[] mapping = split[1].split("回");
-			rtnMsg = messageService.saveMessageMapping(mapping[0], mapping[1], event.getSource().getSenderId());
-			reply(event.getReplyToken(), new TextMessage(rtnMsg));
+			if(event.getSource() instanceof UserSource) {
+			  rtnMsg = messageService.saveMessageMapping(mapping[0], mapping[1], event.getSource().getSenderId());
+			  reply(event.getReplyToken(), new TextMessage(rtnMsg));
+	        }
 			return;
 		}
 
@@ -132,58 +135,7 @@ public class MessageHandler {
 			}
 		}
 
-		if ("六花我要加入會員".equalsIgnoreCase(message)) {
-			String userId = event.getSource().getUserId();
-			Optional<MemberData> memberOpt = Optional.ofNullable(memberDataRepo.findByUserId(userId));
-			if (memberOpt.isPresent()) {
-				message = "您已是會員";
-			} else {
-				final UserProfileResponse userProfileResponse;
-				try {
-					userProfileResponse = lineMessagingClient.getProfile(userId).get();
-				} catch (Exception e) {
-					logger.error(e);
-					reply(event.getReplyToken(), new TextMessage("取得您的資料發生問題，請洽 line"));
-					return;
-				}
-				MemberData member = new MemberData();
-				member.setUserId(event.getSource().getUserId());
-				Calendar expiraD = Calendar.getInstance();
-				expiraD.add(Calendar.MONTH, 1);
-				member.setExpirationDate(expiraD.getTime());
-				member.setLineName(userProfileResponse.getDisplayName());
-				memberDataRepo.save(member);
-				message = "好喔～已幫您加入會員";
-			}
-			reply(event.getReplyToken(), new TextMessage(message));
-			return;
-		}
 		
-		if("六花我的會員還有多久".equalsIgnoreCase(message)) {
-			String userId = event.getSource().getUserId();
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-			Optional<MemberData> memberOpt = Optional.ofNullable(memberDataRepo.findByUserId(userId));
-			if(memberOpt.isPresent()) {
-				message = "您的會員到" + sdf.format(memberOpt.get().getExpirationDate());
-			}else {
-				message = "您還不是會員喔";
-			}
-			reply(event.getReplyToken(), new TextMessage(message));
-			return;
-		}
-		
-		if("六花我要取消會員".equalsIgnoreCase(message)) {
-			String userId = event.getSource().getUserId();
-			Optional<MemberData> memberOpt = Optional.ofNullable(memberDataRepo.findByUserId(userId));
-			if(memberOpt.isPresent()) {
-				memberDataRepo.delete(memberOpt.get());
-				message = "已取消您的會員";
-			}else {
-				message = "您還不是會員喔";
-			}
-			reply(event.getReplyToken(), new TextMessage(message));
-			return;
-		}
 		
 		Message rtnMsgObj = messageService.queryReplyMessage(message);
 		if(rtnMsgObj!=null) {

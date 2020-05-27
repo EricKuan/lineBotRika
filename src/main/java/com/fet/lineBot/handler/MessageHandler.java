@@ -1,26 +1,21 @@
 package com.fet.lineBot.handler;
 
 import static java.util.Collections.singletonList;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
 import com.fet.lineBot.domain.dao.MemberDataRepository;
-import com.fet.lineBot.domain.model.MemberData;
 import com.fet.lineBot.service.ClampService;
 import com.fet.lineBot.service.MessageService;
+import com.google.gson.Gson;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.event.Event;
+import com.linecorp.bot.model.event.JoinEvent;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.StickerMessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
@@ -30,11 +25,9 @@ import com.linecorp.bot.model.event.source.Source;
 import com.linecorp.bot.model.event.source.UserSource;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
-import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
-
 import lombok.NonNull;
 
 @LineMessageHandler
@@ -67,7 +60,7 @@ public class MessageHandler {
 
 	@EventMapping
 	public void handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
-		logger.info("event: " + event);
+	  logger.info("event: " + new Gson().toJson(event));
 		String message = event.getMessage().getText();
 		String rtnMsg;
 		/* 設定內容 */
@@ -176,5 +169,17 @@ public class MessageHandler {
 			throw new RuntimeException(e);
 		}
 	}
+
+  @EventMapping
+  public void handleJoinEvent(JoinEvent event) {
+    logger.info("event: " + new Gson().toJson(event));
+    if(event.getSource() instanceof GroupSource ) {
+      GroupSource group = (GroupSource)event.getSource();
+      if("Cedfd99b56918652ea9fa037057f3b41d".equals(group.getGroupId())) {
+        String rtnMsg = "歡迎來到露露教，信露露得SSR\n 每日更新現實與童話的距離\nhttps://zh-tw.facebook.com/Wishswing";
+        reply(event.getReplyToken(), new TextMessage(rtnMsg));
+      }
+    }
+  }
 
 }

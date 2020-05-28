@@ -303,7 +303,8 @@ public class ClampServiceImpl implements ClampService {
 //				logger.info(element.asXml());
 				logger.info(element.getAttribute("href").toString());
 				String[] split = element.getAttribute("href").toString().split("/");
-				String num = split[split.length-1];
+				String num = split[split.length-1].split(":")[0];
+				logger.info(num);
 				long checkPostNum = Long.valueOf(num);
 				if(checkPostNum>postNum) {
 					postNum = checkPostNum;

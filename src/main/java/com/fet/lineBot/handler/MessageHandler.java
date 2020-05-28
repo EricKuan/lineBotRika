@@ -1,6 +1,9 @@
 package com.fet.lineBot.handler;
 
 import static java.util.Collections.singletonList;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.StringUtils;
@@ -11,9 +14,13 @@ import org.springframework.beans.factory.annotation.Value;
 import com.fet.lineBot.domain.dao.MemberDataRepository;
 import com.fet.lineBot.service.ClampService;
 import com.fet.lineBot.service.MessageService;
+
 import com.google.gson.Gson;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
+import com.linecorp.bot.model.action.Action;
+import com.linecorp.bot.model.action.URIAction;
+import com.linecorp.bot.model.action.URIAction.AltUri;
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.JoinEvent;
 import com.linecorp.bot.model.event.MemberJoinedEvent;
@@ -24,8 +31,15 @@ import com.linecorp.bot.model.event.source.GroupSource;
 import com.linecorp.bot.model.event.source.RoomSource;
 import com.linecorp.bot.model.event.source.Source;
 import com.linecorp.bot.model.event.source.UserSource;
+import com.linecorp.bot.model.message.FlexMessage;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
+import com.linecorp.bot.model.message.flex.component.Box;
+import com.linecorp.bot.model.message.flex.component.FlexComponent;
+import com.linecorp.bot.model.message.flex.component.Text;
+import com.linecorp.bot.model.message.flex.container.Bubble;
+import com.linecorp.bot.model.message.flex.container.Carousel;
+import com.linecorp.bot.model.message.flex.container.FlexContainer;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
@@ -134,6 +148,30 @@ public class MessageHandler {
 			reply(event.getReplyToken(), new TextMessage("FB 最新一篇貼文\n" + url));
 			return;
 		}
+		
+    if ("@flex".equalsIgnoreCase(message)) {
+
+
+      try {
+      Text content = Text.builder().text("texst").build();
+      Box body = Box.builder().content(content).build();
+      URI uri = new URI("https://linebotrika.herokuapp.com/list");
+      AltUri altUri = new AltUri(uri);
+      URIAction action = new URIAction("see more", uri, altUri);
+
+      Bubble bubble = new Bubble(null, null, null, null, body, null, null, action);
+
+      FlexMessage flexMessage = new FlexMessage("flextest", bubble);
+        BotApiResponse apiResponse = lineMessagingClient
+            .replyMessage(new ReplyMessage(event.getReplyToken(), flexMessage, false)).get();
+        logger.info("Sent messages: {}", apiResponse);
+      } catch (InterruptedException | ExecutionException e) {
+        throw new RuntimeException(e);
+      } catch (URISyntaxException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
 		
 		Message rtnMsgObj = messageService.queryReplyMessage(message);
 		if(rtnMsgObj!=null) {

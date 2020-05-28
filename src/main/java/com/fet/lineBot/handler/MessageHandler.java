@@ -40,6 +40,7 @@ import com.linecorp.bot.model.message.flex.component.Text;
 import com.linecorp.bot.model.message.flex.container.Bubble;
 import com.linecorp.bot.model.message.flex.container.Carousel;
 import com.linecorp.bot.model.message.flex.container.FlexContainer;
+import com.linecorp.bot.model.message.flex.unit.FlexLayout;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
@@ -154,7 +155,7 @@ public class MessageHandler {
 
       try {
       Text content = Text.builder().text("texst").build();
-      Box body = Box.builder().content(content).build();
+      Box body = Box.builder().content(content).layout(FlexLayout.HORIZONTAL).build();
       URI uri = new URI("https://linebotrika.herokuapp.com/list");
       AltUri altUri = new AltUri(uri);
       URIAction action = new URIAction("see more", uri, altUri);

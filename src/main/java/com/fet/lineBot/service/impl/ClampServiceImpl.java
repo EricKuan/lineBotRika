@@ -298,16 +298,14 @@ public class ClampServiceImpl implements ClampService {
       logger.info(htmlPage.asXml());
 
       long postNum = 0;
-      DomElement element = htmlPage.getElementById("PagesProfileHomePrimaryColumnPagelet");
-      logger.info(element.asXml());
-      List<DomElement> divList = element.getByXPath("//a[@rel=\"theater\"]");
+      
+      List<DomElement> divList = htmlPage.getByXPath("//input[@name=\"ft_ent_identifier\"]");
       for (DomElement elem : divList) {
-        String ajaxify = elem.getAttribute("ajaxify");
-        String[] split = ajaxify.split("/");
-        logger.info(split[4]);
+        String value = elem.getAttribute("value");
+        logger.info(value);
         long checkPostNum = 0;
         try {
-          checkPostNum = Long.valueOf(split[4]);
+          checkPostNum = Long.valueOf(value);
         } catch (Exception e) {
           logger.error(e);
         }

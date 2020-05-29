@@ -5,10 +5,12 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import com.fet.lineBot.domain.dao.MangaDataRepository;
 import com.fet.lineBot.domain.model.MangaData;
@@ -26,6 +28,8 @@ public class ClampServiceImpl implements ClampService {
 
 	private static final Logger logger = LogManager.getLogger(ClampServiceImpl.class);
 
+	private static String CACHED_URL = null;
+	
 	@Autowired
 	MangaDataRepository mangaDataRepository;
 	
@@ -183,10 +187,7 @@ public class ClampServiceImpl implements ClampService {
 			sb.append("%\n");
 			sb.append("政黨票剩餘Box: " + (Integer.valueOf(ticketBoxs[1].substring(0, 5)) - Integer.valueOf(ticketBoxs[0].trim())) + "\n");
 			sb.append("\n心存善念，盡力而為");
-			
-			
-			
-			
+			webClient.close();
 			rtnMsg = sb.toString();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -289,20 +290,25 @@ public class ClampServiceImpl implements ClampService {
 
   @Override
   public String queryFBNewestPost() {
+    if(StringUtils.isBlank(CACHED_URL)) {      
+      getNewestPostBySchedule();
+    }
+    return CACHED_URL;
+  }
+
+  @Scheduled(initialDelay = 120000, fixedRate = 120000)
+  private void getNewestPostBySchedule() {
     String url = "https://www.facebook.com/Wishswing/";
     WebClient webClient = getJSWebClient();
     String rtnUrl = null;
     try {
       HtmlPage htmlPage = webClient.getPage(url);
       webClient.waitForBackgroundJavaScript(JS_TIME);
-      logger.info(htmlPage.asXml());
-
       long postNum = 0;
-      
       List<DomElement> divList = htmlPage.getByXPath("//input[@name=\"ft_ent_identifier\"]");
       for (DomElement elem : divList) {
         String value = elem.getAttribute("value");
-        logger.info(value);
+        logger.info("value: " + value);
         long checkPostNum = 0;
         try {
           checkPostNum = Long.valueOf(value);
@@ -314,17 +320,14 @@ public class ClampServiceImpl implements ClampService {
         }
       }
       rtnUrl = "https://www.facebook.com/Wishswing/posts/" + postNum;
+      CACHED_URL = rtnUrl;
     } catch (FailingHttpStatusCodeException e) {
-      
-      e.printStackTrace();
+      logger.error(e);
     } catch (MalformedURLException e) {
-      
-      e.printStackTrace();
+      logger.error(e);
     } catch (IOException e) {
-      
-      e.printStackTrace();
+      logger.error(e);
     }
-    return rtnUrl;
   }
 	
 }

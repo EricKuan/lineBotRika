@@ -330,6 +330,7 @@ public class ClampServiceImpl implements ClampService {
     }finally {
       webClient.close();
     }
+    System.gc();
   }
 	
 }

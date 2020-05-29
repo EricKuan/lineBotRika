@@ -327,6 +327,8 @@ public class ClampServiceImpl implements ClampService {
       logger.error(e);
     } catch (IOException e) {
       logger.error(e);
+    }finally {
+      webClient.close();
     }
   }
 	

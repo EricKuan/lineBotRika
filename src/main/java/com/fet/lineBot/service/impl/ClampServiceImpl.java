@@ -5,13 +5,11 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import com.fet.lineBot.domain.dao.MangaDataRepository;
 import com.fet.lineBot.domain.model.MangaData;
 import com.fet.lineBot.service.ClampService;
@@ -289,39 +287,46 @@ public class ClampServiceImpl implements ClampService {
 		return webClient;
 	}
 
-	@Override
-	public String queryFBNewestPost() {
-		String url = "https://www.facebook.com/Wishswing/";
-		WebClient webClient = getJSWebClient();
-		String rtnUrl = null;
-		try {
-			HtmlPage htmlPage = webClient	.getPage(url);
-			webClient.waitForBackgroundJavaScript(JS_TIME);
-			List<DomElement> aList = htmlPage.getByXPath("//a[@class='see_more_link']");
-			long postNum = 0;
-			for(DomElement element:aList) {
-//				logger.info(element.asXml());
-				logger.info(element.getAttribute("href").toString());
-				String[] split = element.getAttribute("href").toString().split("/");
-				String num = split[split.length-1].split(":")[0];
-				logger.info(num);
-				long checkPostNum = Long.valueOf(num);
-				if(checkPostNum>postNum) {
-					postNum = checkPostNum;
-				}
-			}
-			rtnUrl = "https://www.facebook.com/Wishswing/posts/" + postNum;
-		} catch (FailingHttpStatusCodeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return rtnUrl ;
-	}
+  @Override
+  public String queryFBNewestPost() {
+    String url = "https://www.facebook.com/Wishswing/";
+    WebClient webClient = getJSWebClient();
+    String rtnUrl = null;
+    try {
+      HtmlPage htmlPage = webClient.getPage(url);
+      webClient.waitForBackgroundJavaScript(JS_TIME);
+      logger.info(htmlPage.asXml());
+
+      long postNum = 0;
+      DomElement element = htmlPage.getElementById("PagesProfileHomePrimaryColumnPagelet");
+      logger.info(element.asXml());
+      List<DomElement> divList = element.getByXPath("//a[@rel=\"theater\"]");
+      for (DomElement elem : divList) {
+        String ajaxify = elem.getAttribute("ajaxify");
+        String[] split = ajaxify.split("/");
+        logger.info(split[4]);
+        long checkPostNum = 0;
+        try {
+          checkPostNum = Long.valueOf(split[4]);
+        } catch (Exception e) {
+          logger.error(e);
+        }
+        if (checkPostNum > postNum) {
+          postNum = checkPostNum;
+        }
+      }
+      rtnUrl = "https://www.facebook.com/Wishswing/posts/" + postNum;
+    } catch (FailingHttpStatusCodeException e) {
+      
+      e.printStackTrace();
+    } catch (MalformedURLException e) {
+      
+      e.printStackTrace();
+    } catch (IOException e) {
+      
+      e.printStackTrace();
+    }
+    return rtnUrl;
+  }
 	
 }

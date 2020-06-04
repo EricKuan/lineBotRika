@@ -1,7 +1,9 @@
 package com.fet.lineBot.controller;
 
 import java.util.List;
-
+import org.apache.http.HttpRequest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,8 @@ import com.google.gson.Gson;
 @RestController
 public class RikaController {
 
+  private static final Logger logger = LogManager.getLogger(RikaController.class);
+  
 	@Autowired
 	MessageService messageService;
 	@Autowired
@@ -36,5 +40,14 @@ public class RikaController {
 		rtnMsg = new Gson().toJson(allMember);
 		return rtnMsg;
 	}
+	
+	@CrossOrigin
+    @GetMapping(value = "/facebook")
+    public String facebook (HttpRequest request) {
+	  logger.info("event: " + new Gson().toJson(request));
+        String rtnMsg =null;
+        rtnMsg = "Y";
+        return rtnMsg;
+    }
 	
 }

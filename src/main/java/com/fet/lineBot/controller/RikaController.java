@@ -1,6 +1,7 @@
 package com.fet.lineBot.controller;
 
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +45,8 @@ public class RikaController {
 	
 	@CrossOrigin
     @GetMapping(value = "/facebook")
-    public ResponseEntity<String> facebook (HttpRequest request) {
-	  logger.info("event: " + new Gson().toJson(request, HttpRequest.class));
+    public ResponseEntity<String> facebook (HttpServletRequest request) {
+	  logger.info("event: " + new Gson().toJson(request, HttpServletRequest.class));
         String rtnMsg =null;
         rtnMsg = "Y";
         return new ResponseEntity<>("Hello World!",  HttpStatus.OK);

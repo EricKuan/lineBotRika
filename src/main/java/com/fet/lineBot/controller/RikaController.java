@@ -47,6 +47,7 @@ public class RikaController {
     @GetMapping(value = "/facebook")
     public ResponseEntity<String> facebook (HttpServletRequest request) {
 	  logger.info("event: " + new Gson().toJson(request.getAttributeNames()));
+	  logger.info("event: " + new Gson().toJson(request.getParameterMap()));
         String rtnMsg =null;
         rtnMsg = "Y";
         return new ResponseEntity<>("Hello World!",  HttpStatus.OK);

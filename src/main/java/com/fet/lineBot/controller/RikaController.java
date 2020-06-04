@@ -46,7 +46,7 @@ public class RikaController {
 	@CrossOrigin
     @GetMapping(value = "/facebook")
     public ResponseEntity<String> facebook (HttpServletRequest request) {
-	  logger.info("event: " + new Gson().toJson(request, HttpServletRequest.class));
+	  logger.info("event: " + new Gson().toJson(request));
         String rtnMsg =null;
         rtnMsg = "Y";
         return new ResponseEntity<>("Hello World!",  HttpStatus.OK);

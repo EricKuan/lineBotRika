@@ -5,10 +5,11 @@ import org.apache.http.HttpRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.fet.lineBot.domain.dao.MemberDataRepository;
 import com.fet.lineBot.domain.model.MemberData;
 import com.fet.lineBot.service.MessageService;
@@ -43,11 +44,11 @@ public class RikaController {
 	
 	@CrossOrigin
     @GetMapping(value = "/facebook")
-    public String facebook (HttpRequest request) {
+    public ResponseEntity<String> facebook (HttpRequest request) {
 	  logger.info("event: " + new Gson().toJson(request));
         String rtnMsg =null;
         rtnMsg = "Y";
-        return rtnMsg;
+        return new ResponseEntity<>("Hello World!",  HttpStatus.OK);
     }
 	
 }

@@ -48,9 +48,11 @@ public class RikaController {
     public ResponseEntity<String> facebook (HttpServletRequest request) {
 	  logger.info("event: " + new Gson().toJson(request.getAttributeNames()));
 	  logger.info("event: " + new Gson().toJson(request.getParameterMap()));
+	  String challenge = request.getParameterMap().get("hub.challenge")[0];
+	  logger.info(challenge);
         String rtnMsg =null;
         rtnMsg = "Y";
-        return new ResponseEntity<>("Hello World!",  HttpStatus.OK);
+        return new ResponseEntity<>(challenge,  HttpStatus.OK);
     }
 	
 }

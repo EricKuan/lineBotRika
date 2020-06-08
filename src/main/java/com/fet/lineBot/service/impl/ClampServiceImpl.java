@@ -326,7 +326,10 @@ public class ClampServiceImpl implements ClampService {
         }
       }
       rtnUrl = "https://www.facebook.com/Wishswing/posts/" + postNum;
-      if (!CACHED_URL.equalsIgnoreCase(rtnUrl)) {
+      if(StringUtils.isEmpty(CACHED_URL)) {
+        CACHED_URL = rtnUrl;
+      }
+      else if (!CACHED_URL.equalsIgnoreCase(rtnUrl)) {
         CACHED_URL = rtnUrl;
         sendNotify();
       }

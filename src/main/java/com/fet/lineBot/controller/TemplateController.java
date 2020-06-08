@@ -27,4 +27,11 @@ public class TemplateController {
 		return "/hello";
 
 	}
+	
+	@RequestMapping("/")
+    public String index() {
+        
+        return "index";
+
+    }
 }

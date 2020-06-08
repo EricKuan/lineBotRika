@@ -22,6 +22,8 @@ import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
 
 @Service
 public class ClampServiceImpl implements ClampService {
@@ -35,6 +37,9 @@ public class ClampServiceImpl implements ClampService {
 	
 	@Value("${rikaService.waitForjsTime}")
 	private long JS_TIME;
+	
+	@Value("${rikaService.lineToken}")
+    private String token;
 	
 	@Override
 	public String queryVoteResult() {
@@ -317,10 +322,12 @@ public class ClampServiceImpl implements ClampService {
         }
         if (checkPostNum > postNum) {
           postNum = checkPostNum;
+          rtnUrl = "https://www.facebook.com/Wishswing/posts/" + postNum;
+          CACHED_URL = rtnUrl;
+          sendNotify();
         }
       }
-      rtnUrl = "https://www.facebook.com/Wishswing/posts/" + postNum;
-      CACHED_URL = rtnUrl;
+    
     } catch (FailingHttpStatusCodeException e) {
       logger.error(e);
     } catch (MalformedURLException e) {
@@ -333,4 +340,11 @@ public class ClampServiceImpl implements ClampService {
     System.gc();
   }
 	
+  
+  private void sendNotify() {
+    HttpResponse<String> response = Unirest.post("https://notify-api.line.me/api/notify")
+        .header("Authorization", "Bearer " + token).multiPartContent().field("message", CACHED_URL)
+        .asString();
+    logger.info(response.getBody());
+  }
 }

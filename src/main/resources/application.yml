@@ -38,6 +38,7 @@ rikaService:
  imageKeyWord: ${imageKeyWord}
  fbNewestPost: ${fbNewestPost}
  waitForjsTime: ${waitForjsTime}
+ lineToken: ${lineToken}
  
 spring:
  datasource:

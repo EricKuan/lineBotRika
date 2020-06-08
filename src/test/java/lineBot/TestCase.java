@@ -1,11 +1,11 @@
 package lineBot;
 
 import java.util.List;
-
 import org.junit.Test;
-
 import com.fet.lineBot.service.impl.ClampServiceImpl;
 import com.google.gson.Gson;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
 
 
 //@RunWith(SpringJUnit4ClassRunner.class)
@@ -34,4 +34,11 @@ public class TestCase {
 		String urlList = service.queryFBNewestPost();
 		System.out.println(new Gson().toJson(urlList));
 	}
+	
+	@Test
+    public void test04() {
+	  HttpResponse<String> response = Unirest.post("https://notify-api.line.me/api/notify")
+	        .header("Authorization", "Bearer " + "Z9GcsPjrnaP8WHaiQnuJNEUS0zMArqFyLSHIiQw5MJI").multiPartContent().field("message", "ttest")
+	        .asString();
+    }
 }

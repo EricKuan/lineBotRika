@@ -322,23 +322,26 @@ public class ClampServiceImpl implements ClampService {
         }
         if (checkPostNum > postNum) {
           postNum = checkPostNum;
-          rtnUrl = "https://www.facebook.com/Wishswing/posts/" + postNum;
+
         }
       }
-      CACHED_URL = rtnUrl;
-      sendNotify();
+      rtnUrl = "https://www.facebook.com/Wishswing/posts/" + postNum;
+      if (!CACHED_URL.equalsIgnoreCase(rtnUrl)) {
+        CACHED_URL = rtnUrl;
+        sendNotify();
+      }
     } catch (FailingHttpStatusCodeException e) {
       logger.error(e);
     } catch (MalformedURLException e) {
       logger.error(e);
     } catch (IOException e) {
       logger.error(e);
-    }finally {
+    } finally {
       webClient.close();
     }
     System.gc();
   }
-	
+
   
   private void sendNotify() {
     HttpResponse<String> response = Unirest.post("https://notify-api.line.me/api/notify")

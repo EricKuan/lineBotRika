@@ -323,11 +323,10 @@ public class ClampServiceImpl implements ClampService {
         if (checkPostNum > postNum) {
           postNum = checkPostNum;
           rtnUrl = "https://www.facebook.com/Wishswing/posts/" + postNum;
-          CACHED_URL = rtnUrl;
-          sendNotify();
         }
       }
-    
+      CACHED_URL = rtnUrl;
+      sendNotify();
     } catch (FailingHttpStatusCodeException e) {
       logger.error(e);
     } catch (MalformedURLException e) {

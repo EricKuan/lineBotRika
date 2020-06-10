@@ -41,6 +41,9 @@ public class ClampServiceImpl implements ClampService {
 	@Value("${rikaService.lineToken}")
     private String token;
 	
+	@Value("${rikaService.selfLocation}")
+	private String selfLocation;
+	
 	@Override
 	public String queryVoteResult() {
 		String rtnMsg = "";
@@ -326,11 +329,13 @@ public class ClampServiceImpl implements ClampService {
         }
       }
       rtnUrl = "https://www.facebook.com/Wishswing/posts/" + postNum;
-      if(StringUtils.isEmpty(CACHED_URL)) {
+      if(StringUtils.isBlank(CACHED_URL)) {
         CACHED_URL = rtnUrl;
+        logger.info("now CACHED_URL: " + CACHED_URL);
       }
       else if (!CACHED_URL.equalsIgnoreCase(rtnUrl)) {
         CACHED_URL = rtnUrl;
+        logger.info("now CACHED_URL: " + CACHED_URL);
         sendNotify();
       }
     } catch (FailingHttpStatusCodeException e) {
@@ -350,6 +355,12 @@ public class ClampServiceImpl implements ClampService {
     HttpResponse<String> response = Unirest.post("https://notify-api.line.me/api/notify")
         .header("Authorization", "Bearer " + token).multiPartContent().field("message", CACHED_URL)
         .asString();
+    logger.info(response.getBody());
+  }
+  @Scheduled(initialDelay = 120000, fixedRate = 1200000)
+  private void renewHeroku() {
+    logger.info("heartbeat");
+    HttpResponse<String> response = Unirest.get(selfLocation).asString();
     logger.info(response.getBody());
   }
 }

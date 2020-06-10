@@ -37,8 +37,11 @@ public class TestCase {
 	
 	@Test
     public void test04() {
-	  HttpResponse<String> response = Unirest.post("https://notify-api.line.me/api/notify")
-	        .header("Authorization", "Bearer " + "Z9GcsPjrnaP8WHaiQnuJNEUS0zMArqFyLSHIiQw5MJI").multiPartContent().field("message", "ttest")
-	        .asString();
+//	  HttpResponse<String> response = Unirest.post("https://notify-api.line.me/api/notify")
+//	        .header("Authorization", "Bearer " + "Z9GcsPjrnaP8WHaiQnuJNEUS0zMArqFyLSHIiQw5MJI").multiPartContent().field("message", "ttest")
+//	        .asString();
+	  HttpResponse<String> response = Unirest.get("https://linebotrika.herokuapp.com/")
+          .asString();
+	  System.out.println(response.getBody());
     }
 }

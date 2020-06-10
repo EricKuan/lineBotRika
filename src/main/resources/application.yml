@@ -15,8 +15,8 @@
 
 
 line.bot: 
-  channel-token: 8O1zecskZ9qd4zBFuC5WrSU4cqX7pxy7SpUsbQtbZumOistjHNQ0LbgoSRS5hcChliJsG4wSWlGPtUmKXaB/HsLWkXF8pnh9+JBAC7LBS4qlJOUyBLa4lKfFGo6dMAh1pT4u8/xUTMIOJwahxlngmAdB04t89/1O/w1cDnyilFU=
-  channel-secret: 41127c624f4024e49d2332c633979931
+  channel-token:  ${channel-token}
+  channel-secret: ${channel-secret}
   handler.path: /callback
 
 # To remove Client wire logs. Please comment out following lines.
@@ -39,6 +39,7 @@ rikaService:
  fbNewestPost: ${fbNewestPost}
  waitForjsTime: ${waitForjsTime}
  lineToken: ${lineToken}
+ selfLocation: ${selfLocation}
  
 spring:
  datasource:

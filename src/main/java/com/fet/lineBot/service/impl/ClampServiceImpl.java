@@ -388,7 +388,10 @@ public class ClampServiceImpl implements ClampService {
   
   private void sendNotify() {
     HttpResponse<String> response = Unirest.post("https://notify-api.line.me/api/notify")
-        .header("Authorization", "Bearer " + token).multiPartContent().field("message", "https://www.facebook.com/Wishswing/posts/" + CACHED_DATA.getStoryId())
+        .header("Authorization", "Bearer " + token).multiPartContent()
+        .field("message", "https://www.facebook.com/Wishswing/posts/" + CACHED_DATA.getStoryId())
+        .field("imageFullsize", CACHED_DATA.getImgUrl())
+        .field("imageThumbnail", CACHED_DATA.getImgUrl())
         .asString();
     logger.info(response.getBody());
   }

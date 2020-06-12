@@ -44,7 +44,7 @@ public class TestCase {
 	@Test
 	public void test03() {
 		ClampServiceImpl service = new ClampServiceImpl();
-		String urlList = service.queryFBNewestPost();
+		FBPostData urlList = service.queryFBNewestPost();
 		System.out.println(new Gson().toJson(urlList));
 	}
 	

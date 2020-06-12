@@ -172,7 +172,7 @@ public class MessageHandler {
         Carousel carousal = Carousel.builder().contents(Arrays.asList(new Bubble[] {bubble, bubble2})).build(); 
         // FlexMessage flexMessage = new FlexMessage("flextest", bubble);
         FlexMessage flexMessage =
-            FlexMessage.builder().altText("flexTest").contents(carousal).build();
+            FlexMessage.builder().altText("玻璃的另一側").contents(carousal).build();
         BotApiResponse apiResponse = lineMessagingClient
             .replyMessage(new ReplyMessage(event.getReplyToken(), flexMessage, false)).get();
         logger.info("Sent messages: {}", apiResponse);

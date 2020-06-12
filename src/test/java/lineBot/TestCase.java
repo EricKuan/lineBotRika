@@ -1,13 +1,7 @@
 package lineBot;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.junit.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import com.fet.lineBot.service.impl.ClampServiceImpl;
 import com.google.gson.Gson;
 import kong.unirest.HttpResponse;

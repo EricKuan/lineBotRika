@@ -3,6 +3,7 @@ package com.fet.lineBot.service.impl;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -317,8 +318,10 @@ public class ClampServiceImpl implements ClampService {
       HttpResponse<String> response = Unirest.get(checkPage).asString();
       String body = response.getBody();
       String[] splits = body.split("story_fbid=");
+      List<String> storyidList = new ArrayList<String>(Arrays.asList(splits));
+      storyidList.remove(0);
       List<Long> postIdList = new ArrayList<Long>();
-      for (String str : splits) {
+      for (String str : storyidList) {
         try {
           Long postId = Long.valueOf(str.substring(0, str.indexOf("&")));
           if (!postIdList.contains(postId)) {

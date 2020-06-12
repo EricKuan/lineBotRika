@@ -168,8 +168,8 @@ public class MessageHandler {
         AltUri altUri2 = new AltUri(uri);
         URIAction action2 = new URIAction("see more", uri2, altUri2);
 
-        Bubble bubble = new Bubble(null, null, null, null, body, null, null, action);
-        Bubble bubble2 = new Bubble(null, null, null, null, body2, null, null, action2);
+        Bubble bubble = Bubble.builder().body(body).action(action).build();
+        Bubble bubble2 = Bubble.builder().body(body2).action(action2).build();
         Carousel carousal = Carousel.builder().contents(Arrays.asList(new Bubble[] {bubble, bubble2})).build(); 
         // FlexMessage flexMessage = new FlexMessage("flextest", bubble);
         FlexMessage flexMessage =

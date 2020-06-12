@@ -154,15 +154,15 @@ public class MessageHandler {
 
       try {
         Text content = Text.builder().text("看玻璃的另一側第一回").build();
-        Image image = Image.builder().url(new URI("https://i.imgur.com/0il5n2M.jpg")).build();
-        Box body = Box.builder().contents(Arrays.asList(new FlexComponent[]{image,content})).layout(FlexLayout.HORIZONTAL).build();
+        Image image = Image.builder().url(new URI("https://i.imgur.com/FHnvGQS.jpg")).build();
+        Box body = Box.builder().contents(Arrays.asList(new FlexComponent[]{image,content})).layout(FlexLayout.VERTICAL).build();
         URI uri = new URI("https://linebotrika.herokuapp.com/hello/39");
         AltUri altUri = new AltUri(uri);
         URIAction action = new URIAction("see more", uri, altUri);
         
         Text content2 = Text.builder().text("看玻璃的另一側最新回").build();
-        Image image2 = Image.builder().url(new URI("https://i.imgur.com/FHnvGQS.jpg")).build();
-        Box body2 = Box.builder().contents(Arrays.asList(new FlexComponent[]{image2,content2})).layout(FlexLayout.HORIZONTAL).build();
+        Image image2 = Image.builder().url(new URI("https://i.imgur.com/0il5n2M.jpg")).build();
+        Box body2 = Box.builder().contents(Arrays.asList(new FlexComponent[]{image2,content2})).layout(FlexLayout.VERTICAL).build();
         URI uri2 = new URI("https://linebotrika.herokuapp.com/hello/0");
         AltUri altUri2 = new AltUri(uri);
         URIAction action2 = new URIAction("see more", uri2, altUri2);

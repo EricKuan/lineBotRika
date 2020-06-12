@@ -40,6 +40,7 @@ rikaService:
  waitForjsTime: ${waitForjsTime}
  lineToken: ${lineToken}
  selfLocation: ${selfLocation}
+ checkPage: ${checkPage}
  
 spring:
  datasource:

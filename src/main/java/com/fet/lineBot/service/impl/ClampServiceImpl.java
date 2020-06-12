@@ -3,6 +3,7 @@ package com.fet.lineBot.service.impl;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +23,7 @@ import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
+import com.google.gson.Gson;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 
@@ -43,6 +45,9 @@ public class ClampServiceImpl implements ClampService {
 	
 	@Value("${rikaService.selfLocation}")
 	private String selfLocation;
+	
+	@Value("${rikaService.checkPage}")
+	private String checkPage;
 	
 	@Override
 	public String queryVoteResult() {
@@ -306,43 +311,39 @@ public class ClampServiceImpl implements ClampService {
 
   @Scheduled(initialDelay = 120000, fixedRate = 120000)
   private void getNewestPostBySchedule() {
-    String url = "https://www.facebook.com/Wishswing/";
     WebClient webClient = getJSWebClient();
     String rtnUrl = null;
     try {
-      HtmlPage htmlPage = webClient.getPage(url);
-      webClient.waitForBackgroundJavaScript(JS_TIME);
-      long postNum = 0;
-      List<DomElement> divList = htmlPage.getByXPath("//input[@name=\"ft_ent_identifier\"]");
-      for (DomElement elem : divList) {
-        String value = elem.getAttribute("value");
-        logger.info("value: " + value);
-        long checkPostNum = 0;
+      HttpResponse<String> response = Unirest.get(checkPage).asString();
+      String body = response.getBody();
+      String[] splits = body.split("story_fbid=");
+      List<Long> postIdList = new ArrayList<Long>();
+      for (String str : splits) {
         try {
-          checkPostNum = Long.valueOf(value);
+          Long postId = Long.valueOf(str.substring(0, str.indexOf("&")));
+          if (!postIdList.contains(postId)) {
+            logger.debug("getID: " + postId);
+            postIdList.add(Long.valueOf(postId));
+          }
         } catch (Exception e) {
           logger.error(e);
-        }
-        if (checkPostNum > postNum) {
-          postNum = checkPostNum;
-
+          continue;
         }
       }
+      logger.info(new Gson().toJson(postIdList));
+      Long postNum =
+          postIdList.stream().max(Comparator.comparing(Long::longValue)).orElse(new Long(0));
+
       rtnUrl = "https://www.facebook.com/Wishswing/posts/" + postNum;
-      if(StringUtils.isBlank(CACHED_URL)) {
+      if (StringUtils.isBlank(CACHED_URL)) {
         CACHED_URL = rtnUrl;
         logger.info("now CACHED_URL: " + CACHED_URL);
-      }
-      else if (!CACHED_URL.equalsIgnoreCase(rtnUrl)) {
+      } else if (!CACHED_URL.equalsIgnoreCase(rtnUrl)) {
         CACHED_URL = rtnUrl;
         logger.info("now CACHED_URL: " + CACHED_URL);
         sendNotify();
       }
     } catch (FailingHttpStatusCodeException e) {
-      logger.error(e);
-    } catch (MalformedURLException e) {
-      logger.error(e);
-    } catch (IOException e) {
       logger.error(e);
     } finally {
       webClient.close();

@@ -54,6 +54,9 @@ public class ClampServiceImpl implements ClampService {
 	@Value("${rikaService.checkPage}")
 	private String checkPage;
 	
+	@Value("${rikaService.checkHashTeg}")
+    private String checkHashTeg;
+	
 	@Override
 	public String queryVoteResult() {
 		String rtnMsg = "";
@@ -342,7 +345,7 @@ public class ClampServiceImpl implements ClampService {
       for(DomElement element:elementList) {
         if(element.getByXPath("./div/div/span/p/a/span").stream().filter((item -> {
           DomElement ele = (DomElement)item;
-          return "現實與童話的距離".equalsIgnoreCase(ele.getTextContent());
+          return checkHashTeg.equalsIgnoreCase(ele.getTextContent());
         })).count()>0) {
           String storyId = null;
           List<DomElement> storyIdList = element.getByXPath("./div/div/a");

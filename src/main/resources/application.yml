@@ -41,6 +41,7 @@ rikaService:
  lineToken: ${lineToken}
  selfLocation: ${selfLocation}
  checkPage: ${checkPage}
+ checkHashTeg: ${checkHashTeg}
  
 spring:
  datasource:

@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import com.fet.lineBot.domain.dao.MemberDataRepository;
+import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.service.ClampService;
 import com.fet.lineBot.service.MessageService;
 import com.google.gson.Gson;
@@ -144,10 +145,29 @@ public class MessageHandler {
     }
 
     if (0 == message.indexOf(FB_KEYWORD)) {
-      String url = clampService.queryFBNewestPost();
-      reply(event.getReplyToken(), new TextMessage("FB 最新一篇貼文\n" + url));
+      try {
+        FBPostData fbPostData = clampService.queryFBNewestPost();
+        Text content = Text.builder().text("FB最新話").build();
+        Image image = Image.builder().url(new URI(fbPostData.getImgUrl())).build();
+        Box body = Box.builder().contents(Arrays.asList(new FlexComponent[] {image, content}))
+            .layout(FlexLayout.VERTICAL).build();
+        URI uri = new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId());
+        AltUri altUri = new AltUri(uri);
+        URIAction action = new URIAction("see more", uri, altUri);
+        Bubble bubble = Bubble.builder().body(body).action(action).build();
+        FlexMessage flexMessage = FlexMessage.builder().altText("FB最新話").contents(bubble).build();
+        BotApiResponse apiResponse = lineMessagingClient
+            .replyMessage(new ReplyMessage(event.getReplyToken(), flexMessage, false)).get();
+        logger.info("Sent messages: {}", apiResponse);
+      } catch (InterruptedException | ExecutionException e) {
+        throw new RuntimeException(e);
+      } catch (URISyntaxException e) {
+        logger.error(e);
+        e.printStackTrace();
+      }
       return;
     }
+    
 
     if ("@flex".equalsIgnoreCase(message)) {
 

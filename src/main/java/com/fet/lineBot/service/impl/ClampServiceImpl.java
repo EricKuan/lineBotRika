@@ -2,12 +2,10 @@ package com.fet.lineBot.service.impl;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,25 +13,31 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import com.fet.lineBot.domain.dao.MangaDataRepository;
+import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.domain.model.MangaData;
 import com.fet.lineBot.service.ClampService;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
+import com.gargoylesoftware.htmlunit.StringWebResponse;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
+import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
 import com.google.gson.Gson;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
+import kong.unirest.json.JSONArray;
+import kong.unirest.json.JSONObject;
 
 @Service
 public class ClampServiceImpl implements ClampService {
 
 	private static final Logger logger = LogManager.getLogger(ClampServiceImpl.class);
 
-	private static String CACHED_URL = null;
+	private static FBPostData CACHED_DATA = null;
+	
 	
 	@Autowired
 	MangaDataRepository mangaDataRepository;
@@ -303,48 +307,72 @@ public class ClampServiceImpl implements ClampService {
 	}
 
   @Override
-  public String queryFBNewestPost() {
-    if(StringUtils.isBlank(CACHED_URL)) {      
-      getNewestPostBySchedule();
+  public FBPostData queryFBNewestPost() {
+    if(null==CACHED_DATA) {      
+      try {
+        getNewestPostBySchedule();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
-    return CACHED_URL;
+    return CACHED_DATA;
   }
 
   @Scheduled(initialDelay = 120000, fixedRate = 120000)
-  private void getNewestPostBySchedule() {
+  private void getNewestPostBySchedule() throws IOException {
     WebClient webClient = getJSWebClient();
-    String rtnUrl = null;
     try {
-      HttpResponse<String> response = Unirest.get(checkPage).asString();
-      String body = response.getBody();
-      String[] splits = body.split("story_fbid=");
-      List<String> storyidList = new ArrayList<String>(Arrays.asList(splits));
-      storyidList.remove(0);
-      List<Long> postIdList = new ArrayList<Long>();
-      for (String str : storyidList) {
-        try {
-          Long postId = Long.valueOf(str.substring(0, str.indexOf("&")));
-          if (!postIdList.contains(postId)) {
-            logger.debug("getID: " + postId);
-            postIdList.add(Long.valueOf(postId));
+      HttpResponse<String> responses = Unirest.get(checkPage).asString();
+      String body = responses.getBody();
+      body =  body.substring(9);
+           
+      JSONObject jsonObj = new JSONObject( body);
+      JSONArray array = jsonObj.getJSONArray("actions");
+      String html = array.getJSONObject(0).getString("html");
+      URL url = new URL("http://www.example.com");
+      StringWebResponse response = new StringWebResponse("<html><head><title>Test</title></head><body>" + html +"</body></html>", url);
+      WebClient client = new WebClient();
+      HtmlPage page = HTMLParser.parseHtml(response, client.getCurrentWindow());
+      List<DomElement> bodyDivList = page.getBody().getByXPath("./div/div/div/div/div");
+      List<DomElement> elementList = bodyDivList.stream().filter(item ->{
+        DomElement dom = (DomElement) item;
+        return dom.getByXPath("./div[@class=\"story_body_container\"]").size()>0;
+      }).collect(Collectors.toList());
+      FBPostData data = new FBPostData();
+      for(DomElement element:elementList) {
+        if(element.getByXPath("./div/div/span/p/a/span").stream().filter((item -> {
+          DomElement ele = (DomElement)item;
+          return "現實與童話的距離".equalsIgnoreCase(ele.getTextContent());
+        })).count()>0) {
+          String storyId = null;
+          List<DomElement> storyIdList = element.getByXPath("./div/div/a");
+          if(storyIdList.size()>0) {
+            String href = storyIdList.get(0).getAttribute("href");
+            storyId = href.substring(href.indexOf("=") +1, href.indexOf("&"));
           }
-        } catch (Exception e) {
-          logger.error(e);
-          continue;
+          if(data.getStoryId()<Long.valueOf(storyId)) {
+            
+            String imgUrl = null;
+            List<DomElement> imgList = element.getByXPath("./div/div/div/a/img");
+            if(imgList.size()>0) {
+              imgUrl = imgList.get(0).getAttribute("src");
+            }
+            data.setStoryId(Long.valueOf(storyId));
+            data.setImgUrl(imgUrl);
+          
+          }
         }
       }
-      logger.info(new Gson().toJson(postIdList));
-      Long postNum =
-          postIdList.stream().max(Comparator.comparing(Long::longValue)).orElse(new Long(0));
+      logger.info(new Gson().toJson(data));
 
-      rtnUrl = "https://www.facebook.com/Wishswing/posts/" + postNum;
-      if (StringUtils.isBlank(CACHED_URL)) {
-        CACHED_URL = rtnUrl;
-        logger.info("now CACHED_URL: " + CACHED_URL);
-      } else if (!CACHED_URL.equalsIgnoreCase(rtnUrl)) {
-        CACHED_URL = rtnUrl;
-        logger.info("now CACHED_URL: " + CACHED_URL);
-        sendNotify();
+//      rtnUrl = "https://www.facebook.com/Wishswing/posts/" + postNum;
+      if(null!=CACHED_DATA) {
+        if(data.getStoryId()>CACHED_DATA.getStoryId()) {
+          CACHED_DATA = data;
+          sendNotify();
+        }
+      }else {
+        CACHED_DATA = data;
       }
     } catch (FailingHttpStatusCodeException e) {
       logger.error(e);
@@ -357,10 +385,12 @@ public class ClampServiceImpl implements ClampService {
   
   private void sendNotify() {
     HttpResponse<String> response = Unirest.post("https://notify-api.line.me/api/notify")
-        .header("Authorization", "Bearer " + token).multiPartContent().field("message", CACHED_URL)
+        .header("Authorization", "Bearer " + token).multiPartContent().field("message", "https://www.facebook.com/Wishswing/posts/" + CACHED_DATA.getStoryId())
         .asString();
     logger.info(response.getBody());
   }
+  
+  
   @Scheduled(initialDelay = 120000, fixedRate = 1200000)
   private void renewHeroku() {
     logger.info("heartbeat");

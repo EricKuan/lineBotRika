@@ -336,6 +336,7 @@ public class ClampServiceImpl implements ClampService {
       StringWebResponse response = new StringWebResponse("<html><head><title>Test</title></head><body>" + html +"</body></html>", url);
       WebClient client = new WebClient();
       HtmlPage page = HTMLParser.parseHtml(response, client.getCurrentWindow());
+      /* 切出包含貼文的 DIV */
       List<DomElement> bodyDivList = page.getBody().getByXPath("./div/div/div/div/div");
       List<DomElement> elementList = bodyDivList.stream().filter(item ->{
         DomElement dom = (DomElement) item;
@@ -343,19 +344,24 @@ public class ClampServiceImpl implements ClampService {
       }).collect(Collectors.toList());
       FBPostData data = new FBPostData();
       for(DomElement element:elementList) {
+        /* 切出包含設定檔中 hashTag 的相關貼文 */
         if(element.getByXPath("./div/div/span/p/a/span").stream().filter((item -> {
           DomElement ele = (DomElement)item;
           return checkHashTeg.equalsIgnoreCase(ele.getTextContent());
         })).count()>0) {
+          /* 處理貼文 ID */
           String storyId = null;
           List<DomElement> storyIdList = element.getByXPath("./div/div/a");
           if(storyIdList.size()>0) {
             String href = storyIdList.get(0).getAttribute("href");
             storyId = href.substring(href.indexOf("=") +1, href.indexOf("&"));
           }
+          
+          /* 觀察到新貼文時建立快取圖片路徑 */
           if(data.getStoryId()<Long.valueOf(storyId)) {
             
             String imgUrl = null;
+            /* 切出圖片路徑 */
             List<DomElement> imgList = element.getByXPath("./div/div/div/a/img");
             if(imgList.size()>0) {
               imgUrl = imgList.get(0).getAttribute("src");
@@ -368,8 +374,8 @@ public class ClampServiceImpl implements ClampService {
       }
       logger.info(new Gson().toJson(data));
 
-//      rtnUrl = "https://www.facebook.com/Wishswing/posts/" + postNum;
       if(null!=CACHED_DATA) {
+        /* 更換暫存資料並發送 Line 通知 */
         if(data.getStoryId()>CACHED_DATA.getStoryId()) {
           CACHED_DATA = data;
           sendNotify();

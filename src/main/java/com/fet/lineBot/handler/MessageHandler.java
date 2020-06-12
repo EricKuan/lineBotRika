@@ -4,6 +4,7 @@ import static java.util.Collections.singletonList;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.StringUtils;
@@ -155,17 +156,24 @@ public class MessageHandler {
 
 
       try {
-        Text content = Text.builder().text("看玻璃的另一側").build();
+        Text content = Text.builder().text("看玻璃的另一側第一回").build();
         Box body = Box.builder().content(content).layout(FlexLayout.HORIZONTAL).build();
         URI uri = new URI("https://linebotrika.herokuapp.com/hello/39");
         AltUri altUri = new AltUri(uri);
         URIAction action = new URIAction("see more", uri, altUri);
+        
+        Text content2 = Text.builder().text("看玻璃的另一側最新回").build();
+        Box body2 = Box.builder().content(content2).layout(FlexLayout.HORIZONTAL).build();
+        URI uri2 = new URI("https://linebotrika.herokuapp.com/hello/0");
+        AltUri altUri2 = new AltUri(uri);
+        URIAction action2 = new URIAction("see more", uri2, altUri2);
 
         Bubble bubble = new Bubble(null, null, null, null, body, null, null, action);
-
+        Bubble bubble2 = new Bubble(null, null, null, null, body2, null, null, action2);
+        Carousel carousal = Carousel.builder().contents(Arrays.asList(new Bubble[] {bubble, bubble2})).build(); 
         // FlexMessage flexMessage = new FlexMessage("flextest", bubble);
         FlexMessage flexMessage =
-            FlexMessage.builder().altText("flexTest").contents(bubble).build();
+            FlexMessage.builder().altText("flexTest").contents(carousal).build();
         BotApiResponse apiResponse = lineMessagingClient
             .replyMessage(new ReplyMessage(event.getReplyToken(), flexMessage, false)).get();
         logger.info("Sent messages: {}", apiResponse);

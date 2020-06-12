@@ -154,9 +154,9 @@ public class MessageHandler {
 
 
       try {
-      Text content = Text.builder().text("texst").build();
+      Text content = Text.builder().text("看玻璃的另一側").build();
       Box body = Box.builder().content(content).layout(FlexLayout.HORIZONTAL).build();
-      URI uri = new URI("https://linebotrika.herokuapp.com/list");
+      URI uri = new URI("https://linebotrika.herokuapp.com/hello/39");
       AltUri altUri = new AltUri(uri);
       URIAction action = new URIAction("see more", uri, altUri);
 

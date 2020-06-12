@@ -51,27 +51,5 @@ public class TestCase {
 	  System.out.println(response.getBody());
     }
 	
-	   @Test
-	    public void test05() {
-	     WebDriver driver = new FirefoxDriver();
-	     driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-	     driver.get("https://www.google.com.tw/"); //開啟瀏覽器到 Google 首頁
-	     JavascriptExecutor javascriptExecutor = (JavascriptExecutor) driver;
-	     javascriptExecutor.executeScript("arguments[0].value='keyword';", "遠寶金融科技");
-	   //印出十頁的所有搜尋結果Title和Link url
-	     for (int i = 0; i < 10; i++) {
-	      //抓取DOM elements, (.r a) 為Google搜尋結果的link
-	      List<WebElement> searchReultATagList = driver.findElements(By.cssSelector(".r a"));
-	      for (WebElement searchReultATag : searchReultATagList) {
-	       System.out.println(searchReultATag.getText() + " : ");
-	       System.out.println(searchReultATag.getAttribute("href"));
-	       System.out.println("=======================");
-	      }
-	      //抓取DOM element, #pnnext 為Google搜尋下一頁按鈕
-	      WebElement nextPageBtn = driver.findElement(By.id("pnnext"));
-	      nextPageBtn.click();
-	     }
-	      
-	     driver.quit(); //關閉瀏覽器
-	   }
+
 }

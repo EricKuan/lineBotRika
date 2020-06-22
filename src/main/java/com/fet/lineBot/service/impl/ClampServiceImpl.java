@@ -379,6 +379,7 @@ List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='trT']");
         /* 切出包含設定檔中 hashTag 的相關貼文 */
         if (element.getByXPath("./div/div/span/p/a/span").stream().filter((item -> {
           DomElement ele = (DomElement) item;
+          logger.info(ele.getTextContent());
           return checkHashTeg.equalsIgnoreCase(ele.getTextContent());
         })).count() > 0) {
           data.setComicFlag(true);

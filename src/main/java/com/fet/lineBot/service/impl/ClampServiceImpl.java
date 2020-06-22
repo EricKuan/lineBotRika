@@ -373,25 +373,33 @@ List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='trT']");
           }
           data.setStoryId(Long.valueOf(storyId));
           data.setImgUrl(imgUrl);
-          /* 處理最新漫畫回的快取 */
-          /* 切出包含設定檔中 hashTag 的相關貼文 */
-          if (element.getByXPath("./div/div/span/p/a/span").stream().filter((item -> {
-            DomElement ele = (DomElement) item;
-            logger.info(ele.getTextContent());
-            return checkHashTeg.equalsIgnoreCase(ele.getTextContent());
-          })).count() > 0) {
-            logger.info(new Gson().toJson(data));
-            data.setComicFlag(true);
-            if (null != NEWEST_STORY_CACHED_DATA) {
-              if (data.getStoryId() > NEWEST_STORY_CACHED_DATA.getStoryId()) {
-                NEWEST_STORY_CACHED_DATA = data;
-              }
-            } else {
-              NEWEST_STORY_CACHED_DATA = data;
+
+        }
+        /* 處理最新漫畫回的快取 */
+        /* 切出包含設定檔中 hashTag 的相關貼文 */
+        if (element.getByXPath("./div/div/span/p/a/span").stream().filter((item -> {
+          DomElement ele = (DomElement) item;
+          logger.info(ele.getTextContent());
+          return checkHashTeg.equalsIgnoreCase(ele.getTextContent());
+        })).count() > 0) {
+          FBPostData storyData = new FBPostData();
+          String imgUrl = null;
+          List<DomElement> imgList = element.getByXPath("./div/div/div/a/img");
+          if (imgList.size() > 0) {
+            imgUrl = imgList.get(0).getAttribute("src");
+          }
+          storyData.setStoryId(Long.valueOf(storyId));
+          storyData.setImgUrl(imgUrl);
+          logger.info(new Gson().toJson(storyData));
+          storyData.setComicFlag(true);
+          if (null != NEWEST_STORY_CACHED_DATA) {
+            if (storyData.getStoryId() > NEWEST_STORY_CACHED_DATA.getStoryId()) {
+              NEWEST_STORY_CACHED_DATA = storyData;
             }
+          } else {
+            NEWEST_STORY_CACHED_DATA = storyData;
           }
         }
-        
       }
       logger.info(new Gson().toJson(data));
       /* 處理最新貼文的快取 */

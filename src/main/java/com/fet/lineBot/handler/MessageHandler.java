@@ -75,6 +75,8 @@ public class MessageHandler {
   private String FB_NEWEST_POST;
   @Value("${rikaService.fbNewestStory}")
   private String FB_NEWEST_STORY;
+  @Value("${rikaService.wellcomeMessage}")
+  private String WELLCOME_MSG;
 
   @EventMapping
   public void handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
@@ -230,6 +232,18 @@ public class MessageHandler {
       }
     }
 
+    if (0 == message.indexOf("@歡迎訊息")) {
+      logger.info("event: " + new Gson().toJson(event));
+      if (event.getSource() instanceof GroupSource) {
+        GroupSource group = (GroupSource) event.getSource();
+        if ("Cedfd99b56918652ea9fa037057f3b41d".equals(group.getGroupId())) {
+          logger.info(event.getReplyToken());
+          reply(event.getReplyToken(), new TextMessage(WELLCOME_MSG));
+        }
+      }
+      return;
+    }
+    
     Message rtnMsgObj = messageService.queryReplyMessage(message);
     if (rtnMsgObj != null) {
       reply(event.getReplyToken(), messageService.queryReplyMessage(message));
@@ -280,10 +294,8 @@ public class MessageHandler {
     if (event.getSource() instanceof GroupSource) {
       GroupSource group = (GroupSource) event.getSource();
       if ("Cedfd99b56918652ea9fa037057f3b41d".equals(group.getGroupId())) {
-        String rtnMsg = "歡迎來到露露教，信露露得SSR\n每日更新現實與童話的距離\nhttps://zh-tw.facebook.com/Wishswing";
         logger.info(event.getReplyToken());
-        logger.info(rtnMsg);
-        reply(event.getReplyToken(), new TextMessage(rtnMsg));
+        reply(event.getReplyToken(), new TextMessage(WELLCOME_MSG));
       }
     }
 

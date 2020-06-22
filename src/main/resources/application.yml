@@ -43,6 +43,7 @@ rikaService:
  checkPage: ${checkPage}
  checkHashTeg: ${checkHashTeg}
  fbNewestStory: ${fbNewestStory}
+ wellcomeMessage: ${wellcomeMessage}
  
 spring:
  datasource:

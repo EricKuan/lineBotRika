@@ -234,13 +234,8 @@ public class MessageHandler {
 
     if (0 == message.indexOf("@歡迎訊息")) {
       logger.info("event: " + new Gson().toJson(event));
-      if (event.getSource() instanceof GroupSource) {
-        GroupSource group = (GroupSource) event.getSource();
-        if ("Cedfd99b56918652ea9fa037057f3b41d".equals(group.getGroupId())) {
-          logger.info(event.getReplyToken());
-          reply(event.getReplyToken(), new TextMessage(WELLCOME_MSG));
-        }
-      }
+      logger.info(event.getReplyToken());
+      reply(event.getReplyToken(), new TextMessage(WELLCOME_MSG));
       return;
     }
     

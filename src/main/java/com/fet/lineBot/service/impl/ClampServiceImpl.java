@@ -22,7 +22,6 @@ import com.gargoylesoftware.htmlunit.StringWebResponse;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HTMLParser;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
 import com.google.gson.Gson;
@@ -36,7 +35,8 @@ public class ClampServiceImpl implements ClampService {
 
 	private static final Logger logger = LogManager.getLogger(ClampServiceImpl.class);
 
-	private static FBPostData CACHED_DATA = null;
+	private static FBPostData NEWEST_STORY_CACHED_DATA = null;
+	private static FBPostData NEWEST_POST_CACHED_DATA = null;
 	
 	
 	@Autowired
@@ -75,9 +75,7 @@ public class ClampServiceImpl implements ClampService {
 					.getPage("https://www.cec.gov.tw/pc/zh_TW/P1/n00000000000000000.html");
 			webClient.waitForBackgroundJavaScript(JS_TIME);
 
-//			logger.info(htmlPage.asXml());
-			HtmlElement elements = htmlPage.getDocumentElement();
-			List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='trT']");
+List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='trT']");
 			List<HtmlTableRow> footer = htmlPage.getByXPath( "//tr[@class='trFooterT']");
 //			logger.info(new Gson().toJson(elementList));
 			logger.info("Table Row: " + elementList.size());
@@ -86,8 +84,7 @@ public class ClampServiceImpl implements ClampService {
 			String voteBox = footer.get(0).getCell(0).asText();
 			logger.info(voteBox);
 			logger.info(voteBox.split(" ").length);
-			String[] boxsplit= voteBox.split(" ");
-//			for(String box:boxsplit) {
+			//			for(String box:boxsplit) {
 //				logger.info(box);
 //			}
 			String[] ticketBoxs =  voteBox.split(" ")[1].split("/");
@@ -311,14 +308,26 @@ public class ClampServiceImpl implements ClampService {
 
   @Override
   public FBPostData queryFBNewestPost() {
-    if(null==CACHED_DATA) {      
+    if(null==NEWEST_POST_CACHED_DATA) {      
       try {
         getNewestPostBySchedule();
       } catch (IOException e) {
         e.printStackTrace();
       }
     }
-    return CACHED_DATA;
+    return NEWEST_POST_CACHED_DATA;
+  }
+  
+  @Override
+  public FBPostData queryFBNewestStoryPost() {
+    if(null==NEWEST_STORY_CACHED_DATA) {      
+      try {
+        getNewestPostBySchedule();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    return NEWEST_STORY_CACHED_DATA;
   }
 
   @Scheduled(initialDelay = 120000, fixedRate = 120000)
@@ -327,62 +336,76 @@ public class ClampServiceImpl implements ClampService {
     try {
       HttpResponse<String> responses = Unirest.get(checkPage).asString();
       String body = responses.getBody();
-      body =  body.substring(9);
-           
-      JSONObject jsonObj = new JSONObject( body);
+      body = body.substring(9);
+
+      JSONObject jsonObj = new JSONObject(body);
       JSONArray array = jsonObj.getJSONArray("actions");
       String html = array.getJSONObject(0).getString("html");
       URL url = new URL("http://www.example.com");
-      StringWebResponse response = new StringWebResponse("<html><head><title>Test</title></head><body>" + html +"</body></html>", url);
+      StringWebResponse response = new StringWebResponse(
+          "<html><head><title>Test</title></head><body>" + html + "</body></html>", url);
       WebClient client = new WebClient();
       HtmlPage page = HTMLParser.parseHtml(response, client.getCurrentWindow());
       /* 切出包含貼文的 DIV */
       List<DomElement> bodyDivList = page.getBody().getByXPath("./div/div/div/div/div");
-      List<DomElement> elementList = bodyDivList.stream().filter(item ->{
+      List<DomElement> elementList = bodyDivList.stream().filter(item -> {
         DomElement dom = (DomElement) item;
-        return dom.getByXPath("./div[@class=\"story_body_container\"]").size()>0;
+        return dom.getByXPath("./div[@class=\"story_body_container\"]").size() > 0;
       }).collect(Collectors.toList());
       FBPostData data = new FBPostData();
-      for(DomElement element:elementList) {
-        /* 切出包含設定檔中 hashTag 的相關貼文 */
-        if(element.getByXPath("./div/div/span/p/a/span").stream().filter((item -> {
-          DomElement ele = (DomElement)item;
-          return checkHashTeg.equalsIgnoreCase(ele.getTextContent());
-        })).count()>0) {
+      for (DomElement element : elementList) {
           /* 處理貼文 ID */
           String storyId = null;
           List<DomElement> storyIdList = element.getByXPath("./div/div/a");
-          if(storyIdList.size()>0) {
+          if (storyIdList.size() > 0) {
             String href = storyIdList.get(0).getAttribute("href");
-            storyId = href.substring(href.indexOf("=") +1, href.indexOf("&"));
+            storyId = href.substring(href.indexOf("=") + 1, href.indexOf("&"));
           }
-          
+
           /* 觀察到新貼文時建立快取圖片路徑 */
-          if(data.getStoryId()<Long.valueOf(storyId)) {
-            
+          if (data.getStoryId() < Long.valueOf(storyId)) {
+
             String imgUrl = null;
             /* 切出圖片路徑 */
             List<DomElement> imgList = element.getByXPath("./div/div/div/a/img");
-            if(imgList.size()>0) {
+            if (imgList.size() > 0) {
               imgUrl = imgList.get(0).getAttribute("src");
             }
             data.setStoryId(Long.valueOf(storyId));
             data.setImgUrl(imgUrl);
-          
+
           }
-        }
+          
+          /* 處理最新貼文的快取 */
+          if (null != NEWEST_POST_CACHED_DATA) {
+            /* 更換暫存資料並發送 Line 通知 */
+            if (data.getStoryId() > NEWEST_POST_CACHED_DATA.getStoryId()) {
+              NEWEST_POST_CACHED_DATA = data;
+              sendNotify(NEWEST_POST_CACHED_DATA);
+            }
+          } else {
+            NEWEST_POST_CACHED_DATA = data;
+            sendNotify(NEWEST_POST_CACHED_DATA);
+          }
+          
+          /* 處理最新話的快取 */
+          /* 切出包含設定檔中 hashTag 的相關貼文 */
+          if (element.getByXPath("./div/div/span/p/a/span").stream().filter((item -> {
+            DomElement ele = (DomElement) item;
+            return checkHashTeg.equalsIgnoreCase(ele.getTextContent());
+          })).count() > 0) {
+            if (null != NEWEST_POST_CACHED_DATA) {
+              /* 更換暫存資料並發送 Line 通知 */
+              if (data.getStoryId() > NEWEST_STORY_CACHED_DATA.getStoryId()) {
+                NEWEST_STORY_CACHED_DATA = data;
+              }
+            } else {
+              NEWEST_STORY_CACHED_DATA = data;
+            }
+          }
       }
       logger.info(new Gson().toJson(data));
 
-      if(null!=CACHED_DATA) {
-        /* 更換暫存資料並發送 Line 通知 */
-        if(data.getStoryId()>CACHED_DATA.getStoryId()) {
-          CACHED_DATA = data;
-          sendNotify();
-        }
-      }else {
-        CACHED_DATA = data;
-      }
     } catch (FailingHttpStatusCodeException e) {
       logger.error(e);
     } finally {
@@ -392,12 +415,12 @@ public class ClampServiceImpl implements ClampService {
   }
 
   
-  private void sendNotify() {
+  private void sendNotify(FBPostData data) {
     HttpResponse<String> response = Unirest.post("https://notify-api.line.me/api/notify")
         .header("Authorization", "Bearer " + token).multiPartContent()
-        .field("message", "https://www.facebook.com/Wishswing/posts/" + CACHED_DATA.getStoryId())
-        .field("imageFullsize", CACHED_DATA.getImgUrl())
-        .field("imageThumbnail", CACHED_DATA.getImgUrl())
+        .field("message", "https://www.facebook.com/Wishswing/posts/" + data.getStoryId())
+        .field("imageFullsize", data.getImgUrl())
+        .field("imageThumbnail", data.getImgUrl())
         .asString();
     logger.info(response.getBody());
   }

@@ -42,6 +42,7 @@ rikaService:
  selfLocation: ${selfLocation}
  checkPage: ${checkPage}
  checkHashTeg: ${checkHashTeg}
+ fbNewestStory: ${fbNewestStory}
  
 spring:
  datasource:

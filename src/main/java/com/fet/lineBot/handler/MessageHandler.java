@@ -72,7 +72,9 @@ public class MessageHandler {
   @Value("${rikaService.imageKeyWord}")
   private String IMAGE_KEYWORD;
   @Value("${rikaService.fbNewestPost}")
-  private String FB_KEYWORD;
+  private String FB_NEWEST_POST;
+  @Value("${rikaService.fbNewestStory}")
+  private String FB_NEWEST_STORY;
 
   @EventMapping
   public void handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
@@ -144,10 +146,10 @@ public class MessageHandler {
       }
     }
 
-    if (0 == message.indexOf(FB_KEYWORD)) {
+    if (0 == message.indexOf(FB_NEWEST_POST)) {
       try {
         FBPostData fbPostData = clampService.queryFBNewestPost();
-        Text content = Text.builder().text("FB最新話").build();
+        Text content = Text.builder().text("FB最新貼文").build();
         Image image = Image.builder().url(new URI(fbPostData.getImgUrl())).build();
         Box body = Box.builder().contents(Arrays.asList(new FlexComponent[] {image, content}))
             .layout(FlexLayout.VERTICAL).build();
@@ -155,7 +157,31 @@ public class MessageHandler {
         AltUri altUri = new AltUri(uri);
         URIAction action = new URIAction("see more", uri, altUri);
         Bubble bubble = Bubble.builder().body(body).action(action).build();
-        FlexMessage flexMessage = FlexMessage.builder().altText("FB最新話").contents(bubble).build();
+        FlexMessage flexMessage = FlexMessage.builder().altText("FB最新貼文").contents(bubble).build();
+        BotApiResponse apiResponse = lineMessagingClient
+            .replyMessage(new ReplyMessage(event.getReplyToken(), flexMessage, false)).get();
+        logger.info("Sent messages: {}", apiResponse);
+      } catch (InterruptedException | ExecutionException e) {
+        throw new RuntimeException(e);
+      } catch (URISyntaxException e) {
+        logger.error(e);
+        e.printStackTrace();
+      }
+      return;
+    }
+    
+    if (0 == message.indexOf(FB_NEWEST_STORY)) {
+      try {
+        FBPostData fbPostData = clampService.queryFBNewestStoryPost();
+        Text content = Text.builder().text("漫畫更新最新回").build();
+        Image image = Image.builder().url(new URI(fbPostData.getImgUrl())).build();
+        Box body = Box.builder().contents(Arrays.asList(new FlexComponent[] {image, content}))
+            .layout(FlexLayout.VERTICAL).build();
+        URI uri = new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId());
+        AltUri altUri = new AltUri(uri);
+        URIAction action = new URIAction("see more", uri, altUri);
+        Bubble bubble = Bubble.builder().body(body).action(action).build();
+        FlexMessage flexMessage = FlexMessage.builder().altText("漫畫更新最新回").contents(bubble).build();
         BotApiResponse apiResponse = lineMessagingClient
             .replyMessage(new ReplyMessage(event.getReplyToken(), flexMessage, false)).get();
         logger.info("Sent messages: {}", apiResponse);

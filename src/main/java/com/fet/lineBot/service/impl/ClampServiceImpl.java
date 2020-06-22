@@ -376,19 +376,7 @@ List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='trT']");
 
           }
           
-          /* 處理最新貼文的快取 */
-          if (null != NEWEST_POST_CACHED_DATA) {
-            /* 更換暫存資料並發送 Line 通知 */
-            if (data.getStoryId() > NEWEST_POST_CACHED_DATA.getStoryId()) {
-              NEWEST_POST_CACHED_DATA = data;
-              sendNotify(NEWEST_POST_CACHED_DATA);
-            }
-          } else {
-            NEWEST_POST_CACHED_DATA = data;
-            sendNotify(NEWEST_POST_CACHED_DATA);
-          }
-          
-          /* 處理最新話的快取 */
+          /* 處理最新漫畫回的快取 */
           /* 切出包含設定檔中 hashTag 的相關貼文 */
           if (element.getByXPath("./div/div/span/p/a/span").stream().filter((item -> {
             DomElement ele = (DomElement) item;
@@ -405,6 +393,17 @@ List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='trT']");
           }
       }
       logger.info(new Gson().toJson(data));
+      /* 處理最新貼文的快取 */
+      if (null != NEWEST_POST_CACHED_DATA) {
+        /* 更換暫存資料並發送 Line 通知 */
+        if (data.getStoryId() > NEWEST_POST_CACHED_DATA.getStoryId()) {
+          NEWEST_POST_CACHED_DATA = data;
+          sendNotify(NEWEST_POST_CACHED_DATA);
+        }
+      } else {
+        NEWEST_POST_CACHED_DATA = data;
+      }
+      
 
     } catch (FailingHttpStatusCodeException e) {
       logger.error(e);

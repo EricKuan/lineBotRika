@@ -394,7 +394,7 @@ List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='trT']");
             DomElement ele = (DomElement) item;
             return checkHashTeg.equalsIgnoreCase(ele.getTextContent());
           })).count() > 0) {
-            if (null != NEWEST_POST_CACHED_DATA) {
+            if (null != NEWEST_STORY_CACHED_DATA) {
               /* 更換暫存資料並發送 Line 通知 */
               if (data.getStoryId() > NEWEST_STORY_CACHED_DATA.getStoryId()) {
                 NEWEST_STORY_CACHED_DATA = data;

@@ -382,6 +382,7 @@ List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='trT']");
           logger.info(ele.getTextContent());
           return checkHashTeg.equalsIgnoreCase(ele.getTextContent());
         })).count() > 0) {
+          logger.info(new Gson().toJson(data));
           data.setComicFlag(true);
           if (null != NEWEST_STORY_CACHED_DATA) {
             if (data.getStoryId() > NEWEST_STORY_CACHED_DATA.getStoryId()) {

@@ -77,6 +77,8 @@ public class MessageHandler {
   private String FB_NEWEST_STORY;
   @Value("${rikaService.wellcomeMessage}")
   private String WELLCOME_MSG;
+  @Value("${rikaService.defaultImgUrl}")
+  private String DEFAULT_IMG_URL;
 
   @EventMapping
   public void handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
@@ -156,7 +158,7 @@ public class MessageHandler {
         if(StringUtils.isNotBlank(fbPostData.getImgUrl())) {
         	image = Image.builder().url(new URI(fbPostData.getImgUrl())).build();
         }else {
-        	image = Image.builder().url(new URI("https://i.imgur.com/sFZEtCJ.jpg")).build();
+        	image = Image.builder().url(new URI(DEFAULT_IMG_URL)).build();
         }
         Box body = Box.builder().contents(Arrays.asList(new FlexComponent[] {image, content}))
             .layout(FlexLayout.VERTICAL).build();

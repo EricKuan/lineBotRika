@@ -44,7 +44,7 @@ rikaService:
  checkHashTeg: ${checkHashTeg}
  fbNewestStory: ${fbNewestStory}
  wellcomeMessage: ${wellcomeMessage}
-defaultImgUrl: ${defaultImgUrl}
+ defaultImgUrl: ${defaultImgUrl}
  
 spring:
  datasource:

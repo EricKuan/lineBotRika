@@ -152,7 +152,12 @@ public class MessageHandler {
       try {
         FBPostData fbPostData = clampService.queryFBNewestPost();
         Text content = Text.builder().text("FB最新貼文").build();
-        Image image = Image.builder().url(new URI(fbPostData.getImgUrl())).build();
+        Image image = null;
+        if(StringUtils.isNotBlank(fbPostData.getImgUrl())) {
+        	image = Image.builder().url(new URI(fbPostData.getImgUrl())).build();
+        }else {
+        	image = Image.builder().url(new URI("https://i.imgur.com/sFZEtCJ.jpg")).build();
+        }
         Box body = Box.builder().contents(Arrays.asList(new FlexComponent[] {image, content}))
             .layout(FlexLayout.VERTICAL).build();
         URI uri = new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId());

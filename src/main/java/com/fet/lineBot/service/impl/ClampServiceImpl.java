@@ -347,6 +347,7 @@ List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='trT']");
       WebClient client = new WebClient();
       HtmlPage page = HTMLParser.parseHtml(response, client.getCurrentWindow());
       /* 切出包含貼文的 DIV */
+      logger.info(page.asXml());
       List<DomElement> bodyDivList = page.getBody().getByXPath("./div/div/div/div/div");
       List<DomElement> elementList = bodyDivList.stream().filter(item -> {
         DomElement dom = (DomElement) item;
@@ -358,9 +359,16 @@ List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='trT']");
         String storyId = null;
         List<DomElement> storyIdList = element.getByXPath("./div/div/a");
         if (storyIdList.size() > 0) {
-          String href = storyIdList.get(0).getAttribute("href");
-          storyId = href.substring(href.indexOf("=") + 1, href.indexOf("&"));
-        }
+			String href = storyIdList.get(0).getAttribute("href");
+			for (DomElement hyperLink : storyIdList) {
+				String att = hyperLink.getAttribute("href");
+				if (att.indexOf("story_fbid") > 0) {
+					href = att;
+					break;
+				}
+			}
+			storyId = href.substring(href.indexOf("=") + 1, href.indexOf("&"));
+		}
 
         /* 觀察到新貼文時建立快取圖片路徑 */
         if (data.getStoryId() < Long.valueOf(storyId)) {

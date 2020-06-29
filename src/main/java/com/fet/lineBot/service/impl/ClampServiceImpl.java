@@ -494,7 +494,7 @@ List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='trT']");
 		} finally {
 			webClient.close();
 		}
-
+		System.gc();
 		return result.toString();
 	}
 }

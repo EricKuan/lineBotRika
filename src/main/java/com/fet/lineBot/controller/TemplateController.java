@@ -35,7 +35,7 @@ public class TemplateController {
 
     }
 	
-	@RequestMapping("/novel/{novalNum}")
+//	@RequestMapping("/novel/{novalNum}")
 	public String novel(Map<String, Object> map, @PathVariable("novalNum") int novalNum) {
 		
 		String content = clampService.getNovel(novalNum); 

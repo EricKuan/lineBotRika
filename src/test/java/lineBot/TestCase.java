@@ -176,4 +176,12 @@ public class TestCase {
 		fo.close();
 		webClient.close();
 	}
+	
+	
+	@Test
+	public void test07() throws JSONException, IOException {
+		ClampServiceImpl service = new ClampServiceImpl();
+		String msg = service.getNovel(1695);
+		System.out.println(msg);
+	}
 }

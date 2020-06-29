@@ -34,4 +34,14 @@ public class TemplateController {
         return "/index";
 
     }
+	
+	@RequestMapping("/novel/{novalNum}")
+	public String novel(Map<String, Object> map, @PathVariable("storyNum") int novalNum) {
+		
+		String content = clampService.getNovel(novalNum); 
+		
+		map.put("content", content);
+		return "/novel";
+
+	}
 }

@@ -1,5 +1,7 @@
 package lineBot;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -12,14 +14,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
+
 import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.service.impl.ClampServiceImpl;
+import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
+import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.StringWebResponse;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import com.google.gson.Gson;
+
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 
@@ -133,5 +140,40 @@ public class TestCase {
 
 		}
 		logger.info(new Gson().toJson(data));
+	}
+	@Test
+	public void test06() throws JSONException, IOException {
+		WebClient webClient = new WebClient();
+		webClient.getOptions().setUseInsecureSSL(true);
+		webClient.getOptions().setJavaScriptEnabled(false);
+		webClient.getOptions().setCssEnabled(false);
+		webClient.getOptions().setRedirectEnabled(false);
+		webClient.getOptions().setThrowExceptionOnScriptError(false);
+		webClient.getOptions().setTimeout(10000);
+		webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
+		webClient.getOptions().setDoNotTrackEnabled(true);
+		webClient.setAjaxController(new NicelyResynchronizingAjaxController());
+		String baseUrl = "https://www.wenku8.net/novel/1/1695/";
+		webClient.waitForBackgroundJavaScript(500);
+		HtmlPage page = webClient.getPage(baseUrl);
+		logger.info(page.asXml());
+		List<DomElement> hrefList = page.getBody().getByXPath("//td[@class=\"ccss\"]/a");
+		StringBuffer sb = new StringBuffer();
+		for(DomElement elem:hrefList) {
+			String chapterUrl = baseUrl + elem.getAttribute("href");
+			//logger.info(chapterUrl);
+			HtmlPage chapterPage = webClient.getPage(chapterUrl);
+			webClient.waitForBackgroundJavaScript(500);
+			//logger.info(chapterPage.asXml());
+			DomElement content = (DomElement) chapterPage.getBody().getByXPath("//div[@id=\"content\"]").stream().findFirst().get();
+			String original = content.asText();
+			String translation = ZhConverterUtil.convertToTraditional(original);
+			sb.append(translation);
+		}
+		FileOutputStream fo = new FileOutputStream(new File("F:\\noval\\騎士與魔法.txt"));
+		fo.write(sb.toString().getBytes());
+		fo.flush();
+		fo.close();
+		webClient.close();
 	}
 }

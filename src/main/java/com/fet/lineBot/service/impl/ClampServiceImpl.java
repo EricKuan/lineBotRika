@@ -1,5 +1,7 @@
 package com.fet.lineBot.service.impl;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,6 +26,7 @@ import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
+import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import com.google.gson.Gson;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
@@ -448,11 +451,50 @@ List<HtmlTableRow> elementList = htmlPage.getByXPath( "//tr[@class='trT']");
     logger.info(response.getBody());
   }
   
-  
+  /**
+   * 讓 heroku 不會自動休眠
+   */
   @Scheduled(initialDelay = 120000, fixedRate = 1200000)
   private void renewHeroku() {
     logger.info("heartbeat");
     HttpResponse<String> response = Unirest.get(selfLocation).asString();
     logger.info(response.getBody());
   }
+
+	@Override
+	public String getNovel(int novelNum) {
+		WebClient webClient = null;
+		StringBuffer result = new StringBuffer();
+		try {
+			webClient = getWebClient();
+			StringBuffer sb = new StringBuffer();
+			sb.append("https://www.wenku8.net/novel/1/");
+			sb.append(novelNum);
+			sb.append("/");
+			String baseUrl = sb.toString();
+			webClient.waitForBackgroundJavaScript(100);
+			HtmlPage page = webClient.getPage(baseUrl);
+//			logger.info(page.asXml());
+			List<DomElement> hrefList = page.getBody().getByXPath("//td[@class=\"ccss\"]/a");
+			
+			for (DomElement elem : hrefList) {
+				String chapterUrl = baseUrl + elem.getAttribute("href");
+				// logger.info(chapterUrl);
+				HtmlPage chapterPage = webClient.getPage(chapterUrl);
+				webClient.waitForBackgroundJavaScript(500);
+				// logger.info(chapterPage.asXml());
+				DomElement content = (DomElement) chapterPage.getBody().getByXPath("//div[@id=\"content\"]").stream()
+						.findFirst().get();
+				String original = content.asText();
+				String translation = ZhConverterUtil.convertToTraditional(original);
+				result.append(translation);
+			}
+		} catch (Exception e) {
+			return e.getMessage();
+		} finally {
+			webClient.close();
+		}
+
+		return result.toString();
+	}
 }

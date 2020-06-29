@@ -22,4 +22,11 @@ public interface ClampService {
    * @return
    */
   public FBPostData queryFBNewestStoryPost();
+  
+  /**
+   * 查詢輕小說文庫的小說
+   * @param novelNum
+   * @return
+   */
+  public String getNovel(int novelNum);
 }

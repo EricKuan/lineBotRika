@@ -90,6 +90,9 @@ public class MessageHandler {
   @Value("${rikaService.defaultImgUrl}")
   private String DEFAULT_IMG_URL;
 
+  @Value("${rikaService.menuImgUrl}")
+  private String MENU_IMG_URL;
+
   @EventMapping
   public void handleTextMessageEvent(MessageEvent<TextMessageContent> event)
       throws URISyntaxException {
@@ -298,7 +301,7 @@ public class MessageHandler {
       Template template =
           ButtonsTemplate.builder()
               .title("MENU")
-              .thumbnailImageUrl(new URI("https://i.imgur.com/CdzlEyf.jpg"))
+              .thumbnailImageUrl(new URI(MENU_IMG_URL))
               .text("請選擇指令")
               .actions(Arrays.asList(introduction, newestPost, newestStory, subscription))
               .build();

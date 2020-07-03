@@ -45,6 +45,7 @@ rikaService:
  fbNewestStory: ${fbNewestStory}
  wellcomeMessage: ${wellcomeMessage}
  defaultImgUrl: ${defaultImgUrl}
+ menuImgUrl: ${menuImgUrl}
  
 spring:
  datasource:

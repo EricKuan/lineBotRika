@@ -91,7 +91,8 @@ public class MessageHandler {
   private String DEFAULT_IMG_URL;
 
   @EventMapping
-  public void handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
+  public void handleTextMessageEvent(MessageEvent<TextMessageContent> event)
+      throws URISyntaxException {
     logger.info("event: " + new Gson().toJson(event));
     String message = event.getMessage().getText();
     String rtnMsg;
@@ -278,32 +279,28 @@ public class MessageHandler {
 
     if ("@menu".equalsIgnoreCase(message)) {
       logger.info("event: " + new Gson().toJson(event));
-      PostbackAction welcomeMsg =
-          PostbackAction.builder()
-              .label("@歡迎訊息")
-              .text("@歡迎訊息")
-              .data("@歡迎訊息")
-              .build();
       PostbackAction newestStory =
-              PostbackAction.builder()
-                      .label(FB_NEWEST_STORY)
-                      .text(FB_NEWEST_STORY)
-                      .data(FB_NEWEST_STORY)
-                      .build();
+          PostbackAction.builder()
+              .label(FB_NEWEST_STORY)
+              .text(FB_NEWEST_STORY)
+              .data(FB_NEWEST_STORY)
+              .build();
       PostbackAction newestPost =
-              PostbackAction.builder()
-                      .label(FB_NEWEST_POST)
-                      .text(FB_NEWEST_POST)
-                      .data(FB_NEWEST_POST)
-                      .build();
+          PostbackAction.builder()
+              .label(FB_NEWEST_POST)
+              .text(FB_NEWEST_POST)
+              .data(FB_NEWEST_POST)
+              .build();
       Template template =
           ButtonsTemplate.builder()
               .title("MENU")
-              .text("請選擇想要取得的FB資訊")
-              .actions(Arrays.asList(newestPost,newestStory))
+              .thumbnailImageUrl(new URI("https://i.imgur.com/CdzlEyf.jpg"))
+              .text("請選擇指令")
+              .actions(Arrays.asList(newestPost, newestStory))
               .build();
 
-      TemplateMessage replyTemplateMsg = TemplateMessage.builder().template(template).altText("選單").build();
+      TemplateMessage replyTemplateMsg =
+          TemplateMessage.builder().template(template).altText("選單").build();
 
       reply(event.getReplyToken(), replyTemplateMsg);
 

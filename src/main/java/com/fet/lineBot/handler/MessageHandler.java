@@ -333,10 +333,6 @@ public class MessageHandler {
     System.out.println("event: " + event);
     String stickId = event.getMessage().getStickerId();
     String packageId = event.getMessage().getPackageId();
-    String rtnMsg = messageService.queryStickerResponse(stickId);
-    if (StringUtils.isNotBlank(rtnMsg)) {
-      reply(event.getReplyToken(), new TextMessage(rtnMsg));
-    }
     if (STICKER_ID.equalsIgnoreCase(stickId) && PACKAGE_ID.equalsIgnoreCase(packageId)) {
       String token = event.getReplyToken();
       try {
@@ -344,7 +340,15 @@ public class MessageHandler {
       } catch (Exception e) {
         logger.error(e);
       }
+      return;
     }
+
+    /* 處理貼圖回文 */
+    String rtnMsg = messageService.queryStickerResponse(stickId);
+    if (StringUtils.isNotBlank(rtnMsg)) {
+      reply(event.getReplyToken(), new TextMessage(rtnMsg));
+    }
+
   }
 
   private void reply(@NonNull String replyToken, @NonNull Message message) {

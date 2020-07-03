@@ -291,12 +291,16 @@ public class MessageHandler {
               .text(FB_NEWEST_POST)
               .data(FB_NEWEST_POST)
               .build();
+      PostbackAction introduction =
+          PostbackAction.builder().label("@現實童話").text("前導介紹").data("@現實童話").build();
+      PostbackAction subscription =
+          PostbackAction.builder().label("訂閱資訊").text("訂閱資訊").data("@關於訂閱").build();
       Template template =
           ButtonsTemplate.builder()
               .title("MENU")
               .thumbnailImageUrl(new URI("https://i.imgur.com/CdzlEyf.jpg"))
               .text("請選擇指令")
-              .actions(Arrays.asList(newestPost, newestStory))
+              .actions(Arrays.asList(introduction, newestPost, newestStorys, ubscription))
               .build();
 
       TemplateMessage replyTemplateMsg =

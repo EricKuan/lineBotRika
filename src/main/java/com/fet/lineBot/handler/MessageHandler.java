@@ -300,7 +300,7 @@ public class MessageHandler {
               .title("MENU")
               .thumbnailImageUrl(new URI("https://i.imgur.com/CdzlEyf.jpg"))
               .text("請選擇指令")
-              .actions(Arrays.asList(introduction, newestPost, newestStorys, ubscription))
+              .actions(Arrays.asList(introduction, newestPost, newestStory, subscription))
               .build();
 
       TemplateMessage replyTemplateMsg =

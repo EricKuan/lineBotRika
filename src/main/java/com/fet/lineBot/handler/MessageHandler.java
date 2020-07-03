@@ -7,7 +7,6 @@ import com.fet.lineBot.service.MessageService;
 import com.google.gson.Gson;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
-import com.linecorp.bot.model.action.MessageAction;
 import com.linecorp.bot.model.action.PostbackAction;
 import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.action.URIAction.AltUri;
@@ -25,7 +24,6 @@ import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.flex.component.Box;
-import com.linecorp.bot.model.message.flex.component.Button;
 import com.linecorp.bot.model.message.flex.component.Image;
 import com.linecorp.bot.model.message.flex.component.Text;
 import com.linecorp.bot.model.message.flex.container.Bubble;
@@ -130,6 +128,7 @@ public class MessageHandler {
       sb.append("記住回圖: \n\t@回圖看到 [關鍵字] 回 [圖片url]");
       rtnMsg = sb.toString();
       reply(event.getReplyToken(), new TextMessage(rtnMsg));
+
       return;
     }
 
@@ -279,12 +278,21 @@ public class MessageHandler {
 
     if ("@menu".equalsIgnoreCase(message)) {
       logger.info("event: " + new Gson().toJson(event));
-      PostbackAction welcomeMsg = PostbackAction.builder().label(WELLCOME_MSG).text(WELLCOME_MSG).build();
-      Template template = ButtonsTemplate.builder().actions(Arrays.asList(welcomeMsg)).build();
+      PostbackAction welcomeMsg =
+          PostbackAction.builder()
+              .label(WELLCOME_MSG)
+              .text(WELLCOME_MSG)
+              .data(WELLCOME_MSG)
+              .build();
+      Template template =
+          ButtonsTemplate.builder()
+              .title("MENU")
+              .text("請選擇")
+              .actions(Arrays.asList(welcomeMsg))
+              .build();
 
       TemplateMessage replyTemplateMsg = TemplateMessage.builder().template(template).build();
-      reply(event.getReplyToken(),
-              replyTemplateMsg);
+      reply(event.getReplyToken(), replyTemplateMsg);
 
       return;
     }

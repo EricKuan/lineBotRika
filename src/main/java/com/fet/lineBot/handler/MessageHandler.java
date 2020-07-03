@@ -284,11 +284,23 @@ public class MessageHandler {
               .text("@歡迎訊息")
               .data("@歡迎訊息")
               .build();
+      PostbackAction newestStory =
+              PostbackAction.builder()
+                      .label(FB_NEWEST_STORY)
+                      .text(FB_NEWEST_STORY)
+                      .data(FB_NEWEST_STORY)
+                      .build();
+      PostbackAction newestPost =
+              PostbackAction.builder()
+                      .label(FB_NEWEST_POST)
+                      .text(FB_NEWEST_POST)
+                      .data(FB_NEWEST_POST)
+                      .build();
       Template template =
           ButtonsTemplate.builder()
               .title("MENU")
-              .text("請選擇")
-              .actions(Arrays.asList(welcomeMsg))
+              .text("請選擇想要取得的FB資訊")
+              .actions(Arrays.asList(newestPost,newestStory))
               .build();
 
       TemplateMessage replyTemplateMsg = TemplateMessage.builder().template(template).altText("選單").build();

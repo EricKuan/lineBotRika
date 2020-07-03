@@ -351,7 +351,7 @@ public class ClampServiceImpl implements ClampService {
       WebClient client = new WebClient();
       HtmlPage page = HTMLParser.parseHtml(response, client.getCurrentWindow());
       /* 切出包含貼文的 DIV */
-      logger.info(page.asXml());
+      logger.debug(page.asXml());
       List<DomElement> bodyDivList = page.getBody().getByXPath("./div/div/div/div/div");
       List<DomElement> elementList =
           bodyDivList.stream()
@@ -403,7 +403,7 @@ public class ClampServiceImpl implements ClampService {
           findStoryFromElement(element, storyId);
         }
       }
-      logger.info(new Gson().toJson(data));
+      logger.debug(new Gson().toJson(data));
       /* 處理最新貼文的快取 */
       if (null != NEWEST_POST_CACHED_DATA) {
         /* 更換暫存資料並發送 Line 通知 */
@@ -438,7 +438,7 @@ public class ClampServiceImpl implements ClampService {
     }
     storyData.setStoryId(Long.valueOf(storyId));
     storyData.setImgUrl(imgUrl);
-    logger.info(new Gson().toJson(storyData));
+    logger.debug(new Gson().toJson(storyData));
     storyData.setComicFlag(true);
     if (null != NEWEST_STORY_CACHED_DATA) {
       if (storyData.getStoryId() > NEWEST_STORY_CACHED_DATA.getStoryId()) {
@@ -458,7 +458,7 @@ public class ClampServiceImpl implements ClampService {
             .field("imageFullsize", data.getImgUrl())
             .field("imageThumbnail", data.getImgUrl())
             .asString();
-    logger.info(response.getBody());
+    logger.debug(response.getBody());
   }
 
   /** 讓 heroku 不會自動休眠 */
@@ -466,7 +466,7 @@ public class ClampServiceImpl implements ClampService {
   private void renewHeroku() {
     logger.info("heartbeat");
     HttpResponse<String> response = Unirest.get(selfLocation).asString();
-    logger.info(response.getBody());
+    logger.debug(response.getBody());
   }
 
   @Override

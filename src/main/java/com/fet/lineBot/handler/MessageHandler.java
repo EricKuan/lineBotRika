@@ -291,7 +291,8 @@ public class MessageHandler {
               .actions(Arrays.asList(welcomeMsg))
               .build();
 
-      TemplateMessage replyTemplateMsg = TemplateMessage.builder().template(template).build();
+      TemplateMessage replyTemplateMsg = TemplateMessage.builder().template(template).altText("選單").build();
+
       reply(event.getReplyToken(), replyTemplateMsg);
 
       return;

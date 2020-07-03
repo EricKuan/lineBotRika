@@ -280,9 +280,9 @@ public class MessageHandler {
       logger.info("event: " + new Gson().toJson(event));
       PostbackAction welcomeMsg =
           PostbackAction.builder()
-              .label(WELLCOME_MSG)
-              .text(WELLCOME_MSG)
-              .data(WELLCOME_MSG)
+              .label("@歡迎訊息")
+              .text("@歡迎訊息")
+              .data("@歡迎訊息")
               .build();
       Template template =
           ButtonsTemplate.builder()

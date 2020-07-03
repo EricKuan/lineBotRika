@@ -283,11 +283,17 @@ public class MessageHandler {
     if ("@menu".equalsIgnoreCase(message)) {
       logger.info("event: " + new Gson().toJson(event));
       PostbackAction newestStory =
-          PostbackAction.builder().label("漫畫最新回").text(FB_NEWEST_STORY).build();
+          PostbackAction.builder()
+              .label("漫畫最新回")
+              .text(FB_NEWEST_STORY)
+              .data(FB_NEWEST_STORY)
+              .build();
       PostbackAction newestPost =
-          PostbackAction.builder().label("最新貼文").text(FB_NEWEST_POST).build();
-      PostbackAction introduction = PostbackAction.builder().label("前導介紹").text("@現實童話").build();
-      PostbackAction subscription = PostbackAction.builder().label("訂閱資訊").text("@關於訂閱").build();
+          PostbackAction.builder().label("最新貼文").text(FB_NEWEST_POST).data(FB_NEWEST_POST).build();
+      PostbackAction introduction =
+          PostbackAction.builder().label("前導介紹").text("@現實童話").data("@現實童話").build();
+      PostbackAction subscription =
+          PostbackAction.builder().label("訂閱資訊").text("@關於訂閱").data("@現實童話").build();
       Template template =
           ButtonsTemplate.builder()
               .title("MENU")

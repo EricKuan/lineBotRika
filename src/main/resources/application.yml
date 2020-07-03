@@ -26,7 +26,6 @@ line.bot:
 #   com.linecorp.bot.client.wire: INFO
 
 rikaService:
- stickerId: 99024854
  messagePrefix: call
  settingPrefix: ${settingPrefix}
  deletePrefix: ${deletePrefix}
@@ -46,6 +45,8 @@ rikaService:
  wellcomeMessage: ${wellcomeMessage}
  defaultImgUrl: ${defaultImgUrl}
  menuImgUrl: ${menuImgUrl}
+ stickerId: ${stickerId}
+ packageId: ${packageId}
  
 spring:
  datasource:

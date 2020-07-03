@@ -93,6 +93,12 @@ public class MessageHandler {
   @Value("${rikaService.menuImgUrl}")
   private String MENU_IMG_URL;
 
+  @Value("${rikaService.packageId}")
+  private String PACKAGE_ID;
+
+  @Value("${rikaService.stickerId}")
+  private String STICKER_ID;
+
   @EventMapping
   public void handleTextMessageEvent(MessageEvent<TextMessageContent> event)
       throws URISyntaxException {
@@ -282,30 +288,8 @@ public class MessageHandler {
 
     if ("@menu".equalsIgnoreCase(message)) {
       logger.info("event: " + new Gson().toJson(event));
-      PostbackAction newestStory =
-          PostbackAction.builder()
-              .label("漫畫最新回")
-              .text(FB_NEWEST_STORY)
-              .data(FB_NEWEST_STORY)
-              .build();
-      PostbackAction newestPost =
-          PostbackAction.builder().label("最新貼文").text(FB_NEWEST_POST).data(FB_NEWEST_POST).build();
-      PostbackAction introduction =
-          PostbackAction.builder().label("前導介紹").text("@現實童話").data("@現實童話").build();
-      PostbackAction subscription =
-          PostbackAction.builder().label("訂閱資訊").text("@關於訂閱").data("@現實童話").build();
-      Template template =
-          ButtonsTemplate.builder()
-              .title("MENU")
-              .thumbnailImageUrl(new URI(MENU_IMG_URL))
-              .text("請選擇指令")
-              .actions(Arrays.asList(introduction, newestPost, newestStory, subscription))
-              .build();
-
-      TemplateMessage replyTemplateMsg =
-          TemplateMessage.builder().template(template).altText("選單").build();
-
-      reply(event.getReplyToken(), replyTemplateMsg);
+      String token = event.getReplyToken();
+      replyMenuMsg(token);
 
       return;
     }
@@ -314,6 +298,29 @@ public class MessageHandler {
     if (rtnMsgObj != null) {
       reply(event.getReplyToken(), messageService.queryReplyMessage(message));
     }
+  }
+
+  private void replyMenuMsg(String token) throws URISyntaxException {
+    PostbackAction newestStory =
+        PostbackAction.builder().label("漫畫最新回").text(FB_NEWEST_STORY).data(FB_NEWEST_STORY).build();
+    PostbackAction newestPost =
+        PostbackAction.builder().label("最新貼文").text(FB_NEWEST_POST).data(FB_NEWEST_POST).build();
+    PostbackAction introduction =
+        PostbackAction.builder().label("前導介紹").text("@現實童話").data("@現實童話").build();
+    PostbackAction subscription =
+        PostbackAction.builder().label("訂閱資訊").text("@關於訂閱").data("@現實童話").build();
+    Template template =
+        ButtonsTemplate.builder()
+            .title("MENU")
+            .thumbnailImageUrl(new URI(MENU_IMG_URL))
+            .text("請選擇指令")
+            .actions(Arrays.asList(introduction, newestPost, newestStory, subscription))
+            .build();
+
+    TemplateMessage replyTemplateMsg =
+        TemplateMessage.builder().template(template).altText("選單").build();
+
+    reply(token, replyTemplateMsg);
   }
 
   @EventMapping
@@ -325,9 +332,18 @@ public class MessageHandler {
   public void handleStickerMessageEvent(MessageEvent<StickerMessageContent> event) {
     System.out.println("event: " + event);
     String stickId = event.getMessage().getStickerId();
+    String packageId = event.getMessage().getPackageId();
     String rtnMsg = messageService.queryStickerResponse(stickId);
     if (StringUtils.isNotBlank(rtnMsg)) {
       reply(event.getReplyToken(), new TextMessage(rtnMsg));
+    }
+    if (STICKER_ID.equalsIgnoreCase(stickId) && PACKAGE_ID.equalsIgnoreCase(packageId)) {
+      String token = event.getReplyToken();
+      try {
+        replyMenuMsg(token);
+      } catch (Exception e) {
+        logger.error(e);
+      }
     }
   }
 

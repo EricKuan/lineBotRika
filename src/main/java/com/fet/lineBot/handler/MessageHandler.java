@@ -7,6 +7,8 @@ import com.fet.lineBot.service.MessageService;
 import com.google.gson.Gson;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
+import com.linecorp.bot.model.action.MessageAction;
+import com.linecorp.bot.model.action.PostbackAction;
 import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.action.URIAction.AltUri;
 import com.linecorp.bot.model.event.Event;
@@ -20,13 +22,17 @@ import com.linecorp.bot.model.event.source.Source;
 import com.linecorp.bot.model.event.source.UserSource;
 import com.linecorp.bot.model.message.FlexMessage;
 import com.linecorp.bot.model.message.Message;
+import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.flex.component.Box;
+import com.linecorp.bot.model.message.flex.component.Button;
 import com.linecorp.bot.model.message.flex.component.Image;
 import com.linecorp.bot.model.message.flex.component.Text;
 import com.linecorp.bot.model.message.flex.container.Bubble;
 import com.linecorp.bot.model.message.flex.container.Carousel;
 import com.linecorp.bot.model.message.flex.unit.FlexLayout;
+import com.linecorp.bot.model.message.template.ButtonsTemplate;
+import com.linecorp.bot.model.message.template.Template;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
@@ -268,6 +274,18 @@ public class MessageHandler {
       logger.info("event: " + new Gson().toJson(event));
       logger.info(event.getReplyToken());
       reply(event.getReplyToken(), new TextMessage(WELLCOME_MSG));
+      return;
+    }
+
+    if ("@menu".equalsIgnoreCase(message)) {
+      logger.info("event: " + new Gson().toJson(event));
+      PostbackAction welcomeMsg = PostbackAction.builder().label(WELLCOME_MSG).text(WELLCOME_MSG).build();
+      Template template = ButtonsTemplate.builder().actions(Arrays.asList(welcomeMsg)).build();
+
+      TemplateMessage replyTemplateMsg = TemplateMessage.builder().template(template).build();
+      reply(event.getReplyToken(),
+              replyTemplateMsg);
+
       return;
     }
 

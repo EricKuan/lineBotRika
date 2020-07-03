@@ -379,7 +379,7 @@ public class ClampServiceImpl implements ClampService {
         }
 
         /* 觀察到新貼文時建立快取圖片路徑 */
-        if (data.getStoryId() < Long.valueOf(storyId)) {
+        if (data.getStoryId() < Long.parseLong(storyId)) {
 
           String imgUrl = null;
           /* 切出圖片路徑 */

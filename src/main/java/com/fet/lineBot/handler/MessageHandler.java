@@ -131,12 +131,11 @@ public class MessageHandler {
       return;
     }
     if (0 == message.indexOf(HELP_KEYWORD)) {
-      StringBuffer sb = new StringBuffer();
-      sb.append("記住關鍵字:  \n\t@回文字看到 [關鍵字] 回 [回應訊息]\n");
-      sb.append("忘記關鍵字: \n\t@忘記 [關鍵字]\n");
-      sb.append("列出所有關鍵字:\n\t六花請列出關鍵字\n");
-      sb.append("記住回圖: \n\t@回圖看到 [關鍵字] 回 [圖片url]");
-      rtnMsg = sb.toString();
+      String sb = "記住關鍵字:  \n\t@回文字看到 [關鍵字] 回 [回應訊息]\n" +
+              "忘記關鍵字: \n\t@忘記 [關鍵字]\n" +
+              "列出所有關鍵字:\n\t六花請列出關鍵字\n" +
+              "記住回圖: \n\t@回圖看到 [關鍵字] 回 [圖片url]";
+      rtnMsg = sb;
       reply(event.getReplyToken(), new TextMessage(rtnMsg));
 
       return;
@@ -176,7 +175,7 @@ public class MessageHandler {
       try {
         FBPostData fbPostData = clampService.queryFBNewestPost();
         Text content = Text.builder().text("FB最新貼文").build();
-        Image image = null;
+        Image image;
         if (StringUtils.isNotBlank(fbPostData.getImgUrl())) {
           image = Image.builder().url(new URI(fbPostData.getImgUrl())).build();
         } else {
@@ -286,7 +285,7 @@ public class MessageHandler {
       return;
     }
 
-    if ("@menu".equalsIgnoreCase(message)) {
+    if (0 == message.indexOf("@menu")) {
       logger.info("event: " + new Gson().toJson(event));
       String token = event.getReplyToken();
       replyMenuMsg(token);

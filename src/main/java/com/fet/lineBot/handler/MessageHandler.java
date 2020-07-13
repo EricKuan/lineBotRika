@@ -129,7 +129,7 @@ public class MessageHandler {
       return;
     }
 
-    if (0 == message.indexOf("bye")) {
+    if (0 == message.indexOf("@bye")) {
       Source source = event.getSource();
       if (source instanceof GroupSource) {
         try {

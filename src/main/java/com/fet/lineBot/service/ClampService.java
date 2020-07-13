@@ -1,7 +1,8 @@
 package com.fet.lineBot.service;
 
-import java.util.List;
 import com.fet.lineBot.domain.model.FBPostData;
+
+import java.util.List;
 
 public interface ClampService {
 
@@ -11,20 +12,21 @@ public interface ClampService {
 
   /**
    * 查詢最新貼文的 FB 連結
-   * 
+   *
    * @return
    */
   public FBPostData queryFBNewestPost();
 
   /**
    * 查詢最新話的 FB 連結
-   * 
+   *
    * @return
    */
   public FBPostData queryFBNewestStoryPost();
-  
+
   /**
    * 查詢輕小說文庫的小說
+   *
    * @param novelNum
    * @return
    */

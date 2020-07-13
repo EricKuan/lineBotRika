@@ -1,16 +1,5 @@
 package com.fet.lineBot.handler;
 
-import static java.util.Collections.singletonList;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import com.fet.lineBot.domain.dao.MemberDataRepository;
 import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.service.ClampService;
@@ -18,6 +7,7 @@ import com.fet.lineBot.service.MessageService;
 import com.google.gson.Gson;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
+import com.linecorp.bot.model.action.PostbackAction;
 import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.action.URIAction.AltUri;
 import com.linecorp.bot.model.event.Event;
@@ -31,57 +21,87 @@ import com.linecorp.bot.model.event.source.Source;
 import com.linecorp.bot.model.event.source.UserSource;
 import com.linecorp.bot.model.message.FlexMessage;
 import com.linecorp.bot.model.message.Message;
+import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.flex.component.Box;
-import com.linecorp.bot.model.message.flex.component.FlexComponent;
 import com.linecorp.bot.model.message.flex.component.Image;
 import com.linecorp.bot.model.message.flex.component.Text;
 import com.linecorp.bot.model.message.flex.container.Bubble;
 import com.linecorp.bot.model.message.flex.container.Carousel;
 import com.linecorp.bot.model.message.flex.unit.FlexLayout;
+import com.linecorp.bot.model.message.template.ButtonsTemplate;
+import com.linecorp.bot.model.message.template.Template;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import static java.util.Collections.singletonList;
 
 @LineMessageHandler
 public class MessageHandler {
 
   private static final Logger logger = LogManager.getLogger(MessageHandler.class);
 
-  @Autowired
-  MessageService messageService;
-  @Autowired
-  ClampService clampService;
-  @Autowired
-  MemberDataRepository memberDataRepo;
+  @Autowired MessageService messageService;
+  @Autowired ClampService clampService;
+  @Autowired MemberDataRepository memberDataRepo;
 
-  @Autowired
-  private LineMessagingClient lineMessagingClient;
+  @Autowired private LineMessagingClient lineMessagingClient;
 
   @Value("${rikaService.helpKeyword}")
   private String HELP_KEYWORD;
+
   @Value("${rikaService.settingPrefix}")
   private String SETTING_PREFIX;
+
   @Value("${rikaService.deletePrefix}")
   private String DELETE_PREFIX;
+
   @Value("${rikaService.vote}")
   private String VOTE;
+
   @Value("${rikaService.listAllKeyWord}")
   private String ALL_KEYWORD;
+
   @Value("${rikaService.imageKeyWord}")
   private String IMAGE_KEYWORD;
+
   @Value("${rikaService.fbNewestPost}")
   private String FB_NEWEST_POST;
+
   @Value("${rikaService.fbNewestStory}")
   private String FB_NEWEST_STORY;
+
   @Value("${rikaService.wellcomeMessage}")
   private String WELLCOME_MSG;
+
   @Value("${rikaService.defaultImgUrl}")
   private String DEFAULT_IMG_URL;
 
+  @Value("${rikaService.menuImgUrl}")
+  private String MENU_IMG_URL;
+
+  @Value("${rikaService.packageId}")
+  private String PACKAGE_ID;
+
+  @Value("${rikaService.stickerId}")
+  private String STICKER_ID;
+
   @EventMapping
-  public void handleTextMessageEvent(MessageEvent<TextMessageContent> event) {
+  public void handleTextMessageEvent(MessageEvent<TextMessageContent> event)
+      throws URISyntaxException {
     logger.info("event: " + new Gson().toJson(event));
     String message = event.getMessage().getText();
     String rtnMsg;
@@ -90,8 +110,9 @@ public class MessageHandler {
       String[] split = message.split("看到");
       String[] mapping = split[1].split("回");
 
-      rtnMsg = messageService.saveMessageMapping(mapping[0], mapping[1],
-          event.getSource().getSenderId());
+      rtnMsg =
+          messageService.saveMessageMapping(
+              mapping[0], mapping[1], event.getSource().getSenderId());
       reply(event.getReplyToken(), new TextMessage(rtnMsg));
       return;
     }
@@ -110,13 +131,13 @@ public class MessageHandler {
       return;
     }
     if (0 == message.indexOf(HELP_KEYWORD)) {
-      StringBuffer sb = new StringBuffer();
-      sb.append("記住關鍵字:  \n\t@回文字看到 [關鍵字] 回 [回應訊息]\n");
-      sb.append("忘記關鍵字: \n\t@忘記 [關鍵字]\n");
-      sb.append("列出所有關鍵字:\n\t六花請列出關鍵字\n");
-      sb.append("記住回圖: \n\t@回圖看到 [關鍵字] 回 [圖片url]");
-      rtnMsg = sb.toString();
+      String sb = "記住關鍵字:  \n\t@回文字看到 [關鍵字] 回 [回應訊息]\n" +
+              "忘記關鍵字: \n\t@忘記 [關鍵字]\n" +
+              "列出所有關鍵字:\n\t六花請列出關鍵字\n" +
+              "記住回圖: \n\t@回圖看到 [關鍵字] 回 [圖片url]";
+      rtnMsg = sb;
       reply(event.getReplyToken(), new TextMessage(rtnMsg));
+
       return;
     }
 
@@ -154,21 +175,26 @@ public class MessageHandler {
       try {
         FBPostData fbPostData = clampService.queryFBNewestPost();
         Text content = Text.builder().text("FB最新貼文").build();
-        Image image = null;
-        if(StringUtils.isNotBlank(fbPostData.getImgUrl())) {
-        	image = Image.builder().url(new URI(fbPostData.getImgUrl())).build();
-        }else {
-        	image = Image.builder().url(new URI(DEFAULT_IMG_URL)).build();
+        Image image;
+        if (StringUtils.isNotBlank(fbPostData.getImgUrl())) {
+          image = Image.builder().url(new URI(fbPostData.getImgUrl())).build();
+        } else {
+          image = Image.builder().url(new URI(DEFAULT_IMG_URL)).build();
         }
-        Box body = Box.builder().contents(Arrays.asList(new FlexComponent[] {image, content}))
-            .layout(FlexLayout.VERTICAL).build();
+        Box body =
+            Box.builder()
+                .contents(Arrays.asList(image, content))
+                .layout(FlexLayout.VERTICAL)
+                .build();
         URI uri = new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId());
         AltUri altUri = new AltUri(uri);
         URIAction action = new URIAction("see more", uri, altUri);
         Bubble bubble = Bubble.builder().body(body).action(action).build();
         FlexMessage flexMessage = FlexMessage.builder().altText("FB最新貼文").contents(bubble).build();
-        BotApiResponse apiResponse = lineMessagingClient
-            .replyMessage(new ReplyMessage(event.getReplyToken(), flexMessage, false)).get();
+        BotApiResponse apiResponse =
+            lineMessagingClient
+                .replyMessage(new ReplyMessage(event.getReplyToken(), flexMessage, false))
+                .get();
         logger.info("Sent messages: {}", apiResponse);
       } catch (InterruptedException | ExecutionException e) {
         throw new RuntimeException(e);
@@ -178,21 +204,26 @@ public class MessageHandler {
       }
       return;
     }
-    
+
     if (0 == message.indexOf(FB_NEWEST_STORY)) {
       try {
         FBPostData fbPostData = clampService.queryFBNewestStoryPost();
         Text content = Text.builder().text("漫畫更新最新回").build();
         Image image = Image.builder().url(new URI(fbPostData.getImgUrl())).build();
-        Box body = Box.builder().contents(Arrays.asList(new FlexComponent[] {image, content}))
-            .layout(FlexLayout.VERTICAL).build();
+        Box body =
+            Box.builder()
+                .contents(Arrays.asList(image, content))
+                .layout(FlexLayout.VERTICAL)
+                .build();
         URI uri = new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId());
         AltUri altUri = new AltUri(uri);
         URIAction action = new URIAction("see more", uri, altUri);
         Bubble bubble = Bubble.builder().body(body).action(action).build();
         FlexMessage flexMessage = FlexMessage.builder().altText("漫畫更新最新回").contents(bubble).build();
-        BotApiResponse apiResponse = lineMessagingClient
-            .replyMessage(new ReplyMessage(event.getReplyToken(), flexMessage, false)).get();
+        BotApiResponse apiResponse =
+            lineMessagingClient
+                .replyMessage(new ReplyMessage(event.getReplyToken(), flexMessage, false))
+                .get();
         logger.info("Sent messages: {}", apiResponse);
       } catch (InterruptedException | ExecutionException e) {
         throw new RuntimeException(e);
@@ -202,34 +233,42 @@ public class MessageHandler {
       }
       return;
     }
-    
 
     if ("@flex".equalsIgnoreCase(message)) {
-
 
       try {
         Text content = Text.builder().text("看玻璃的另一側第一回").build();
         Image image = Image.builder().url(new URI("https://i.imgur.com/FHnvGQS.jpg")).build();
-        Box body = Box.builder().contents(Arrays.asList(new FlexComponent[]{image,content})).layout(FlexLayout.VERTICAL).build();
+        Box body =
+            Box.builder()
+                .contents(Arrays.asList(image, content))
+                .layout(FlexLayout.VERTICAL)
+                .build();
         URI uri = new URI("https://linebotrika.herokuapp.com/hello/39");
         AltUri altUri = new AltUri(uri);
         URIAction action = new URIAction("see more", uri, altUri);
-        
+
         Text content2 = Text.builder().text("看玻璃的另一側最新回").build();
         Image image2 = Image.builder().url(new URI("https://i.imgur.com/0il5n2M.jpg")).build();
-        Box body2 = Box.builder().contents(Arrays.asList(new FlexComponent[]{image2,content2})).layout(FlexLayout.VERTICAL).build();
+        Box body2 =
+            Box.builder()
+                .contents(Arrays.asList(image2, content2))
+                .layout(FlexLayout.VERTICAL)
+                .build();
         URI uri2 = new URI("https://linebotrika.herokuapp.com/hello/0");
         AltUri altUri2 = new AltUri(uri);
         URIAction action2 = new URIAction("see more", uri2, altUri2);
 
         Bubble bubble = Bubble.builder().body(body).action(action).build();
         Bubble bubble2 = Bubble.builder().body(body2).action(action2).build();
-        Carousel carousal = Carousel.builder().contents(Arrays.asList(new Bubble[] {bubble, bubble2})).build(); 
+        Carousel carousal = Carousel.builder().contents(Arrays.asList(bubble, bubble2)).build();
         // FlexMessage flexMessage = new FlexMessage("flextest", bubble);
         FlexMessage flexMessage =
             FlexMessage.builder().altText("玻璃的另一側").contents(carousal).build();
-        BotApiResponse apiResponse = lineMessagingClient
-            .replyMessage(new ReplyMessage(event.getReplyToken(), flexMessage, false)).get();
+        BotApiResponse apiResponse =
+            lineMessagingClient
+                .replyMessage(new ReplyMessage(event.getReplyToken(), flexMessage, false))
+                .get();
         logger.info("Sent messages: {}", apiResponse);
       } catch (InterruptedException | ExecutionException e) {
         throw new RuntimeException(e);
@@ -245,13 +284,42 @@ public class MessageHandler {
       reply(event.getReplyToken(), new TextMessage(WELLCOME_MSG));
       return;
     }
-    
+
+    if (0 == message.indexOf("@menu")) {
+      logger.info("event: " + new Gson().toJson(event));
+      String token = event.getReplyToken();
+      replyMenuMsg(token);
+
+      return;
+    }
+
     Message rtnMsgObj = messageService.queryReplyMessage(message);
     if (rtnMsgObj != null) {
       reply(event.getReplyToken(), messageService.queryReplyMessage(message));
     }
-    return;
+  }
 
+  private void replyMenuMsg(String token) throws URISyntaxException {
+    PostbackAction newestStory =
+        PostbackAction.builder().label("漫畫最新回").text(FB_NEWEST_STORY).data(FB_NEWEST_STORY).build();
+    PostbackAction newestPost =
+        PostbackAction.builder().label("最新貼文").text(FB_NEWEST_POST).data(FB_NEWEST_POST).build();
+    PostbackAction introduction =
+        PostbackAction.builder().label("前導介紹").text("@現實童話").data("@現實童話").build();
+    PostbackAction subscription =
+        PostbackAction.builder().label("訂閱資訊").text("@關於訂閱").data("@現實童話").build();
+    Template template =
+        ButtonsTemplate.builder()
+            .title("MENU")
+            .thumbnailImageUrl(new URI(MENU_IMG_URL))
+            .text("請選擇指令")
+            .actions(Arrays.asList(introduction, newestPost, newestStory, subscription))
+            .build();
+
+    TemplateMessage replyTemplateMsg =
+        TemplateMessage.builder().template(template).altText("選單").build();
+
+    reply(token, replyTemplateMsg);
   }
 
   @EventMapping
@@ -263,11 +331,23 @@ public class MessageHandler {
   public void handleStickerMessageEvent(MessageEvent<StickerMessageContent> event) {
     System.out.println("event: " + event);
     String stickId = event.getMessage().getStickerId();
+    String packageId = event.getMessage().getPackageId();
+    if (STICKER_ID.equalsIgnoreCase(stickId) && PACKAGE_ID.equalsIgnoreCase(packageId)) {
+      String token = event.getReplyToken();
+      try {
+        replyMenuMsg(token);
+      } catch (Exception e) {
+        logger.error(e);
+      }
+      return;
+    }
+
+    /* 處理貼圖回文 */
     String rtnMsg = messageService.queryStickerResponse(stickId);
     if (StringUtils.isNotBlank(rtnMsg)) {
       reply(event.getReplyToken(), new TextMessage(rtnMsg));
     }
-    return;
+
   }
 
   private void reply(@NonNull String replyToken, @NonNull Message message) {
@@ -278,11 +358,13 @@ public class MessageHandler {
     reply(replyToken, messages, false);
   }
 
-  private void reply(@NonNull String replyToken, @NonNull List<Message> messages,
-      boolean notificationDisabled) {
+  private void reply(
+      @NonNull String replyToken, @NonNull List<Message> messages, boolean notificationDisabled) {
     try {
-      BotApiResponse apiResponse = lineMessagingClient
-          .replyMessage(new ReplyMessage(replyToken, messages, notificationDisabled)).get();
+      BotApiResponse apiResponse =
+          lineMessagingClient
+              .replyMessage(new ReplyMessage(replyToken, messages, notificationDisabled))
+              .get();
       logger.info("Sent messages: {}", apiResponse);
     } catch (InterruptedException | ExecutionException e) {
       throw new RuntimeException(e);
@@ -300,7 +382,5 @@ public class MessageHandler {
         reply(event.getReplyToken(), new TextMessage(WELLCOME_MSG));
       }
     }
-
   }
-
 }

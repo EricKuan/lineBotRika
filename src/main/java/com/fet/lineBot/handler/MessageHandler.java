@@ -131,11 +131,10 @@ public class MessageHandler {
       return;
     }
     if (0 == message.indexOf(HELP_KEYWORD)) {
-      String sb = "記住關鍵字:  \n\t@回文字看到 [關鍵字] 回 [回應訊息]\n" +
+      rtnMsg = "記住關鍵字:  \n\t@回文字看到 [關鍵字] 回 [回應訊息]\n" +
               "忘記關鍵字: \n\t@忘記 [關鍵字]\n" +
               "列出所有關鍵字:\n\t六花請列出關鍵字\n" +
               "記住回圖: \n\t@回圖看到 [關鍵字] 回 [圖片url]";
-      rtnMsg = sb;
       reply(event.getReplyToken(), new TextMessage(rtnMsg));
 
       return;
@@ -181,15 +180,8 @@ public class MessageHandler {
         } else {
           image = Image.builder().url(new URI(DEFAULT_IMG_URL)).build();
         }
-        Box body =
-            Box.builder()
-                .contents(Arrays.asList(image, content))
-                .layout(FlexLayout.VERTICAL)
-                .build();
-        URI uri = new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId());
-        AltUri altUri = new AltUri(uri);
-        URIAction action = new URIAction("see more", uri, altUri);
-        Bubble bubble = Bubble.builder().body(body).action(action).build();
+
+        Bubble bubble = buildBoxBodyData(fbPostData, content, image);
         FlexMessage flexMessage = FlexMessage.builder().altText("FB最新貼文").contents(bubble).build();
         BotApiResponse apiResponse =
             lineMessagingClient
@@ -210,15 +202,7 @@ public class MessageHandler {
         FBPostData fbPostData = clampService.queryFBNewestStoryPost();
         Text content = Text.builder().text("漫畫更新最新回").build();
         Image image = Image.builder().url(new URI(fbPostData.getImgUrl())).build();
-        Box body =
-            Box.builder()
-                .contents(Arrays.asList(image, content))
-                .layout(FlexLayout.VERTICAL)
-                .build();
-        URI uri = new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId());
-        AltUri altUri = new AltUri(uri);
-        URIAction action = new URIAction("see more", uri, altUri);
-        Bubble bubble = Bubble.builder().body(body).action(action).build();
+        Bubble bubble = buildBoxBodyData(fbPostData, content, image);
         FlexMessage flexMessage = FlexMessage.builder().altText("漫畫更新最新回").contents(bubble).build();
         BotApiResponse apiResponse =
             lineMessagingClient
@@ -297,6 +281,18 @@ public class MessageHandler {
     if (rtnMsgObj != null) {
       reply(event.getReplyToken(), messageService.queryReplyMessage(message));
     }
+  }
+
+  private Bubble buildBoxBodyData(FBPostData fbPostData, Text content, Image image) throws URISyntaxException {
+    Box body =
+        Box.builder()
+            .contents(Arrays.asList(image, content))
+            .layout(FlexLayout.VERTICAL)
+            .build();
+    URI uri = new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId());
+    AltUri altUri = new AltUri(uri);
+    URIAction action = new URIAction("see more", uri, altUri);
+    return Bubble.builder().body(body).action(action).build();
   }
 
   private void replyMenuMsg(String token) throws URISyntaxException {

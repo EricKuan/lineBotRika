@@ -13,6 +13,7 @@ import com.linecorp.bot.model.action.URIAction.AltUri;
 import com.linecorp.bot.model.event.Event;
 import com.linecorp.bot.model.event.MemberJoinedEvent;
 import com.linecorp.bot.model.event.MessageEvent;
+import com.linecorp.bot.model.event.PostbackEvent;
 import com.linecorp.bot.model.event.message.StickerMessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.event.source.GroupSource;
@@ -131,10 +132,11 @@ public class MessageHandler {
       return;
     }
     if (0 == message.indexOf(HELP_KEYWORD)) {
-      rtnMsg = "記住關鍵字:  \n\t@回文字看到 [關鍵字] 回 [回應訊息]\n" +
-              "忘記關鍵字: \n\t@忘記 [關鍵字]\n" +
-              "列出所有關鍵字:\n\t六花請列出關鍵字\n" +
-              "記住回圖: \n\t@回圖看到 [關鍵字] 回 [圖片url]";
+      rtnMsg =
+          "記住關鍵字:  \n\t@回文字看到 [關鍵字] 回 [回應訊息]\n"
+              + "忘記關鍵字: \n\t@忘記 [關鍵字]\n"
+              + "列出所有關鍵字:\n\t六花請列出關鍵字\n"
+              + "記住回圖: \n\t@回圖看到 [關鍵字] 回 [圖片url]";
       reply(event.getReplyToken(), new TextMessage(rtnMsg));
 
       return;
@@ -283,12 +285,10 @@ public class MessageHandler {
     }
   }
 
-  private Bubble buildBoxBodyData(FBPostData fbPostData, Text content, Image image) throws URISyntaxException {
+  private Bubble buildBoxBodyData(FBPostData fbPostData, Text content, Image image)
+      throws URISyntaxException {
     Box body =
-        Box.builder()
-            .contents(Arrays.asList(image, content))
-            .layout(FlexLayout.VERTICAL)
-            .build();
+        Box.builder().contents(Arrays.asList(image, content)).layout(FlexLayout.VERTICAL).build();
     URI uri = new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId());
     AltUri altUri = new AltUri(uri);
     URIAction action = new URIAction("see more", uri, altUri);
@@ -298,12 +298,9 @@ public class MessageHandler {
   private void replyMenuMsg(String token) throws URISyntaxException {
     PostbackAction newestStory =
         PostbackAction.builder().label("漫畫最新回").data(FB_NEWEST_STORY).build();
-    PostbackAction newestPost =
-        PostbackAction.builder().label("最新貼文").data(FB_NEWEST_POST).build();
-    PostbackAction introduction =
-        PostbackAction.builder().label("前導介紹").data("@現實童話").build();
-    PostbackAction subscription =
-        PostbackAction.builder().label("訂閱資訊").data("@現實童話").build();
+    PostbackAction newestPost = PostbackAction.builder().label("最新貼文").data(FB_NEWEST_POST).build();
+    PostbackAction introduction = PostbackAction.builder().label("前導介紹").data("@現實童話").build();
+    PostbackAction subscription = PostbackAction.builder().label("訂閱資訊").data("@現實童話").build();
     Template template =
         ButtonsTemplate.builder()
             .title("MENU")
@@ -343,7 +340,6 @@ public class MessageHandler {
     if (StringUtils.isNotBlank(rtnMsg)) {
       reply(event.getReplyToken(), new TextMessage(rtnMsg));
     }
-
   }
 
   private void reply(@NonNull String replyToken, @NonNull Message message) {
@@ -377,6 +373,22 @@ public class MessageHandler {
         logger.info(event.getReplyToken());
         reply(event.getReplyToken(), new TextMessage(WELLCOME_MSG));
       }
+    }
+  }
+
+  @EventMapping
+  public void handlePostbackEvent(PostbackEvent event) {
+    event.getPostbackContent().getData();
+    MessageEvent<TextMessageContent> textMessageContentMessageEvent =
+        new MessageEvent(
+            event.getReplyToken(),
+            event.getSource(),
+            new TextMessageContent(null, event.getPostbackContent().getData()),
+            event.getTimestamp());
+    try {
+      handleTextMessageEvent(textMessageContentMessageEvent);
+    } catch (Exception e) {
+      logger.error(e);
     }
   }
 }

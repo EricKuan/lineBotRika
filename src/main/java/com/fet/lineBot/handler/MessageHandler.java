@@ -296,11 +296,16 @@ public class MessageHandler {
   }
 
   private void replyMenuMsg(String token) throws URISyntaxException {
-    PostbackAction newestStory =
-        PostbackAction.builder().label("漫畫最新回").data(FB_NEWEST_STORY).build();
-    PostbackAction newestPost = PostbackAction.builder().label("最新貼文").data(FB_NEWEST_POST).build();
-    PostbackAction introduction = PostbackAction.builder().label("前導介紹").data("@現實童話").build();
-    PostbackAction subscription = PostbackAction.builder().label("訂閱資訊").data("@現實童話").build();
+
+    FBPostData fbPostData = clampService.queryFBNewestStoryPost();
+    URIAction newestStory = new URIAction("漫畫最新回", new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId()),null);
+
+    fbPostData = clampService.queryFBNewestPost();
+    URIAction newestPost = new URIAction("最新貼文", new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId()),null);
+
+    URIAction introduction = new URIAction("前導介紹", new URI("http://www.wishstudio.com.tw/2969423526332873146135441303403631738626.html"),null);
+    URIAction subscription = new URIAction("訂閱資訊", new URI("http://www.wishstudio.com.tw/97333533038321wish9733.html"),null);
+
     Template template =
         ButtonsTemplate.builder()
             .title("MENU")

@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>com.linecorp.bot</groupId>
 			<artifactId>line-bot-spring-boot</artifactId>
-			<version>3.3.0</version>
+			<version>3.6.0</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-actuator -->
 		<dependency>

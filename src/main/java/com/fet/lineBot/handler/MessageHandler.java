@@ -142,7 +142,7 @@ public class MessageHandler {
       return;
     }
 
-    if (0 == message.indexOf(IMAGE_KEYWORD) && event.getSource() instanceof UserSource) {
+    if (0 == message.indexOf(IMAGE_KEYWORD)) {
       String[] split = message.split("看到");
       String[] mapping = split[1].split("回");
       rtnMsg =

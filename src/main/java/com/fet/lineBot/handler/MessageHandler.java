@@ -107,7 +107,7 @@ public class MessageHandler {
     String message = event.getMessage().getText();
     String rtnMsg;
     /* 設定內容 */
-    if (0 == message.indexOf(SETTING_PREFIX) && event.getSource() instanceof UserSource) {
+    if (0 == message.indexOf(SETTING_PREFIX) ) {
       String[] split = message.split("看到");
       String[] mapping = split[1].split("回");
 

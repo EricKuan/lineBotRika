@@ -205,7 +205,7 @@ public class YoutubeServiceImpl implements YoutubeService {
     }
 
     private void sendNotify(YoutubeLiveData data) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Taipei"));
         StringBuilder sb = new StringBuilder();
         sb.append("\n")

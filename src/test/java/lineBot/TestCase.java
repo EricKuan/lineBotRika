@@ -204,10 +204,10 @@ public class TestCase {
     public void test09() throws Exception {
         YoutubeServiceImpl youtubeService = new YoutubeServiceImpl();
 
-        youtubeService.schduleClambYoutubeData();
+        youtubeService.scheduleClamYoutubeData();
         Thread.sleep(5000);
-        youtubeService.schduleClambYoutubeData();
+        youtubeService.scheduleClamYoutubeData();
         Thread.sleep(5000);
-        youtubeService.schduleClambYoutubeData();
+        youtubeService.scheduleClamYoutubeData();
     }
 }

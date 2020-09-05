@@ -49,7 +49,7 @@ public class YoutubeServiceImpl implements YoutubeService {
 
 
     @Scheduled(initialDelay = 120000, fixedRate = 600000)
-    public void schduleClambYoutubeData() {
+    public void scheduleClamYoutubeData() {
         String[] channelIdList = CHANNEL_ID_LIST.split(",");
 
         for (String channelId : channelIdList) {

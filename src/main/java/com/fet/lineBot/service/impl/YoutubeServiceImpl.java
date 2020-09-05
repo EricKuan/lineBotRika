@@ -34,7 +34,7 @@ public class YoutubeServiceImpl implements YoutubeService {
     @Value("${rikaService.youtubeAPIKey}")
     private  String DEVELOPER_KEY;
 
-    @Value("${rikaService.youtubeAPIKey}")
+    @Value("${rikaService.notifyTime}")
     private long notifyTime;
 
     // 設定要查找的 channel

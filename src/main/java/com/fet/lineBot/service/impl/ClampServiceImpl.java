@@ -3,6 +3,7 @@ package com.fet.lineBot.service.impl;
 import com.fet.lineBot.domain.dao.MangaDataRepository;
 import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.domain.model.MangaData;
+import com.fet.lineBot.domain.model.YoutubeLiveData;
 import com.fet.lineBot.service.ClampService;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
@@ -29,7 +30,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -285,6 +288,10 @@ public class ClampServiceImpl implements ClampService {
     WebClient webClient = new WebClient();
     webClient.getOptions().setUseInsecureSSL(true);
     webClient.getOptions().setJavaScriptEnabled(false);
+    return getWebClient(webClient);
+  }
+
+  private WebClient getWebClient(WebClient webClient) {
     webClient.getOptions().setCssEnabled(false);
     webClient.getOptions().setRedirectEnabled(false);
     webClient.getOptions().setThrowExceptionOnScriptError(false);
@@ -299,14 +306,7 @@ public class ClampServiceImpl implements ClampService {
     WebClient webClient = new WebClient();
     webClient.getOptions().setUseInsecureSSL(true);
     webClient.getOptions().setJavaScriptEnabled(true);
-    webClient.getOptions().setCssEnabled(false);
-    webClient.getOptions().setRedirectEnabled(false);
-    webClient.getOptions().setThrowExceptionOnScriptError(false);
-    webClient.getOptions().setTimeout(10000);
-    webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
-    webClient.getOptions().setDoNotTrackEnabled(true);
-    webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-    return webClient;
+    return getWebClient(webClient);
   }
 
   @Override

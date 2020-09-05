@@ -47,6 +47,9 @@ rikaService:
  menuImgUrl: ${menuImgUrl}
  stickerId: ${stickerId}
  packageId: ${packageId}
+ youtubeAPIKey: ${youtubeAPIKey}
+ notifyTime: ${notifyTime}
+ channelIdList: ${channelIdList}
  
 spring:
  datasource:

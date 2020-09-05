@@ -94,6 +94,9 @@ public class YoutubeServiceImpl implements YoutubeService {
 
     @Override
     public YoutubeLiveData searchUpcomingByChannelId(String channelId) throws GeneralSecurityException, IOException {
+        if(YOUTUBE_CACHE_MAP_U.containsKey(channelId)){
+            return null;
+        }
         SearchListResponse searchListResponse = searchAPI(channelId, "upcoming", "video");
         YoutubeLiveData rtnObj = transLiveData(channelId,"upcoming",searchListResponse);
         return rtnObj;
@@ -204,11 +207,20 @@ public class YoutubeServiceImpl implements YoutubeService {
     }
 
     private void sendNotify(YoutubeLiveData data) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(data.getTitle()).append("\n將於")
+                .append(data.getLiveDate().toString())
+                .append("開始\n")
+                .append("直播網址：")
+                .append(data.getUrl());
+
+
         HttpResponse<String> response =
                 Unirest.post("https://notify-api.line.me/api/notify")
                         .header("Authorization", "Bearer " + token)
                         .multiPartContent()
-                        .field("message", data.getUrl())
+                        .field("message", sb.toString())
                         .field("imageFullsize", data.getLargeImgUrl())
                         .field("imageThumbnail", data.getImgUrl())
                         .asString();

@@ -54,31 +54,35 @@ public class YoutubeServiceImpl implements YoutubeService {
 
         for (String channelId : channelIdList) {
             try {
-                //1. 處理 upcoming
+
+                //1. 處理 live
+                Optional.ofNullable(searchLiveByChannelId(channelId)).ifPresent(live ->{
+                    if(!YOUTUBE_CACHE_MAP_L.containsKey(live.getVideoId())){
+                        YOUTUBE_CACHE_MAP_L.put(live.getVideoId(),live);
+                        log.debug("live: {}\n title: {}\n url:{}",live.getChannelId(),live.getTitle(),live.getUrl());
+                        log.debug("img: {}\n largeImg: {}",live.getImgUrl(),live.getLargeImgUrl());
+                        // TODO: 發送訊息
+                        sendNotify(live);
+                    }
+
+                });
+
+                //2. 處理 upcoming
                 Optional.ofNullable(searchUpcomingByChannelId(channelId)).ifPresent(upcoming ->{
                     Date now = new Date();
-                    if(upcoming.getLiveDate().getTime() - now.getTime()<notifyTime
-                            && !YOUTUBE_CACHE_MAP_U.containsKey(upcoming.getChannelId())){
-                        YOUTUBE_CACHE_MAP_U.put(upcoming.getChannelId(),upcoming);
+                    long timeCount = upcoming.getLiveDate().getTime() - now.getTime();
+                    if(timeCount > 0 && timeCount < notifyTime
+                            && !YOUTUBE_CACHE_MAP_U.containsKey(upcoming.getVideoId())){
+                        YOUTUBE_CACHE_MAP_U.put(upcoming.getVideoId(),upcoming);
                         log.debug("upcoming: {}\n title: {}\n url:{}",upcoming.getChannelId(),upcoming.getTitle(),upcoming.getUrl());
-                        log.debug("img: {}\n largImg: {}",upcoming.getImgUrl(),upcoming.getLargeImgUrl());
+                        log.debug("img: {}\n largeImg: {}",upcoming.getImgUrl(),upcoming.getLargeImgUrl());
                         // TODO: 發送訊息
                         sendNotify(upcoming);
                     }
                 });
 
 
-                //2. 處理 live
-                Optional.ofNullable(searchLiveByChannelId(channelId)).ifPresent(live ->{
-                    if(!YOUTUBE_CACHE_MAP_L.containsKey(live.getChannelId())){
-                        YOUTUBE_CACHE_MAP_L.put(live.getChannelId(),live);
-                        log.debug("live: {}\n title: {}\n url:{}",live.getChannelId(),live.getTitle(),live.getUrl());
-                        log.debug("img: {}\n largImg: {}",live.getImgUrl(),live.getLargeImgUrl());
-                        // TODO: 發送訊息
-                        sendNotify(live);
-                    }
 
-                });
 
             } catch (GeneralSecurityException gsEx) {
                 log.error(gsEx);

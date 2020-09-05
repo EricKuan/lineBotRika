@@ -50,6 +50,7 @@ rikaService:
  youtubeAPIKey: ${youtubeAPIKey}
  notifyTime: ${notifyTime}
  channelIdList: ${channelIdList}
+ youtubeNotifyToken: ${youtubeNotifyToken}
  
 spring:
  datasource:

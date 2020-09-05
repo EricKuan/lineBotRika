@@ -1,13 +1,11 @@
 package com.fet.lineBot.service.impl;
 
-import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.domain.model.YoutubeLiveData;
 import com.fet.lineBot.service.YoutubeService;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.DateTime;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
@@ -41,7 +39,8 @@ public class YoutubeServiceImpl implements YoutubeService {
     @Value("${rikaService.channelIdList}")
     private String CHANNEL_ID_LIST;
 
-    @Value("${rikaService.lineToken}")
+    // 直播通知用 token
+    @Value("${rikaService.youtubeNotifyToken}")
     private String token;
 
     private static final String APPLICATION_NAME = "lineBot";

@@ -193,13 +193,7 @@ public class TestCase {
 
         YoutubeServiceImpl youtubeService = new YoutubeServiceImpl();
 
-        YoutubeLiveData upcoming = youtubeService.searchUpcomingByChannelId("UCSBG5KBsczK0mqDxGzZGJFg");
-
-        YoutubeLiveData live = youtubeService.searchLiveByChannelId("UCUKD-uaobj9jiqB-VXt71mA");
-
-        System.out.println(new Gson().toJson(upcoming));
-        System.out.println(upcoming.getUrl());
-
+        YoutubeLiveData live = youtubeService.searchLiveByChannelId("UCl_gCybOJRIgOXw6Qb4qJzQ");
         System.out.println(new Gson().toJson(live));
         System.out.println(live.getUrl());
 

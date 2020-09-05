@@ -19,10 +19,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 @Log4j2
@@ -207,11 +205,13 @@ public class YoutubeServiceImpl implements YoutubeService {
     }
 
     private void sendNotify(YoutubeLiveData data) {
-
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Taipei"));
         StringBuilder sb = new StringBuilder();
-        sb.append(data.getTitle()).append("\n將於")
-                .append(data.getLiveDate().toString())
-                .append("開始\n")
+        sb.append("\n")
+                .append(data.getTitle()).append("\n將於 ")
+                .append(sdf.format(data.getLiveDate()))
+                .append(" 開始\n")
                 .append("直播網址：")
                 .append(data.getUrl());
 

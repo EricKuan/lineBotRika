@@ -105,7 +105,7 @@ public class MessageHandler {
     String message = event.getMessage().getText();
     String rtnMsg;
     /* 設定內容 */
-    if (0 == message.indexOf(SETTING_PREFIX) ) {
+    if (0 == message.indexOf(SETTING_PREFIX)) {
       String[] split = message.split("看到");
       String[] mapping = split[1].split("回");
 
@@ -296,13 +296,27 @@ public class MessageHandler {
   private void replyMenuMsg(String token) throws URISyntaxException {
 
     FBPostData fbPostData = clampService.queryFBNewestStoryPost();
-    URIAction newestStory = new URIAction("漫畫最新回", new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId()),null);
+    URIAction newestStory =
+        new URIAction(
+            "漫畫最新回",
+            new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId()),
+            null);
 
     fbPostData = clampService.queryFBNewestPost();
-    URIAction newestPost = new URIAction("最新貼文", new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId()),null);
+    URIAction newestPost =
+        new URIAction(
+            "最新貼文",
+            new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId()),
+            null);
 
-    URIAction introduction = new URIAction("前導介紹", new URI("http://www.wishstudio.com.tw/2969423526332873146135441303403631738626.html"),null);
-    URIAction subscription = new URIAction("訂閱資訊", new URI("http://www.wishstudio.com.tw/97333533038321wish9733.html"),null);
+    URIAction introduction =
+        new URIAction(
+            "前導介紹",
+            new URI("http://www.wishstudio.com.tw/2969423526332873146135441303403631738626.html"),
+            null);
+    URIAction subscription =
+        new URIAction(
+            "訂閱資訊", new URI("http://www.wishstudio.com.tw/97333533038321wish9733.html"), null);
 
     Template template =
         ButtonsTemplate.builder()

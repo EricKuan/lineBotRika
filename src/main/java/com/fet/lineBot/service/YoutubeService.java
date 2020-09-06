@@ -7,10 +7,9 @@ import java.security.GeneralSecurityException;
 
 public interface YoutubeService {
 
+  YoutubeLiveData searchUpcomingByChannelId(String channelId)
+      throws GeneralSecurityException, IOException;
 
-  YoutubeLiveData searchUpcomingByChannelId(String channelId) throws GeneralSecurityException, IOException ;
-
-  YoutubeLiveData searchLiveByChannelId(String channelId) throws GeneralSecurityException, IOException;
-
-
+  YoutubeLiveData searchLiveByChannelId(String channelId)
+      throws GeneralSecurityException, IOException;
 }

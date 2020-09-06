@@ -1,33 +1,33 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org"
-	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+      xmlns:th="http://www.thymeleaf.org"
+>
 <head>
-<title>玻璃的另一側</title>
-<style>
-.myfont2 {
-	text-align: center;
-	font-size: large;
-}
-</style>
+    <title>玻璃的另一側</title>
+    <style>
+        .myfont2 {
+            text-align: center;
+            font-size: large;
+        }
+    </style>
 </head>
 <body>
-	<h1 th:inline="text">玻璃的另一側</h1>
-	<p th:text="${hello}"></p>
-	<div>
-		<p class='myfont2'>
-			<a th:href="${linkBack}">往前一話</a>
-		</p>
-	</div>
-	<table border="1">
-		<tr th:each="m : ${imgList}">
-			<td><img th:src="${m}"></td>
-		</tr>
-	</table>
-	<div>
-		<p class='myfont2'>
-			<a th:href="${linkForward}">往下一話</a>
-		</p>
-	</div>
+<h1 th:inline="text">玻璃的另一側</h1>
+<p th:text="${hello}"></p>
+<div>
+    <p class='myfont2'>
+        <a th:href="${linkBack}">往前一話</a>
+    </p>
+</div>
+<table border="1">
+    <tr th:each="m : ${imgList}">
+        <td><img th:src="${m}"></td>
+    </tr>
+</table>
+<div>
+    <p class='myfont2'>
+        <a th:href="${linkForward}">往下一話</a>
+    </p>
+</div>
 </body>
 </html>

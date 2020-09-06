@@ -3,7 +3,6 @@ package com.fet.lineBot.service.impl;
 import com.fet.lineBot.domain.dao.MangaDataRepository;
 import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.domain.model.MangaData;
-import com.fet.lineBot.domain.model.YoutubeLiveData;
 import com.fet.lineBot.service.ClampService;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
@@ -27,12 +26,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -145,12 +142,15 @@ public class ClampServiceImpl implements ClampService {
       sb.append(elementList.get(2).getCell(5).asText());
       sb.append("%\n");
 
-      hanCount = Integer.parseInt(elementList.get(1).getCell(4).asText().replaceAll(",", ""));
-      thasCount = Integer.parseInt(elementList.get(2).getCell(4).asText().replaceAll(",", ""));
+      hanCount = Integer.parseInt(elementList.get(1).getCell(4).asText().replace(",", ""));
+      thasCount = Integer.parseInt(elementList.get(2).getCell(4).asText().replace(",", ""));
 
       sb.append("\n總機先生目前贏 ").append(hanCount - thasCount).append(" 張選票!\n");
-      sb.append("總統票剩餘Box: ").append(Integer.parseInt(ticketBoxs[1].substring(0, 5))
-              - Integer.parseInt(ticketBoxs[0].trim())).append("\n");
+      sb.append("總統票剩餘Box: ")
+          .append(
+              Integer.parseInt(ticketBoxs[1].substring(0, 5))
+                  - Integer.parseInt(ticketBoxs[0].trim()))
+          .append("\n");
       // HtmlTextInput account = (HtmlTextInput) htmlPage.getElementById("ACCOUNT");
       // account.setText(conf.userName);
       // HtmlPasswordInput passwd = (HtmlPasswordInput)
@@ -475,9 +475,7 @@ public class ClampServiceImpl implements ClampService {
     StringBuffer result = new StringBuffer();
     try {
       webClient = getWebClient();
-      String baseUrl = "https://www.wenku8.net/novel/1/" +
-              novelNum +
-              "/";
+      String baseUrl = "https://www.wenku8.net/novel/1/" + novelNum + "/";
       webClient.waitForBackgroundJavaScript(100);
       HtmlPage page = webClient.getPage(baseUrl);
       //			logger.info(page.asXml());
@@ -489,19 +487,21 @@ public class ClampServiceImpl implements ClampService {
         HtmlPage chapterPage = webClient.getPage(chapterUrl);
         webClient.waitForBackgroundJavaScript(500);
         // logger.info(chapterPage.asXml());
-        DomElement content =
-            (DomElement)
-                chapterPage.getBody().getByXPath("//div[@id=\"content\"]").stream()
-                    .findFirst()
-                    .get();
-        String original = content.asText();
-        String translation = ZhConverterUtil.convertToTraditional(original);
-        result.append(translation);
+
+        chapterPage.getBody().getByXPath("//div[@id=\"content\"]").stream()
+                .findFirst().ifPresent( dom -> {
+                  DomElement content = (DomElement) dom;
+          String original = content.asText();
+          String translation = ZhConverterUtil.convertToTraditional(original);
+          result.append(translation);
+        } );
+
+
       }
     } catch (Exception e) {
       return e.getMessage();
     } finally {
-      webClient.close();
+      Optional.ofNullable(webClient).ifPresent(WebClient::close);
     }
     System.gc();
     return result.toString();

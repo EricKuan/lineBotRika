@@ -46,7 +46,7 @@ public class YoutubeServiceImpl implements YoutubeService {
   private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_U = new HashMap<>();
   private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_L = new HashMap<>();
 
-  @Scheduled(cron = "0 */10 12-23 * * *")
+  @Scheduled(cron = "0 */10 12-23 * * *", zone="Asia/Taipei")
   public void scheduleClamYoutubeData() {
     log.info("scheduled Start at {}", new SimpleDateFormat("yyyyMMdd HH:mm:ss").format(new Date()));
     String[] channelIdList = CHANNEL_ID_LIST.split(",");

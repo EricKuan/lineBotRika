@@ -72,6 +72,8 @@ public class YoutubeServiceImpl implements YoutubeService {
         //        });
 
         // 2. 處理 upcoming
+        log.info("channelId: {}", channelId);
+        log.info("mapCheck: {}", YOUTUBE_CACHE_MAP_U.containsKey(channelId));
         if(YOUTUBE_CACHE_MAP_U.containsKey(channelId)){
           YoutubeLiveData channelData = YOUTUBE_CACHE_MAP_U.get(channelId);
           log.info("data: {}", new Gson().toJson(channelData));

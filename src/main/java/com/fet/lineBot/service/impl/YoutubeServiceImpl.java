@@ -10,6 +10,7 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.VideoListResponse;
+import com.google.gson.Gson;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.extern.log4j.Log4j2;
@@ -46,7 +47,7 @@ public class YoutubeServiceImpl implements YoutubeService {
   private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_U = new HashMap<>();
   private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_L = new HashMap<>();
 
-  @Scheduled(cron = "0 0 17-23 * * *", zone="Asia/Taipei")
+  @Scheduled(cron = "0 */10 17-23 * * *", zone="Asia/Taipei")
   public void scheduleClamYoutubeData() {
     log.info("scheduled Start at {}", new SimpleDateFormat("yyyyMMdd HH:mm:ss").format(new Date()));
     String[] channelIdList = CHANNEL_ID_LIST.split(",");
@@ -71,14 +72,24 @@ public class YoutubeServiceImpl implements YoutubeService {
         //        });
 
         // 2. 處理 upcoming
+        if(YOUTUBE_CACHE_MAP_U.containsKey(channelId)){
+          YoutubeLiveData channelData = YOUTUBE_CACHE_MAP_U.get(channelId);
+          log.info("scheduled Start at {}", new Gson().toJson(channelData));
+          Calendar nowDate = Calendar.getInstance();
+          nowDate.add(Calendar.DAY_OF_MONTH,-1);
+          if(channelData.getCreateDate().before(nowDate.getTime())){
+            log.info("== continue ==");
+            continue;
+          }
+          YOUTUBE_CACHE_MAP_U.remove(channelId);
+        }
         Optional.ofNullable(searchUpcomingByChannelId(channelId))
             .ifPresent(
                 upcoming -> {
                   Date now = new Date();
-                  long timeCount = upcoming.getLiveDate().getTime() - now.getTime();
-                  if (timeCount > 0
-                      && timeCount < notifyTime
-                      && !YOUTUBE_CACHE_MAP_U.containsKey(upcoming.getVideoId())) {
+                  long liveTimeCompare = upcoming.getLiveDate().getTime() - now.getTime();
+                  log.debug("compare Time: {}", liveTimeCompare);
+                  if (!YOUTUBE_CACHE_MAP_U.containsKey(upcoming.getVideoId())) {
                     YOUTUBE_CACHE_MAP_U.put(upcoming.getVideoId(), upcoming);
                     log.debug(
                         "upcoming: {}\n title: {}\n url:{}",
@@ -87,7 +98,30 @@ public class YoutubeServiceImpl implements YoutubeService {
                         upcoming.getUrl());
                     log.debug(
                         "img: {}\n largeImg: {}", upcoming.getImgUrl(), upcoming.getLargeImgUrl());
-                    sendNotify(upcoming);
+
+                    /* LIVE 提醒 */
+                    log.debug("live notify Timer: {}" + liveTimeCompare);
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                      @Override
+                      public void run() {
+                        sendNotify(upcoming);
+                        timer.cancel();
+                      }
+                    }, liveTimeCompare);
+
+                    /* 提前提醒 */
+                    long notifySchedule =  liveTimeCompare - notifyTime;
+                    log.debug("notify Schedule Timer: {}", notifySchedule);
+                    Timer timer2 = new Timer();
+                    timer2.schedule(new TimerTask() {
+                      @Override
+                      public void run() {
+                        sendNotify(upcoming);
+                        timer2.cancel();
+                      }
+                    }, notifySchedule);
+
                   }
                 });
 

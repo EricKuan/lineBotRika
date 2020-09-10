@@ -14,6 +14,10 @@ import com.google.gson.Gson;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.extern.log4j.Log4j2;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.SimpleTrigger;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -74,7 +78,7 @@ public class YoutubeServiceImpl implements YoutubeService {
         // 2. 處理 upcoming
         if(YOUTUBE_CACHE_MAP_U.containsKey(channelId)){
           YoutubeLiveData channelData = YOUTUBE_CACHE_MAP_U.get(channelId);
-          log.info("scheduled Start at {}", new Gson().toJson(channelData));
+          log.info("data: {}", new Gson().toJson(channelData));
           Calendar nowDate = Calendar.getInstance();
           nowDate.add(Calendar.DAY_OF_MONTH,-1);
           if(channelData.getCreateDate().before(nowDate.getTime())){
@@ -88,19 +92,19 @@ public class YoutubeServiceImpl implements YoutubeService {
                 upcoming -> {
                   Date now = new Date();
                   long liveTimeCompare = upcoming.getLiveDate().getTime() - now.getTime();
-                  log.debug("compare Time: {}", liveTimeCompare);
+                  log.info("compare Time: {}", liveTimeCompare);
                   if (!YOUTUBE_CACHE_MAP_U.containsKey(upcoming.getVideoId())) {
                     YOUTUBE_CACHE_MAP_U.put(upcoming.getVideoId(), upcoming);
-                    log.debug(
+                    log.info(
                         "upcoming: {}\n title: {}\n url:{}",
                         upcoming.getChannelId(),
                         upcoming.getTitle(),
                         upcoming.getUrl());
-                    log.debug(
+                    log.info(
                         "img: {}\n largeImg: {}", upcoming.getImgUrl(), upcoming.getLargeImgUrl());
 
                     /* LIVE 提醒 */
-                    log.debug("live notify Timer: {}" + liveTimeCompare);
+                    log.info("live notify Timer: {}" + liveTimeCompare);
                     Timer timer = new Timer();
                     timer.schedule(new TimerTask() {
                       @Override
@@ -112,7 +116,7 @@ public class YoutubeServiceImpl implements YoutubeService {
 
                     /* 提前提醒 */
                     long notifySchedule =  liveTimeCompare - notifyTime;
-                    log.debug("notify Schedule Timer: {}", notifySchedule);
+                    log.info("notify Schedule Timer: {}", notifySchedule);
                     Timer timer2 = new Timer();
                     timer2.schedule(new TimerTask() {
                       @Override

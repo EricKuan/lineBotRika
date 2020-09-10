@@ -14,10 +14,6 @@ import com.google.gson.Gson;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.extern.log4j.Log4j2;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.SimpleTrigger;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -51,7 +47,7 @@ public class YoutubeServiceImpl implements YoutubeService {
   private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_U = new HashMap<>();
   private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_L = new HashMap<>();
 
-  @Scheduled(cron = "0 */10 17-23 * * *", zone="Asia/Taipei")
+  @Scheduled(cron = "0 */2 17-23 * * *", zone="Asia/Taipei")
   public void scheduleClamYoutubeData() {
     log.info("scheduled Start at {}", new SimpleDateFormat("yyyyMMdd HH:mm:ss").format(new Date()));
     String[] channelIdList = CHANNEL_ID_LIST.split(",");

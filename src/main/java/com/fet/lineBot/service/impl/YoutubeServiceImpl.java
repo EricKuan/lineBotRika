@@ -46,7 +46,7 @@ public class YoutubeServiceImpl implements YoutubeService {
   private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_U = new HashMap<>();
   private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_L = new HashMap<>();
 
-  @Scheduled(cron = "0 */10 12-23 * * *", zone="Asia/Taipei")
+  @Scheduled(cron = "0 0 17-23 * * *", zone="Asia/Taipei")
   public void scheduleClamYoutubeData() {
     log.info("scheduled Start at {}", new SimpleDateFormat("yyyyMMdd HH:mm:ss").format(new Date()));
     String[] channelIdList = CHANNEL_ID_LIST.split(",");
@@ -55,20 +55,20 @@ public class YoutubeServiceImpl implements YoutubeService {
       try {
 
         // 1. 處理 live
-        Optional.ofNullable(searchLiveByChannelId(channelId))
-            .ifPresent(
-                live -> {
-                  if (!YOUTUBE_CACHE_MAP_L.containsKey(live.getVideoId())) {
-                    YOUTUBE_CACHE_MAP_L.put(live.getVideoId(), live);
-                    log.debug(
-                        "live: {}\n title: {}\n url:{}",
-                        live.getChannelId(),
-                        live.getTitle(),
-                        live.getUrl());
-                    log.debug("img: {}\n largeImg: {}", live.getImgUrl(), live.getLargeImgUrl());
-                    sendNotify(live);
-                  }
-                });
+        //Optional.ofNullable(searchLiveByChannelId(channelId))
+        //    .ifPresent(
+        //        live -> {
+        //          if (!YOUTUBE_CACHE_MAP_L.containsKey(live.getVideoId())) {
+        //            YOUTUBE_CACHE_MAP_L.put(live.getVideoId(), live);
+        //            log.debug(
+        //                "live: {}\n title: {}\n url:{}",
+        //                live.getChannelId(),
+        //                live.getTitle(),
+        //                live.getUrl());
+        //            log.debug("img: {}\n largeImg: {}", live.getImgUrl(), live.getLargeImgUrl());
+        //            sendNotify(live);
+        //          }
+        //        });
 
         // 2. 處理 upcoming
         Optional.ofNullable(searchUpcomingByChannelId(channelId))

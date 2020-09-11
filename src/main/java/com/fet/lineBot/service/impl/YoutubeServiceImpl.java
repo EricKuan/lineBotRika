@@ -81,8 +81,8 @@ public class YoutubeServiceImpl implements YoutubeService {
           nowDate.add(Calendar.DAY_OF_MONTH, -1);
           log.info("createTime: {}" , channelData.getCreateDate());
           log.info("newDate: {}" , nowDate.getTime());
-          log.info("checkDate: {}" , channelData.getCreateDate().before(nowDate.getTime()));
-          if (channelData.getCreateDate().before(nowDate.getTime())) {
+          log.info("checkDate: {}" , channelData.getCreateDate().after(nowDate.getTime()));
+          if (channelData.getCreateDate().after(nowDate.getTime())) {
             log.info("== continue ==");
             continue;
           }

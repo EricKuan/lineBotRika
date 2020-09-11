@@ -79,6 +79,7 @@ public class YoutubeServiceImpl implements YoutubeService {
           log.info("data: {}", new Gson().toJson(channelData));
           Calendar nowDate = Calendar.getInstance();
           nowDate.add(Calendar.DAY_OF_MONTH, -1);
+          log.info("checkDate: {}" , channelData.getCreateDate().before(nowDate.getTime()));
           if (channelData.getCreateDate().before(nowDate.getTime())) {
             log.info("== continue ==");
             continue;

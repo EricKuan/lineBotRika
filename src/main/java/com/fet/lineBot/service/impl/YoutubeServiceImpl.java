@@ -207,9 +207,6 @@ public class YoutubeServiceImpl implements YoutubeService {
               });
     }else{
       rtnObj.setChannelId(channelId);
-      rtnObj.setLiveBroadcastContent(broadCastType);
-      rtnObj.setVideoId(result.get().getId().getVideoId());
-      rtnObj.setTitle(result.get().getSnippet().getTitle());
       rtnObj.setCreateDate(new Date());
     }
 

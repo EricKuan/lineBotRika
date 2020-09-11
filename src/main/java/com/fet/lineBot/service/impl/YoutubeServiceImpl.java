@@ -47,7 +47,7 @@ public class YoutubeServiceImpl implements YoutubeService {
   private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_U = new HashMap<>();
   private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_L = new HashMap<>();
 
-//  @Scheduled(cron = "0 */2 14-23 * * *", zone="Asia/Taipei")
+  @Scheduled(cron = "0 */2 14-23 * * *", zone="Asia/Taipei")
   public void scheduleClamYoutubeData() {
     log.info("scheduled Start at {}", new SimpleDateFormat("yyyyMMdd HH:mm:ss").format(new Date()));
     String[] channelIdList = CHANNEL_ID_LIST.split(",");
@@ -56,7 +56,7 @@ public class YoutubeServiceImpl implements YoutubeService {
       try {
 
         // 1. 處理 live
-        //Optional.ofNullable(searchLiveByChannelId(channelId))
+        // Optional.ofNullable(searchLiveByChannelId(channelId))
         //    .ifPresent(
         //        live -> {
         //          if (!YOUTUBE_CACHE_MAP_L.containsKey(live.getVideoId())) {
@@ -74,58 +74,59 @@ public class YoutubeServiceImpl implements YoutubeService {
         // 2. 處理 upcoming
         log.info("channelId: {}", channelId);
         log.info("mapCheck: {}", YOUTUBE_CACHE_MAP_U.containsKey(channelId));
-        if(YOUTUBE_CACHE_MAP_U.containsKey(channelId)){
+        if (YOUTUBE_CACHE_MAP_U.containsKey(channelId)) {
           YoutubeLiveData channelData = YOUTUBE_CACHE_MAP_U.get(channelId);
           log.info("data: {}", new Gson().toJson(channelData));
           Calendar nowDate = Calendar.getInstance();
-          nowDate.add(Calendar.DAY_OF_MONTH,-1);
-          if(channelData.getCreateDate().before(nowDate.getTime())){
+          nowDate.add(Calendar.DAY_OF_MONTH, -1);
+          if (channelData.getCreateDate().before(nowDate.getTime())) {
             log.info("== continue ==");
             continue;
           }
           YOUTUBE_CACHE_MAP_U.remove(channelId);
         }
-        Optional.ofNullable(searchUpcomingByChannelId(channelId))
-            .ifPresent(
-                upcoming -> {
-                  Date now = new Date();
-                  long liveTimeCompare = upcoming.getLiveDate().getTime() - now.getTime();
-                  log.info("compare Time: {}", liveTimeCompare);
-                  if (!YOUTUBE_CACHE_MAP_U.containsKey(channelId)) {
-                    YOUTUBE_CACHE_MAP_U.put(channelId, upcoming);
-                    log.info(
-                        "upcoming: {}\n title: {}\n url:{}",
-                        upcoming.getChannelId(),
-                        upcoming.getTitle(),
-                        upcoming.getUrl());
-                    log.info(
-                        "img: {}\n largeImg: {}", upcoming.getImgUrl(), upcoming.getLargeImgUrl());
 
-                    /* LIVE 提醒 */
-                    log.info("live notify Timer: {}" + liveTimeCompare);
-                    Timer timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                      @Override
-                      public void run() {
-                        sendNotify(upcoming);
-                        timer.cancel();
-                      }
-                    }, liveTimeCompare);
+        YoutubeLiveData upcoming = searchUpcomingByChannelId(channelId);
+        YOUTUBE_CACHE_MAP_U.put(channelId, upcoming);
+        if (upcoming.getLiveDate() != null) {
+          Date now = new Date();
+          long liveTimeCompare = upcoming.getLiveDate().getTime() - now.getTime();
+          log.info("compare Time: {}", liveTimeCompare);
 
-                    /* 提前提醒 */
-                    long notifySchedule =  liveTimeCompare - notifyTime;
-                    log.info("notify Schedule Timer: {}", notifySchedule);
-                    Timer timer2 = new Timer();
-                    timer2.schedule(new TimerTask() {
-                      @Override
-                      public void run() {
-                        sendNotify(upcoming);
-                        timer2.cancel();
-                      }
-                    }, notifySchedule);
+          log.info(
+              "upcoming: {}\n title: {}\n url:{}",
+              upcoming.getChannelId(),
+              upcoming.getTitle(),
+              upcoming.getUrl());
+          log.info("img: {}\n largeImg: {}", upcoming.getImgUrl(), upcoming.getLargeImgUrl());
 
-                  }
-                });
+          /* LIVE 提醒 */
+          log.info("live notify Timer: {}" + liveTimeCompare);
+          Timer timer = new Timer();
+          timer.schedule(
+              new TimerTask() {
+                @Override
+                public void run() {
+                  sendNotify(upcoming);
+                  timer.cancel();
+                }
+              },
+              liveTimeCompare);
+
+          /* 提前提醒 */
+          long notifySchedule = liveTimeCompare - notifyTime;
+          log.info("notify Schedule Timer: {}", notifySchedule);
+          Timer timer2 = new Timer();
+          timer2.schedule(
+              new TimerTask() {
+                @Override
+                public void run() {
+                  sendNotify(upcoming);
+                  timer2.cancel();
+                }
+              },
+              notifySchedule);
+        }
 
       } catch (GeneralSecurityException gsEx) {
         log.error(gsEx);
@@ -204,11 +205,15 @@ public class YoutubeServiceImpl implements YoutubeService {
                 rtnObj.setLiveDate(
                     new Date(item.getLiveStreamingDetails().getScheduledStartTime().getValue()));
               });
-
-      return rtnObj;
+    }else{
+      rtnObj.setChannelId(channelId);
+      rtnObj.setLiveBroadcastContent(broadCastType);
+      rtnObj.setVideoId(result.get().getId().getVideoId());
+      rtnObj.setTitle(result.get().getSnippet().getTitle());
+      rtnObj.setCreateDate(new Date());
     }
 
-    return null;
+    return rtnObj;
   }
 
   /**

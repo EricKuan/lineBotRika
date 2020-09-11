@@ -91,8 +91,8 @@ public class YoutubeServiceImpl implements YoutubeService {
                   Date now = new Date();
                   long liveTimeCompare = upcoming.getLiveDate().getTime() - now.getTime();
                   log.info("compare Time: {}", liveTimeCompare);
-                  if (!YOUTUBE_CACHE_MAP_U.containsKey(upcoming.getVideoId())) {
-                    YOUTUBE_CACHE_MAP_U.put(upcoming.getVideoId(), upcoming);
+                  if (!YOUTUBE_CACHE_MAP_U.containsKey(channelId)) {
+                    YOUTUBE_CACHE_MAP_U.put(channelId, upcoming);
                     log.info(
                         "upcoming: {}\n title: {}\n url:{}",
                         upcoming.getChannelId(),

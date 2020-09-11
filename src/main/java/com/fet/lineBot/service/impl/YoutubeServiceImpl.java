@@ -165,7 +165,7 @@ public class YoutubeServiceImpl implements YoutubeService {
       throws GeneralSecurityException, IOException {
     YoutubeLiveData rtnObj = new YoutubeLiveData();
 
-    log.debug("response: {}", searchListResponse);
+    log.info("response: {}", searchListResponse);
 
     Optional<SearchResult> result =
         searchListResponse.getItems().stream()

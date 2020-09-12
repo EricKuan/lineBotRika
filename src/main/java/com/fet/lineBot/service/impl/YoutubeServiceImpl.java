@@ -46,7 +46,7 @@ public class YoutubeServiceImpl implements YoutubeService {
   private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
   private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_U = new HashMap<>();
 
-  @Scheduled(cron = "0 */2 14-23 * * *", zone="Asia/Taipei")
+  @Scheduled(cron = "0 */2 12-23 * * *", zone="Asia/Taipei")
   public void scheduleClamYoutubeData() {
     log.info("scheduled Start at {}", new SimpleDateFormat("yyyyMMdd HH:mm:ss").format(new Date()));
     String[] channelIdList = CHANNEL_ID_LIST.split(",");

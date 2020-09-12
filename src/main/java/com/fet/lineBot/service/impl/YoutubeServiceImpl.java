@@ -45,7 +45,6 @@ public class YoutubeServiceImpl implements YoutubeService {
   private static final String APPLICATION_NAME = "lineBot";
   private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
   private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_U = new HashMap<>();
-  private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_L = new HashMap<>();
 
   @Scheduled(cron = "0 */2 14-23 * * *", zone="Asia/Taipei")
   public void scheduleClamYoutubeData() {
@@ -78,7 +77,7 @@ public class YoutubeServiceImpl implements YoutubeService {
           YoutubeLiveData channelData = YOUTUBE_CACHE_MAP_U.get(channelId);
           log.info("data: {}", new Gson().toJson(channelData));
           Calendar nowDate = Calendar.getInstance();
-          nowDate.add(Calendar.DAY_OF_MONTH, -1);
+          nowDate.add(Calendar.HOUR_OF_DAY,-3);
           log.info("createTime: {}" , channelData.getCreateDate());
           log.info("newDate: {}" , nowDate.getTime());
           log.info("checkDate: {}" , channelData.getCreateDate().after(nowDate.getTime()));
@@ -104,7 +103,7 @@ public class YoutubeServiceImpl implements YoutubeService {
           log.info("img: {}\n largeImg: {}", upcoming.getImgUrl(), upcoming.getLargeImgUrl());
 
           /* LIVE 提醒 */
-          log.info("live notify Timer: {}" + liveTimeCompare);
+          log.info("live notify Timer: {}" , liveTimeCompare);
           Timer timer = new Timer();
           timer.schedule(
               new TimerTask() {

@@ -127,6 +127,9 @@ public class YoutubeServiceImpl implements YoutubeService {
   }
 
   private void buildNotifyEvent(YoutubeLiveData upcoming, long liveTimeCompare, StringBuilder notify) {
+    if(liveTimeCompare <0){
+      return;
+    }
     Timer timer = new Timer();
     timer.schedule(
             new TimerTask() {

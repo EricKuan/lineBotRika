@@ -45,8 +45,9 @@ public class YoutubeServiceImpl implements YoutubeService {
   private static final String APPLICATION_NAME = "lineBot";
   private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
   private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_U = new HashMap<>();
+  private static Map<String, Timer> TIMER_CACHE_MAP = new HashMap<>();
 
-  @Scheduled(cron = "0 */2 12-23 * * *", zone="Asia/Taipei")
+  @Scheduled(cron = "0 */2 12-23 * * *", zone = "Asia/Taipei")
   public void scheduleClamYoutubeData() {
     log.info("scheduled Start at {}", new SimpleDateFormat("yyyyMMdd HH:mm:ss").format(new Date()));
     String[] channelIdList = CHANNEL_ID_LIST.split(",");
@@ -77,10 +78,10 @@ public class YoutubeServiceImpl implements YoutubeService {
           YoutubeLiveData channelData = YOUTUBE_CACHE_MAP_U.get(channelId);
           log.info("data: {}", new Gson().toJson(channelData));
           Calendar nowDate = Calendar.getInstance();
-          nowDate.add(Calendar.HOUR_OF_DAY,-3);
-          log.info("createTime: {}" , channelData.getCreateDate());
-          log.info("newDate: {}" , nowDate.getTime());
-          log.info("checkDate: {}" , channelData.getCreateDate().after(nowDate.getTime()));
+          nowDate.add(Calendar.HOUR_OF_DAY, -3);
+          log.info("createTime: {}", channelData.getCreateDate());
+          log.info("newDate: {}", nowDate.getTime());
+          log.info("checkDate: {}", channelData.getCreateDate().after(nowDate.getTime()));
           if (channelData.getCreateDate().after(nowDate.getTime())) {
             log.info("== continue ==");
             continue;
@@ -103,31 +104,18 @@ public class YoutubeServiceImpl implements YoutubeService {
           log.info("img: {}\n largeImg: {}", upcoming.getImgUrl(), upcoming.getLargeImgUrl());
 
           /* LIVE 提醒 */
-          log.info("live notify Timer: {}" , liveTimeCompare);
-          Timer timer = new Timer();
-          timer.schedule(
-              new TimerTask() {
-                @Override
-                public void run() {
-                  sendNotify(upcoming);
-                  timer.cancel();
-                }
-              },
-              liveTimeCompare);
-
+          log.info("live notify Timer: {}", liveTimeCompare);
+          final StringBuilder notify1 = new StringBuilder().append(channelId).append("_L");
+          if (TIMER_CACHE_MAP.containsKey(notify1.toString())) {
+            buildNotifyEvent(upcoming, liveTimeCompare, notify1);
+          }
           /* 提前提醒 */
-          long notifySchedule = liveTimeCompare - notifyTime;
-          log.info("notify Schedule Timer: {}", notifySchedule);
-          Timer timer2 = new Timer();
-          timer2.schedule(
-              new TimerTask() {
-                @Override
-                public void run() {
-                  sendNotify(upcoming);
-                  timer2.cancel();
-                }
-              },
-              notifySchedule);
+          final StringBuilder notify2 = new StringBuilder().append(channelId).append("_N");
+          if (TIMER_CACHE_MAP.containsKey(notify2.toString())) {
+            long notifySchedule = liveTimeCompare - notifyTime;
+            log.info("notify Schedule Timer: {}", notifySchedule);
+            buildNotifyEvent(upcoming, notifySchedule, notify2);
+          }
         }
 
       } catch (GeneralSecurityException gsEx) {
@@ -136,6 +124,24 @@ public class YoutubeServiceImpl implements YoutubeService {
         log.error(ioEx);
       }
     }
+  }
+
+  private void buildNotifyEvent(YoutubeLiveData upcoming, long liveTimeCompare, StringBuilder notify) {
+    if(liveTimeCompare <0){
+      return;
+    }
+    Timer timer = new Timer();
+    timer.schedule(
+            new TimerTask() {
+              @Override
+              public void run() {
+                sendNotify(upcoming);
+                timer.cancel();
+                TIMER_CACHE_MAP.remove(notify.toString());
+              }
+            },
+            liveTimeCompare);
+    TIMER_CACHE_MAP.put(notify.toString(), timer);
   }
 
   @Override

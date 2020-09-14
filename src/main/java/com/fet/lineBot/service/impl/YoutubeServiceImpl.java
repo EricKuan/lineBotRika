@@ -106,12 +106,12 @@ public class YoutubeServiceImpl implements YoutubeService {
           /* LIVE 提醒 */
           log.info("live notify Timer: {}", liveTimeCompare);
           final StringBuilder notify1 = new StringBuilder().append(channelId).append("_L");
-          if (TIMER_CACHE_MAP.containsKey(notify1.toString())) {
+          if (!TIMER_CACHE_MAP.containsKey(notify1.toString())) {
             buildNotifyEvent(upcoming, liveTimeCompare, notify1);
           }
           /* 提前提醒 */
           final StringBuilder notify2 = new StringBuilder().append(channelId).append("_N");
-          if (TIMER_CACHE_MAP.containsKey(notify2.toString())) {
+          if (!TIMER_CACHE_MAP.containsKey(notify2.toString())) {
             long notifySchedule = liveTimeCompare - notifyTime;
             log.info("notify Schedule Timer: {}", notifySchedule);
             buildNotifyEvent(upcoming, notifySchedule, notify2);

@@ -252,7 +252,9 @@ public class YoutubeServiceImpl implements YoutubeService {
     return request
         .setKey(DEVELOPER_KEY)
         .setChannelId(channelId)
-        .setEventType(eventType)
+//        .setEventType(eventType)
+        .setMaxResults(Long.valueOf(1))
+            .setFields("items(id/videoId,snippet/title,snippet/thumbnails/medium/url,snippet/thumbnails/high/url)")
         .setType(type)
         .setOrder("date")
         .execute();
@@ -270,7 +272,8 @@ public class YoutubeServiceImpl implements YoutubeService {
       throws GeneralSecurityException, IOException {
     YouTube youtubeService = getService();
     YouTube.Videos.List request =
-        youtubeService.videos().list("contentDetails,liveStreamingDetails");
+        youtubeService.videos().list("liveStreamingDetails")
+            .setFields("items(liveStreamingDetails/scheduledStartTime)");
 
     return request.setKey(DEVELOPER_KEY).setId(id).execute();
   }

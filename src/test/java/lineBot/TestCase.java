@@ -213,9 +213,6 @@ public class TestCase {
     YoutubeServiceImpl youtubeService = new YoutubeServiceImpl();
 
     youtubeService.scheduleClamYoutubeData();
-    Thread.sleep(5000);
-    youtubeService.scheduleClamYoutubeData();
-    Thread.sleep(5000);
-    youtubeService.scheduleClamYoutubeData();
+
   }
 }

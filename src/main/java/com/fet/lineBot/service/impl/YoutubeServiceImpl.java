@@ -56,29 +56,13 @@ public class YoutubeServiceImpl implements YoutubeService {
       try {
 
         // 1. 處理 live
-        // Optional.ofNullable(searchLiveByChannelId(channelId))
-        //    .ifPresent(
-        //        live -> {
-        //          if (!YOUTUBE_CACHE_MAP_L.containsKey(live.getVideoId())) {
-        //            YOUTUBE_CACHE_MAP_L.put(live.getVideoId(), live);
-        //            log.debug(
-        //                "live: {}\n title: {}\n url:{}",
-        //                live.getChannelId(),
-        //                live.getTitle(),
-        //                live.getUrl());
-        //            log.debug("img: {}\n largeImg: {}", live.getImgUrl(), live.getLargeImgUrl());
-        //            sendNotify(live);
-        //          }
-        //        });
-
-        // 2. 處理 upcoming
         log.info("channelId: {}", channelId);
         log.info("mapCheck: {}", YOUTUBE_CACHE_MAP_U.containsKey(channelId));
         if (YOUTUBE_CACHE_MAP_U.containsKey(channelId)) {
           YoutubeLiveData channelData = YOUTUBE_CACHE_MAP_U.get(channelId);
           log.info("data: {}", new Gson().toJson(channelData));
           Calendar nowDate = Calendar.getInstance();
-          nowDate.add(Calendar.HOUR_OF_DAY, -3);
+          nowDate.add(Calendar.HOUR_OF_DAY, -1);
           log.info("createTime: {}", channelData.getCreateDate());
           log.info("newDate: {}", nowDate.getTime());
           log.info("checkDate: {}", channelData.getCreateDate().after(nowDate.getTime()));

@@ -375,7 +375,7 @@ public class MessageHandler {
             }).collect(Collectors.toList());
 
             Box body =
-                    Box.builder().contents(textList).layout(FlexLayout.BASELINE).build();
+                    Box.builder().contents(textList).layout(FlexLayout.VERTICAL).build();
             FlexMessage flexMessage = FlexMessage.builder().altText("投票名單").contents(Bubble.builder().body(body).build()).build();
 
             reply(event.getReplyToken(), flexMessage);

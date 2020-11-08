@@ -321,7 +321,7 @@ public class MessageHandler {
         try {
             //2. 取得投票人名稱
             String userId = event.getSource().getUserId();
-            CompletableFuture<UserProfileResponse> memberProfile = lineMessagingClient.getGroupMemberProfile("Cc35c3de51a2697e10290f73e18e02e27", userId);
+            CompletableFuture<UserProfileResponse> memberProfile = lineMessagingClient.getGroupMemberProfile("Cedfd99b56918652ea9fa037057f3b41d", userId);
 
             displayName = memberProfile.get().getDisplayName();
 
@@ -362,20 +362,23 @@ public class MessageHandler {
                 }
                 return false;
             }).collect(Collectors.toList());
-
-            List<FlexComponent> textList = bonusPhotoDataList.stream().map(item -> {
+            StringBuilder nameList = new StringBuilder();
+            bonusPhotoDataList.stream().forEach(item -> {
                 StringBuilder str = new StringBuilder();
                 str.append(item.getCharacterName())
                         .append(" ")
                         .append(item.getPieceName())
                         .append(" ")
                         .append(item.getLineName());
-                Text text = Text.builder().text(str.toString()).build();
-                return (FlexComponent)text;
-            }).collect(Collectors.toList());
+                if(nameList.isEmpty()){
+                    nameList.append(str);
+                }else{
+                    nameList.append("\n").append(str);
+                }
+            });
 
             Box body =
-                    Box.builder().contents(textList).layout(FlexLayout.VERTICAL).build();
+                    Box.builder().content(Text.builder().text(nameList.toString()).build()).layout(FlexLayout.VERTICAL).build();
             FlexMessage flexMessage = FlexMessage.builder().altText("投票名單").contents(Bubble.builder().body(body).build()).build();
 
             reply(event.getReplyToken(), flexMessage);

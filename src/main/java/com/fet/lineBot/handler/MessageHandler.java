@@ -373,7 +373,7 @@ public class MessageHandler {
                 if(nameList.length()<1){
                     nameList.append(str);
                 }else{
-                    nameList.append("\n").append(str);
+                    nameList.append("<br/>").append(str);
                 }
             });
 

@@ -321,7 +321,7 @@ public class MessageHandler {
         try {
             //2. 取得投票人名稱
             String userId = event.getSource().getUserId();
-            CompletableFuture<UserProfileResponse> memberProfile = lineMessagingClient.getGroupMemberProfile("Cc35c3de51a2697e10290f73e18e02e27", userId);
+            CompletableFuture<UserProfileResponse> memberProfile = lineMessagingClient.getGroupMemberProfile("Cedfd99b56918652ea9fa037057f3b41d", userId);
 
             displayName = memberProfile.get().getDisplayName();
 

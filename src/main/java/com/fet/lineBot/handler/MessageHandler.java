@@ -370,7 +370,7 @@ public class MessageHandler {
                         .append(item.getPieceName())
                         .append(" ")
                         .append(item.getLineName());
-                if(nameList.isEmpty()){
+                if(nameList.length()<1){
                     nameList.append(str);
                 }else{
                     nameList.append("\n").append(str);

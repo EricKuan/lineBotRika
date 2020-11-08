@@ -363,7 +363,7 @@ public class MessageHandler {
                 return false;
             }).collect(Collectors.toList());
 
-            List<Text> textList = bonusPhotoDataList.stream().map(item -> {
+            List<FlexComponent> textList = bonusPhotoDataList.stream().map(item -> {
                 StringBuilder str = new StringBuilder();
                 str.append(item.getCharacterName())
                         .append(" ")
@@ -371,12 +371,12 @@ public class MessageHandler {
                         .append(" ")
                         .append(item.getLineName());
                 Text text = Text.builder().text(str.toString()).build();
-                return text;
+                return (FlexComponent)text;
             }).collect(Collectors.toList());
 
             Box body =
-                    Box.builder().contents((FlexComponent) textList).layout(FlexLayout.VERTICAL).build();
-            FlexMessage flexMessage = FlexMessage.builder().altText("漫畫更新最新回").contents(Bubble.builder().body(body).build()).build();
+                    Box.builder().contents(textList).layout(FlexLayout.VERTICAL).build();
+            FlexMessage flexMessage = FlexMessage.builder().altText("投票名單").contents(Bubble.builder().body(body).build()).build();
 
             reply(event.getReplyToken(), flexMessage);
 

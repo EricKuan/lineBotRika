@@ -51,6 +51,7 @@ rikaService:
   notifyTime: ${notifyTime}
   channelIdList: ${channelIdList}
   youtubeNotifyToken: ${youtubeNotifyToken}
+  voteKeyworld: ${voteKeyworld}
 
 spring:
   datasource:

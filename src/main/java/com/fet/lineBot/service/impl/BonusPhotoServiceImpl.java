@@ -46,13 +46,26 @@ public class BonusPhotoServiceImpl implements BonusPhotoService {
     @Value("${rikaService.voteKeyword}")
     private String VOTE_KEYWORD;
 
-    private String TOTAL="TOTAL";
+    private String TOTAL = "TOTAL";
+
+    private String DELETE = "DELETE";
 
     @Override
     public void addBonusPhotoVoteData(MessageEvent<TextMessageContent> event, String message) {
         // 查詢全部名單
-        if (message.indexOf(TOTAL)==0){
+        if (message.indexOf(TOTAL) == 0) {
             sendAllNameList(event);
+            return;
+        }
+
+        // 刪除名單
+        if (message.indexOf(DELETE) == 0) {
+            Optional<BonusPhotoData> bonusPhotoVoteData = bonusPhotoDataRepo.findByUserId(event.getSource().getUserId()).stream().filter(item -> isThisMonthVoteDataExist(item)).findFirst();
+            if(bonusPhotoVoteData.isPresent()){
+                BonusPhotoData bonusPhotoData = bonusPhotoVoteData.get();
+                bonusPhotoDataRepo.delete(bonusPhotoData);
+                reply(event.getReplyToken(),new TextMessage("受け取りましたので、できるだけ早く処理します。"));
+            }
             return;
         }
 
@@ -69,7 +82,6 @@ public class BonusPhotoServiceImpl implements BonusPhotoService {
         }
 
 
-
         try {
             //2. 取得投票人名稱
             String userId = event.getSource().getUserId();
@@ -78,15 +90,7 @@ public class BonusPhotoServiceImpl implements BonusPhotoService {
             displayName = memberProfile.get().getDisplayName();
 
             //3. 驗證當月份是否有建立過
-            Optional<BonusPhotoData> bonusPhotoDataOp = bonusPhotoDataRepo.findByUserId(userId).stream().filter(item -> {
-                Calendar recordDate = Calendar.getInstance();
-                Calendar now = Calendar.getInstance();
-                recordDate.setTime(item.getCreateDate());
-                if (recordDate.get(Calendar.MONTH) == now.get(Calendar.MONTH)) {
-                    return true;
-                }
-                return false;
-            }).findFirst();
+            Optional<BonusPhotoData> bonusPhotoDataOp = bonusPhotoDataRepo.findByUserId(userId).stream().filter(item -> isThisMonthVoteDataExist(item)).findFirst();
 
             //3.1 有紀錄則進行更新
             BonusPhotoData bonusPhotoData;
@@ -105,7 +109,7 @@ public class BonusPhotoServiceImpl implements BonusPhotoService {
             }
             bonusPhotoDataRepo.save(bonusPhotoData);
             //4. 回傳紀錄結果
-            reply(event.getReplyToken(), new TextMessage("已收到提名資訊"));
+            reply(event.getReplyToken(), new TextMessage("受け取りましたので、できるだけ早く処理します。"));
 
 
         } catch (InterruptedException | ExecutionException e) {
@@ -115,17 +119,21 @@ public class BonusPhotoServiceImpl implements BonusPhotoService {
         return;
     }
 
+    private boolean isThisMonthVoteDataExist(BonusPhotoData item) {
+        Calendar recordDate = Calendar.getInstance();
+        Calendar now = Calendar.getInstance();
+        recordDate.setTime(item.getCreateDate());
+        if (recordDate.get(Calendar.MONTH) == now.get(Calendar.MONTH)) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public void sendAllNameList(MessageEvent<TextMessageContent> event) {
-        List<BonusPhotoData> bonusPhotoDataList = bonusPhotoDataRepo.findAll().stream().filter(item -> {
-            Calendar recordDate = Calendar.getInstance();
-            Calendar now = Calendar.getInstance();
-            recordDate.setTime(item.getCreateDate());
-            if (recordDate.get(Calendar.MONTH) == now.get(Calendar.MONTH)) {
-                return true;
-            }
-            return false;
-        }).collect(Collectors.toList());
+        List<BonusPhotoData> bonusPhotoDataList = bonusPhotoDataRepo.findAll().stream().filter(item ->
+                isThisMonthVoteDataExist(item)
+        ).collect(Collectors.toList());
 
         List<FlexComponent> textList = bonusPhotoDataList.stream().map(item -> {
             StringBuilder str = new StringBuilder();

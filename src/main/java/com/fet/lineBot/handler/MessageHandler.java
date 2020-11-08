@@ -306,7 +306,7 @@ public class MessageHandler {
       	艾拉(袴服.ver)-現實與童話的距離 #投票提名
 	    [name]-[pieceName] #投票提名
        */
-    String voteStr = message.trim().replace("#投票提名","");
+    String voteStr = message.trim().replace(VOTE_KEYWORD,"");
     String[] pieceData = voteStr.split("-");
     String displayName;
     if (pieceData.length!=2){
@@ -315,7 +315,7 @@ public class MessageHandler {
     try {
     //2. 取得投票人名稱
       String userId = event.getSource().getUserId();
-      CompletableFuture<UserProfileResponse> memberProfile = lineMessagingClient.getRoomMemberProfile("Cc35c3de51a2697e10290f73e18e02e27", userId);
+      CompletableFuture<UserProfileResponse> memberProfile = lineMessagingClient.getGroupMemberProfile("Cc35c3de51a2697e10290f73e18e02e27", userId);
 
       displayName = memberProfile.get().getDisplayName();
 

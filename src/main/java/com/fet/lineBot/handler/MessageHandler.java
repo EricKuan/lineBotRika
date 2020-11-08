@@ -1,6 +1,8 @@
 package com.fet.lineBot.handler;
 
+import com.fet.lineBot.domain.dao.BonusPhotoDataRepository;
 import com.fet.lineBot.domain.dao.MemberDataRepository;
+import com.fet.lineBot.domain.model.BonusPhotoData;
 import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.service.ClampService;
 import com.fet.lineBot.service.MessageService;
@@ -30,6 +32,7 @@ import com.linecorp.bot.model.message.flex.container.Carousel;
 import com.linecorp.bot.model.message.flex.unit.FlexLayout;
 import com.linecorp.bot.model.message.template.ButtonsTemplate;
 import com.linecorp.bot.model.message.template.Template;
+import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
@@ -42,9 +45,10 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 
@@ -58,6 +62,8 @@ public class MessageHandler {
   @Autowired MemberDataRepository memberDataRepo;
 
   @Autowired private LineMessagingClient lineMessagingClient;
+
+  @Autowired BonusPhotoDataRepository bonusPhotoDataRepo;
 
   @Value("${rikaService.helpKeyword}")
   private String HELP_KEYWORD;
@@ -97,6 +103,10 @@ public class MessageHandler {
 
   @Value("${rikaService.stickerId}")
   private String STICKER_ID;
+
+  @Value("${rikaService.voteKeyworld}")
+  private String VOTE_KEYWORD;
+
 
   @EventMapping
   public void handleTextMessageEvent(MessageEvent<TextMessageContent> event)
@@ -277,10 +287,86 @@ public class MessageHandler {
       return;
     }
 
+    if(message.contains(VOTE_KEYWORD)){
+      countBonusPhotoVote(event, message);
+      return;
+
+    }
+
+
     Message rtnMsgObj = messageService.queryReplyMessage(message);
     if (rtnMsgObj != null) {
       reply(event.getReplyToken(), messageService.queryReplyMessage(message));
     }
+  }
+
+  private boolean countBonusPhotoVote(MessageEvent<TextMessageContent> event, String message) {
+    //1. 驗證格式
+      /*
+      	艾拉(袴服.ver)-現實與童話的距離 #投票提名
+	    [name]-[pieceName] #投票提名
+       */
+    String voteStr = message.trim().replace("#投票提名","");
+    String[] pieceData = voteStr.split("-");
+    String displayName;
+    if (pieceData.length!=2){
+      return true;
+    }
+    try {
+    //2. 取得投票人名稱
+      String userId = event.getSource().getUserId();
+      CompletableFuture<UserProfileResponse> memberProfile = lineMessagingClient.getRoomMemberProfile("Cc35c3de51a2697e10290f73e18e02e27", userId);
+
+      displayName = memberProfile.get().getDisplayName();
+
+    //3. 驗證當月份是否有建立過
+      Optional<BonusPhotoData> bonusPhotoDataOp = bonusPhotoDataRepo.findByUserId(userId).stream().filter(item -> {
+        Calendar recordDate = Calendar.getInstance();
+        Calendar now = Calendar.getInstance();
+        recordDate.setTime(item.getCreateDate());
+        if (recordDate.get(Calendar.MONTH) == now.get(Calendar.MONTH)) {
+          return true;
+        }
+        return false;
+      }).findFirst();
+
+      //3.1 有紀錄則進行更新
+      BonusPhotoData bonusPhotoData;
+      if(bonusPhotoDataOp.isPresent()){
+        bonusPhotoData = bonusPhotoDataOp.get();
+        bonusPhotoData.setPieceName(pieceData[1]);
+        bonusPhotoData.setCharacterName(pieceData[0]);
+        bonusPhotoDataRepo.save(bonusPhotoData);
+      }else{
+        //3.2 無紀錄則直接寫入
+        bonusPhotoData = new BonusPhotoData();
+        bonusPhotoData.setPieceName(pieceData[1]);
+        bonusPhotoData.setCharacterName(pieceData[0]);
+        bonusPhotoData.setCreateDate(new Date());
+        bonusPhotoData.setUserId(userId);
+        bonusPhotoData.setLineName(displayName);
+      }
+      bonusPhotoDataRepo.save(bonusPhotoData);
+    //4. 回傳紀錄結果
+      List<BonusPhotoData> bonusPhotoDataList = bonusPhotoDataRepo.findAll().stream().filter(item -> {
+        Calendar recordDate = Calendar.getInstance();
+        Calendar now = Calendar.getInstance();
+        recordDate.setTime(item.getCreateDate());
+        if (recordDate.get(Calendar.MONTH) == now.get(Calendar.MONTH)) {
+          return true;
+        }
+        return false;
+      }).collect(Collectors.toList());
+      StringBuilder rtnMessage = new StringBuilder();
+      rtnMessage.append("本月投票紀錄:\n ");
+      rtnMessage.append(new Gson().toJson(bonusPhotoDataList));
+
+      reply(event.getReplyToken(), new TextMessage(rtnMessage.toString()) );
+    }catch (InterruptedException | ExecutionException e){
+      logger.error(e);
+      e.printStackTrace();
+    }
+    return false;
   }
 
   private Bubble buildBoxBodyData(FBPostData fbPostData, Text content, Image image)

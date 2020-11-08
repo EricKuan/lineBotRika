@@ -2,8 +2,8 @@ package com.fet.lineBot.handler;
 
 import com.fet.lineBot.domain.dao.BonusPhotoDataRepository;
 import com.fet.lineBot.domain.dao.MemberDataRepository;
-import com.fet.lineBot.domain.model.BonusPhotoData;
 import com.fet.lineBot.domain.model.FBPostData;
+import com.fet.lineBot.service.BonusPhotoService;
 import com.fet.lineBot.service.ClampService;
 import com.fet.lineBot.service.MessageService;
 import com.google.gson.Gson;
@@ -25,7 +25,6 @@ import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.flex.component.Box;
-import com.linecorp.bot.model.message.flex.component.FlexComponent;
 import com.linecorp.bot.model.message.flex.component.Image;
 import com.linecorp.bot.model.message.flex.component.Text;
 import com.linecorp.bot.model.message.flex.container.Bubble;
@@ -33,7 +32,6 @@ import com.linecorp.bot.model.message.flex.container.Carousel;
 import com.linecorp.bot.model.message.flex.unit.FlexLayout;
 import com.linecorp.bot.model.message.template.ButtonsTemplate;
 import com.linecorp.bot.model.message.template.Template;
-import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
@@ -46,10 +44,9 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 
@@ -62,6 +59,10 @@ public class MessageHandler {
     MessageService messageService;
     @Autowired
     ClampService clampService;
+
+    @Autowired
+    BonusPhotoService bonusPhotoService;
+
     @Autowired
     MemberDataRepository memberDataRepo;
 
@@ -110,7 +111,7 @@ public class MessageHandler {
     @Value("${rikaService.stickerId}")
     private String STICKER_ID;
 
-    @Value("${rikaService.voteKeyworld}")
+    @Value("${rikaService.voteKeyword}")
     private String VOTE_KEYWORD;
 
 
@@ -294,7 +295,7 @@ public class MessageHandler {
         }
 
         if (message.contains(VOTE_KEYWORD)) {
-            countBonusPhotoVote(event, message);
+            bonusPhotoService.addBonusPhotoVoteData(event, message);
             return;
 
         }
@@ -304,88 +305,6 @@ public class MessageHandler {
         if (rtnMsgObj != null) {
             reply(event.getReplyToken(), messageService.queryReplyMessage(message));
         }
-    }
-
-    private boolean countBonusPhotoVote(MessageEvent<TextMessageContent> event, String message) {
-        //1. 驗證格式
-      /*
-      	艾拉(袴服.ver)-現實與童話的距離 #投票提名
-	    [name]-[pieceName] #投票提名
-       */
-        String voteStr = message.trim().replace(VOTE_KEYWORD, "");
-        String[] pieceData = voteStr.split("-");
-        String displayName;
-        if (pieceData.length != 2) {
-            return true;
-        }
-        try {
-            //2. 取得投票人名稱
-            String userId = event.getSource().getUserId();
-            CompletableFuture<UserProfileResponse> memberProfile = lineMessagingClient.getGroupMemberProfile("Cedfd99b56918652ea9fa037057f3b41d", userId);
-
-            displayName = memberProfile.get().getDisplayName();
-
-            //3. 驗證當月份是否有建立過
-            Optional<BonusPhotoData> bonusPhotoDataOp = bonusPhotoDataRepo.findByUserId(userId).stream().filter(item -> {
-                Calendar recordDate = Calendar.getInstance();
-                Calendar now = Calendar.getInstance();
-                recordDate.setTime(item.getCreateDate());
-                if (recordDate.get(Calendar.MONTH) == now.get(Calendar.MONTH)) {
-                    return true;
-                }
-                return false;
-            }).findFirst();
-
-            //3.1 有紀錄則進行更新
-            BonusPhotoData bonusPhotoData;
-            if (bonusPhotoDataOp.isPresent()) {
-                bonusPhotoData = bonusPhotoDataOp.get();
-                bonusPhotoData.setPieceName(pieceData[1]);
-                bonusPhotoData.setCharacterName(pieceData[0]);
-            } else {
-                //3.2 無紀錄則直接寫入
-                bonusPhotoData = new BonusPhotoData();
-                bonusPhotoData.setPieceName(pieceData[1]);
-                bonusPhotoData.setCharacterName(pieceData[0]);
-                bonusPhotoData.setCreateDate(new Date());
-                bonusPhotoData.setUserId(userId);
-                bonusPhotoData.setLineName(displayName);
-            }
-            bonusPhotoDataRepo.save(bonusPhotoData);
-            //4. 回傳紀錄結果
-            List<BonusPhotoData> bonusPhotoDataList = bonusPhotoDataRepo.findAll().stream().filter(item -> {
-                Calendar recordDate = Calendar.getInstance();
-                Calendar now = Calendar.getInstance();
-                recordDate.setTime(item.getCreateDate());
-                if (recordDate.get(Calendar.MONTH) == now.get(Calendar.MONTH)) {
-                    return true;
-                }
-                return false;
-            }).collect(Collectors.toList());
-
-            List<FlexComponent> textList = bonusPhotoDataList.stream().map(item -> {
-                StringBuilder str = new StringBuilder();
-                str.append(item.getCharacterName())
-                        .append(" ")
-                        .append(item.getPieceName())
-                        .append(" ")
-                        .append(item.getLineName());
-                Text text = Text.builder().text(str.toString()).build();
-                return (FlexComponent)text;
-            }).collect(Collectors.toList());
-
-            Box body =
-                    Box.builder().contents(textList).layout(FlexLayout.VERTICAL).build();
-            FlexMessage flexMessage = FlexMessage.builder().altText("投票名單").contents(Bubble.builder().body(body).build()).build();
-
-            reply(event.getReplyToken(), flexMessage);
-
-
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error(e);
-            e.printStackTrace();
-        }
-        return false;
     }
 
     private Bubble buildBoxBodyData(FBPostData fbPostData, Text content, Image image)

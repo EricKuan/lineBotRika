@@ -392,7 +392,8 @@ public class ClampServiceImpl implements ClampService {
         }
         /* 處理最新漫畫回的快取 */
         /* 切出包含設定檔中 hashTag 的相關貼文 */
-        if (element.getByXPath("./div/div/span/p/a/span").stream()
+
+        if (element.getByXPath("./div/div/div/span/p/a/span").stream()
                 .filter(
                     (item -> {
                       DomElement ele = (DomElement) item;

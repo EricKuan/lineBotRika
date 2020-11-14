@@ -129,25 +129,19 @@ public class BonusPhotoServiceImpl implements BonusPhotoService {
 
     @Override
     public void sendAllNameList(MessageEvent<TextMessageContent> event) {
-        Calendar dateNow = Calendar.getInstance();
-        List<BonusPhotoData> bonusPhotoVoteData = findBonusPhotoVoteData(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1);
+        /**
+         * 查詢本月份提名名單
+         */
+        Calendar nowDate = Calendar.getInstance();
+        StringBuilder voteUrl = new StringBuilder("請查詢下列網址 https://linebotrika.herokuapp.com/voteData/");
+        voteUrl.append(nowDate.get(Calendar.YEAR))
+                .append("/")
+                .append(nowDate.get(Calendar.MONTH)+1);
 
+        String replyMsg = voteUrl.toString();
 
-//        Template template =
-//                ButtonsTemplate.builder()
-//                        .title("MENU")
-//                        .thumbnailImageUrl(new URI(MENU_IMG_URL))
-//                        .text("請選擇指令")
-//                        .actions(Arrays.asList(introduction, newestPost, newestStory, subscription))
-//                        .build();
-//
-//        TemplateMessage replyTemplateMsg =
-//                TemplateMessage.builder().template(template).altText("選單").build();
-//
-//        reply(token, replyTemplateMsg);
-//
-//
-//        reply(event.getReplyToken(), flexMessage);
+        reply(event.getReplyToken(), new TextMessage(replyMsg));
+
     }
 
     @Override

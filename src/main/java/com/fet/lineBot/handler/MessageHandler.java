@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -338,16 +339,30 @@ public class MessageHandler {
                         "前導介紹",
                         new URI("http://www.wishstudio.com.tw/2969423526332873146135441303403631738626.html"),
                         null);
+
         URIAction subscription =
                 new URIAction(
                         "訂閱資訊", new URI("http://www.wishstudio.com.tw/97333533038321wish9733.html"), null);
+
+        /**
+         * 查詢本月份提名名單
+         */
+        Calendar nowDate = Calendar.getInstance();
+        StringBuilder voteUrl = new StringBuilder("https://linebotrika.herokuapp.com/voteData");
+        voteUrl.append(nowDate.get(Calendar.YEAR))
+                .append("/")
+                .append(nowDate.get(Calendar.MONTH)+1);
+
+        URIAction queryVoteData =
+                new URIAction(
+                        "本月份提名", new URI(voteUrl.toString()), null);
 
         Template template =
                 ButtonsTemplate.builder()
                         .title("MENU")
                         .thumbnailImageUrl(new URI(MENU_IMG_URL))
                         .text("請選擇指令")
-                        .actions(Arrays.asList(introduction, newestPost, newestStory, subscription))
+                        .actions(Arrays.asList(introduction, newestPost, newestStory, subscription,queryVoteData))
                         .build();
 
         TemplateMessage replyTemplateMsg =

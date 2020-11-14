@@ -344,25 +344,12 @@ public class MessageHandler {
                 new URIAction(
                         "訂閱資訊", new URI("http://www.wishstudio.com.tw/97333533038321wish9733.html"), null);
 
-        /**
-         * 查詢本月份提名名單
-         */
-        Calendar nowDate = Calendar.getInstance();
-        StringBuilder voteUrl = new StringBuilder("https://linebotrika.herokuapp.com/voteData/");
-        voteUrl.append(nowDate.get(Calendar.YEAR))
-                .append("/")
-                .append(nowDate.get(Calendar.MONTH)+1);
-
-        URIAction queryVoteData =
-                new URIAction(
-                        "本月份提名", new URI(voteUrl.toString()), null);
-
         Template template =
                 ButtonsTemplate.builder()
                         .title("MENU")
                         .thumbnailImageUrl(new URI(MENU_IMG_URL))
                         .text("請選擇指令")
-                        .actions(Arrays.asList(introduction, newestPost, newestStory, subscription, queryVoteData))
+                        .actions(Arrays.asList(introduction, newestPost, newestStory, subscription))
                         .build();
 
         TemplateMessage replyTemplateMsg =

@@ -61,10 +61,10 @@ public class BonusPhotoServiceImpl implements BonusPhotoService {
         // 刪除名單
         if (message.indexOf(DELETE) == 0) {
             Optional<BonusPhotoData> bonusPhotoVoteData = bonusPhotoDataRepo.findByUserId(event.getSource().getUserId()).stream().filter(item -> isThisMonthVoteDataExist(item)).findFirst();
-            if(bonusPhotoVoteData.isPresent()){
+            if (bonusPhotoVoteData.isPresent()) {
                 BonusPhotoData bonusPhotoData = bonusPhotoVoteData.get();
                 bonusPhotoDataRepo.delete(bonusPhotoData);
-                reply(event.getReplyToken(),new TextMessage("受け取りましたので、できるだけ早く処理します。"));
+                reply(event.getReplyToken(), new TextMessage("受け取りましたので、できるだけ早く処理します。"));
             }
             return;
         }
@@ -123,34 +123,41 @@ public class BonusPhotoServiceImpl implements BonusPhotoService {
         Calendar recordDate = Calendar.getInstance();
         Calendar now = Calendar.getInstance();
         recordDate.setTime(item.getCreateDate());
-        if (recordDate.get(Calendar.MONTH) == now.get(Calendar.MONTH)) {
-            return true;
-        }
-        return false;
+        return recordDate.get(Calendar.MONTH) == now.get(Calendar.MONTH)
+                && recordDate.get(Calendar.YEAR) == now.get(Calendar.YEAR) ? true : false;
     }
 
     @Override
     public void sendAllNameList(MessageEvent<TextMessageContent> event) {
-        List<BonusPhotoData> bonusPhotoDataList = bonusPhotoDataRepo.findAll().stream().filter(item ->
-                isThisMonthVoteDataExist(item)
-        ).collect(Collectors.toList());
+        Calendar dateNow = Calendar.getInstance();
+        List<BonusPhotoData> bonusPhotoVoteData = findBonusPhotoVoteData(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1);
 
-        List<FlexComponent> textList = bonusPhotoDataList.stream().map(item -> {
-            StringBuilder str = new StringBuilder();
-            str.append(item.getCharacterName())
-                    .append(" ")
-                    .append(item.getPieceName())
-                    .append(" ")
-                    .append(item.getLineName());
-            Text text = Text.builder().text(str.toString()).build();
-            return (FlexComponent) text;
+
+//        Template template =
+//                ButtonsTemplate.builder()
+//                        .title("MENU")
+//                        .thumbnailImageUrl(new URI(MENU_IMG_URL))
+//                        .text("請選擇指令")
+//                        .actions(Arrays.asList(introduction, newestPost, newestStory, subscription))
+//                        .build();
+//
+//        TemplateMessage replyTemplateMsg =
+//                TemplateMessage.builder().template(template).altText("選單").build();
+//
+//        reply(token, replyTemplateMsg);
+//
+//
+//        reply(event.getReplyToken(), flexMessage);
+    }
+
+    @Override
+    public List<BonusPhotoData> findBonusPhotoVoteData(int year, int month) {
+        List<BonusPhotoData> voteList = bonusPhotoDataRepo.findByDate(month).stream().filter(item -> {
+            Calendar createDate = Calendar.getInstance();
+            return createDate.get(Calendar.YEAR) == year ? true : false;
         }).collect(Collectors.toList());
 
-        Box body =
-                Box.builder().contents(textList).layout(FlexLayout.VERTICAL).build();
-        FlexMessage flexMessage = FlexMessage.builder().altText("投票名單").contents(Bubble.builder().body(body).build()).build();
-
-        reply(event.getReplyToken(), flexMessage);
+        return voteList;
     }
 
     private void reply(@NonNull String replyToken, @NonNull Message message) {

@@ -26,6 +26,6 @@ public class BonusPhotoData {
     @Column(name = "CHARACTER_NAME")
     private String characterName;
 
-    @Column(name = "CreateDate")
+    @Column(name = "Create_Date")
     private Date createDate;
 }

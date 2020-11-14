@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <title>查詢投票資料</title>
+    <style>
+        .myfont2 {
+            text-align: center;
+            font-size: large;
+        }
+    </style>
+</head>
+<body>
+<h1 th:inline="text">投票內容</h1>
+<div>
+
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>作品名</th>
+            <th>腳色名</th>
+            <th>提名者</th>
+        </tr>
+        <tr th:each="charcherData : ${voteData}">
+            <td><p th:text="${charcherData.id}"></p></td>
+            <td><p th:text="${charcherData.pieceName}"></p></td>
+            <td><p th:text="${charcherData.characterName}"></p></td>
+            <td><p th:text="${charcherData.lineName}"></p></td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

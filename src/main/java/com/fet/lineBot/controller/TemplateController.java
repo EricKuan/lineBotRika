@@ -1,5 +1,7 @@
 package com.fet.lineBot.controller;
 
+import com.fet.lineBot.domain.model.BonusPhotoData;
+import com.fet.lineBot.service.BonusPhotoService;
 import com.fet.lineBot.service.ClampService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,6 +15,8 @@ import java.util.Map;
 @Controller
 public class TemplateController {
   @Autowired ClampService clampService;
+  @Autowired
+  BonusPhotoService bonusService;
 
   @RequestMapping("/hello/{storyNum}")
   public String hello(Map<String, Object> map, @PathVariable("storyNum") int storyNum) {
@@ -38,5 +42,12 @@ public class TemplateController {
 
     map.put("content", content);
     return "/novel";
+  }
+
+  @RequestMapping("/voteData/{year}/{month}")
+  public String getVoteNameList(Map<String, Object> map, @PathVariable("year") int year, @PathVariable("month") int month){
+    List<BonusPhotoData> bonusPhotoVoteData = bonusService.findBonusPhotoVoteData(year, month);
+    map.put("voteData", bonusPhotoVoteData);
+    return "/voteData";
   }
 }

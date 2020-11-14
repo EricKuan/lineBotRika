@@ -348,7 +348,7 @@ public class MessageHandler {
          * 查詢本月份提名名單
          */
         Calendar nowDate = Calendar.getInstance();
-        StringBuilder voteUrl = new StringBuilder("https://linebotrika.herokuapp.com/voteData");
+        StringBuilder voteUrl = new StringBuilder("https://linebotrika.herokuapp.com/voteData/");
         voteUrl.append(nowDate.get(Calendar.YEAR))
                 .append("/")
                 .append(nowDate.get(Calendar.MONTH)+1);
@@ -362,7 +362,7 @@ public class MessageHandler {
                         .title("MENU")
                         .thumbnailImageUrl(new URI(MENU_IMG_URL))
                         .text("請選擇指令")
-                        .actions(Arrays.asList(introduction, newestPost, newestStory, subscription,queryVoteData))
+                        .actions(Arrays.asList(introduction, newestPost, newestStory, subscription, queryVoteData))
                         .build();
 
         TemplateMessage replyTemplateMsg =

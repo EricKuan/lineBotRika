@@ -18,17 +18,20 @@
     <table border="1">
         <tr>
             <th>ID</th>
+            <th>角色名</th>
             <th>作品名</th>
-            <th>腳色名</th>
             <th>提名者</th>
         </tr>
         <tr th:each="charcherData : ${voteData}">
             <td><p th:text="${charcherData.id}"></p></td>
-            <td><p th:text="${charcherData.pieceName}"></p></td>
             <td><p th:text="${charcherData.characterName}"></p></td>
+            <td><p th:text="${charcherData.pieceName}"></p></td>
             <td><p th:text="${charcherData.lineName}"></p></td>
         </tr>
     </table>
 </div>
+      <div>
+            <p>參考格式：</p> <p><b>[角色名稱]</b>-<b>[作品名稱]</b> #投票提名 </p><br/><br/>
+      </div>
 </body>
 </html>

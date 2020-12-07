@@ -52,6 +52,7 @@ rikaService:
   channelIdList: ${channelIdList}
   youtubeNotifyToken: ${youtubeNotifyToken}
   voteKeyword: ${voteKeyword}
+  titleKeyword: ${titleKeyword}
 
 spring:
   datasource:

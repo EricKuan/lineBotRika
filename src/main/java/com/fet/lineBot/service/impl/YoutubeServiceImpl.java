@@ -17,6 +17,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.util.StringUtils;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -41,6 +42,10 @@ public class YoutubeServiceImpl implements YoutubeService {
   // 直播通知用 token
   @Value("${rikaService.youtubeNotifyToken}")
   private String token;
+
+  // 直播通知用 token
+  @Value("${rikaService.titleKeyword}")
+  private String titleKeyword;
 
   private static final String APPLICATION_NAME = "lineBot";
   private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -165,7 +170,7 @@ public class YoutubeServiceImpl implements YoutubeService {
             .filter(item -> Optional.ofNullable(item.getId().getVideoId()).isPresent())
             .findFirst();
 
-    if (result.isPresent()) {
+    if (result.isPresent() && StringUtils.contains(titleKeyword, result.get().getSnippet().getTitle())) {
       rtnObj.setChannelId(channelId);
       rtnObj.setLiveBroadcastContent(broadCastType);
       rtnObj.setVideoId(result.get().getId().getVideoId());
@@ -173,9 +178,9 @@ public class YoutubeServiceImpl implements YoutubeService {
       rtnObj.setCreateDate(new Date());
       Optional.ofNullable(result.get().getSnippet().getThumbnails())
           .ifPresent(
-              thumbanail -> {
-                rtnObj.setImgUrl(thumbanail.getMedium().getUrl());
-                rtnObj.setLargeImgUrl(thumbanail.getHigh().getUrl());
+              thumbnail -> {
+                rtnObj.setImgUrl(thumbnail.getMedium().getUrl());
+                rtnObj.setLargeImgUrl(thumbnail.getHigh().getUrl());
               });
 
       /* 開始處理 video 日期資訊 */

@@ -14,10 +14,11 @@ import com.google.gson.Gson;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.util.StringUtils;
+
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -170,7 +171,9 @@ public class YoutubeServiceImpl implements YoutubeService {
             .filter(item -> Optional.ofNullable(item.getId().getVideoId()).isPresent())
             .findFirst();
 
-    if (result.isPresent() && StringUtils.contains(titleKeyword, result.get().getSnippet().getTitle())) {
+    log.info("titleKeyword:{}, title:{}", titleKeyword, result.get().getSnippet().getTitle());
+    log.info("checkResult: {}",result.isPresent() && StringUtils.containsIgnoreCase(result.get().getSnippet().getTitle(), titleKeyword));
+    if (result.isPresent() && StringUtils.contains(result.get().getSnippet().getTitle(),titleKeyword) ){
       rtnObj.setChannelId(channelId);
       rtnObj.setLiveBroadcastContent(broadCastType);
       rtnObj.setVideoId(result.get().getId().getVideoId());

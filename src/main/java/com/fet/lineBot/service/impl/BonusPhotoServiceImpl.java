@@ -6,6 +6,7 @@ import com.fet.lineBot.service.BonusPhotoService;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.event.MessageEvent;
+import com.linecorp.bot.model.event.message.MessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.message.FlexMessage;
 import com.linecorp.bot.model.message.Message;
@@ -51,7 +52,7 @@ public class BonusPhotoServiceImpl implements BonusPhotoService {
     private String DELETE = "DELETE";
 
     @Override
-    public void addBonusPhotoVoteData(MessageEvent<TextMessageContent> event, String message) {
+    public void addBonusPhotoVoteData(MessageEvent<MessageContent> event, String message) {
         // 查詢全部名單
         if (message.indexOf(TOTAL) == 0) {
             sendAllNameList(event);
@@ -128,7 +129,7 @@ public class BonusPhotoServiceImpl implements BonusPhotoService {
     }
 
     @Override
-    public void sendAllNameList(MessageEvent<TextMessageContent> event) {
+    public void sendAllNameList(MessageEvent<MessageContent> event) {
         /**
          * 查詢本月份提名名單
          */
@@ -146,10 +147,7 @@ public class BonusPhotoServiceImpl implements BonusPhotoService {
 
     @Override
     public List<BonusPhotoData> findBonusPhotoVoteData(int year, int month) {
-        List<BonusPhotoData> voteList = bonusPhotoDataRepo.findByDate(month).stream().filter(item -> {
-            Calendar createDate = Calendar.getInstance();
-            return createDate.get(Calendar.YEAR) == year ? true : false;
-        }).collect(Collectors.toList());
+        List<BonusPhotoData> voteList = bonusPhotoDataRepo.findByDate(month, year);
 
         return voteList;
     }

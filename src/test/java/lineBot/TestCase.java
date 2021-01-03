@@ -247,8 +247,8 @@ public class TestCase {
 
     @Test
     public void test11() {
-        List<BonusPhotoData> ten = bonusRepo.findByDate(10);
-        List<BonusPhotoData> eleven = bonusRepo.findByDate(11);
+        List<BonusPhotoData> ten = bonusRepo.findByDate(10,2020);
+        List<BonusPhotoData> eleven = bonusRepo.findByDate(11,2020);
 
 
         log.info("ten:{}", gson.toJson(ten));

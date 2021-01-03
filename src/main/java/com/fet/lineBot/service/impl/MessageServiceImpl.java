@@ -62,8 +62,8 @@ public class MessageServiceImpl implements MessageService {
   @Override
   public String saveMessageMapping(String message, String replymessage, String senderId) {
     ReplyMapping reply = new ReplyMapping();
-    if (StringUtils.isEmpty(message)
-        || StringUtils.isEmpty(replymessage)
+    if (StringUtils.hasText(message)
+        || StringUtils.hasText(replymessage)
         || message.length() > MAX_LENGTH
         || replymessage.length() > MAX_LENGTH
         || BLOCK_KEYWORD.indexOf(message) > 0) {
@@ -128,8 +128,8 @@ public class MessageServiceImpl implements MessageService {
 
   @Override
   public String saveImageMapping(String message, String replyUrl, String senderId) {
-    if (StringUtils.isEmpty(message)
-        || StringUtils.isEmpty(replyUrl)
+    if (StringUtils.hasText(message)
+        || StringUtils.hasText(replyUrl)
         || message.length() > MAX_LENGTH
         || replyUrl.length() > MAX_LENGTH
         || BLOCK_KEYWORD.indexOf(message) > 0) {

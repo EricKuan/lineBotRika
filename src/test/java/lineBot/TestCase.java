@@ -7,14 +7,16 @@ import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.domain.model.YoutubeLiveData;
 import com.fet.lineBot.service.BonusPhotoService;
 import com.fet.lineBot.service.ClampService;
+import com.fet.lineBot.service.YoutubeService;
 import com.fet.lineBot.service.impl.ClampServiceImpl;
 import com.fet.lineBot.service.impl.YoutubeServiceImpl;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.StringWebResponse;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebWindow;
 import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.html.parser.neko.HtmlUnitNekoHtmlParser;
 import com.google.gson.Gson;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
@@ -53,6 +55,9 @@ public class TestCase {
     BonusPhotoService bonusService;
     @Autowired
     ClampService clampService;
+
+    @Autowired
+    YoutubeService youtubeService;
 
     @Test
     public void test() {
@@ -113,13 +118,16 @@ public class TestCase {
         JSONArray array = jsonObj.getJSONArray("actions");
         System.out.println(array.get(0));
         String html = array.getJSONObject(0).getString("html");
-        System.out.println(html);
+//        System.out.println(html);
         URL url = new URL("http://www.example.com");
         StringWebResponse response =
                 new StringWebResponse(
                         "<html><head><title>Test</title></head><body>" + html + "</body></html>", url);
         WebClient client = new WebClient();
-        HtmlPage page = HTMLParser.parseHtml(response, client.getCurrentWindow());
+        WebWindow webWindow = client.getCurrentWindow();
+        HtmlUnitNekoHtmlParser parser = new HtmlUnitNekoHtmlParser();
+        HtmlPage page = parser.parseHtml(response, webWindow);
+
         System.out.println(page.getTitleText());
         //      System.out.println(page.asXml());
         List<DomElement> bodyDivList = page.getBody().getByXPath("./div/div/div/div/div");
@@ -269,5 +277,14 @@ public class TestCase {
     @Test
     public void test13() {
         clampService.queryFBNewestPost();
+    }
+
+    @Test
+    public void test14() {
+        try {
+            youtubeService.searchLiveByChannelId("UCgL6PS1vba90zrZW9xmiwng");
+        }catch (Exception e){
+            log.error(e);
+        }
     }
 }

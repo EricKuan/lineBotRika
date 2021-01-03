@@ -6,9 +6,9 @@ import com.fet.lineBot.domain.model.MangaData;
 import com.fet.lineBot.service.ClampService;
 import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
+import com.gargoylesoftware.htmlunit.html.parser.neko.HtmlUnitNekoHtmlParser;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import com.google.gson.Gson;
 import kong.unirest.HttpResponse;
@@ -347,7 +347,8 @@ public class ClampServiceImpl implements ClampService {
               "<html><head><title>Test</title></head><body>" + html + "</body></html>", url);
       WebClient client = new WebClient();
       WebWindow webWindow = webClient.getCurrentWindow();
-      HtmlPage page = HTMLParser.parseHtml(response, webWindow);
+      HtmlUnitNekoHtmlParser parser = new HtmlUnitNekoHtmlParser();
+      HtmlPage page = parser.parseHtml(response, webWindow);
 
       /* 切出包含貼文的 DIV */
       logger.debug(page.asXml());

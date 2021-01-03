@@ -52,7 +52,7 @@ public class BonusPhotoServiceImpl implements BonusPhotoService {
     private String DELETE = "DELETE";
 
     @Override
-    public void addBonusPhotoVoteData(MessageEvent<MessageContent> event, String message) {
+    public void addBonusPhotoVoteData(MessageEvent<TextMessageContent> event, String message) {
         // 查詢全部名單
         if (message.indexOf(TOTAL) == 0) {
             sendAllNameList(event);
@@ -129,7 +129,7 @@ public class BonusPhotoServiceImpl implements BonusPhotoService {
     }
 
     @Override
-    public void sendAllNameList(MessageEvent<MessageContent> event) {
+    public void sendAllNameList(MessageEvent<TextMessageContent> event) {
         /**
          * 查詢本月份提名名單
          */

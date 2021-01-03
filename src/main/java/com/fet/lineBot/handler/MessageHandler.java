@@ -115,12 +115,10 @@ public class MessageHandler {
 
 
     @EventMapping
-    public void handleTextMessageEvent(MessageEvent<MessageContent> event)
+    public void handleTextMessageEvent(MessageEvent<TextMessageContent> event)
             throws URISyntaxException {
         logger.info("event: " + new Gson().toJson(event));
-        TextMessageContent textMessageContent = (TextMessageContent) event.getMessage();
-
-        String message = textMessageContent.getText();
+        String message = event.getMessage().getText();
         String rtnMsg;
         /* 設定內容 */
         if (0 == message.indexOf(SETTING_PREFIX)) {
@@ -416,22 +414,6 @@ public class MessageHandler {
                 logger.info(event.getReplyToken());
                 reply(event.getReplyToken(), new TextMessage(WELLCOME_MSG));
             }
-        }
-    }
-
-    @EventMapping
-    public void handlePostbackEvent(PostbackEvent event) {
-        TextMessageContent textMessageContent = TextMessageContent.builder().text(event.getPostbackContent().getData()).build();
-        MessageEvent<MessageContent> message = MessageEvent.builder()
-                .replyToken(event.getReplyToken())
-                .source(event.getSource())
-                .message(textMessageContent)
-                .mode(EventMode.ACTIVE).build();
-
-        try {
-            handleTextMessageEvent(message);
-        } catch (Exception e) {
-            logger.error(e);
         }
     }
 }

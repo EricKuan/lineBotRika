@@ -11,10 +11,8 @@ import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.action.URIAction.AltUri;
-import com.linecorp.bot.model.event.Event;
-import com.linecorp.bot.model.event.MemberJoinedEvent;
-import com.linecorp.bot.model.event.MessageEvent;
-import com.linecorp.bot.model.event.PostbackEvent;
+import com.linecorp.bot.model.event.*;
+import com.linecorp.bot.model.event.message.MessageContent;
 import com.linecorp.bot.model.event.message.StickerMessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.event.source.GroupSource;
@@ -117,10 +115,12 @@ public class MessageHandler {
 
 
     @EventMapping
-    public void handleTextMessageEvent(MessageEvent<TextMessageContent> event)
+    public void handleTextMessageEvent(MessageEvent<MessageContent> event)
             throws URISyntaxException {
         logger.info("event: " + new Gson().toJson(event));
-        String message = event.getMessage().getText();
+        TextMessageContent textMessageContent = (TextMessageContent) event.getMessage();
+
+        String message = textMessageContent.getText();
         String rtnMsg;
         /* 設定內容 */
         if (0 == message.indexOf(SETTING_PREFIX)) {
@@ -421,15 +421,15 @@ public class MessageHandler {
 
     @EventMapping
     public void handlePostbackEvent(PostbackEvent event) {
-        event.getPostbackContent().getData();
-        MessageEvent<TextMessageContent> textMessageContentMessageEvent =
-                new MessageEvent(
-                        event.getReplyToken(),
-                        event.getSource(),
-                        new TextMessageContent(null, event.getPostbackContent().getData()),
-                        event.getTimestamp());
+        TextMessageContent textMessageContent = TextMessageContent.builder().text(event.getPostbackContent().getData()).build();
+        MessageEvent<MessageContent> message = MessageEvent.builder()
+                .replyToken(event.getReplyToken())
+                .source(event.getSource())
+                .message(textMessageContent)
+                .mode(EventMode.ACTIVE).build();
+
         try {
-            handleTextMessageEvent(textMessageContentMessageEvent);
+            handleTextMessageEvent(message);
         } catch (Exception e) {
             logger.error(e);
         }

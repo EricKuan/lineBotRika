@@ -4,10 +4,7 @@ import com.fet.lineBot.domain.dao.MangaDataRepository;
 import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.domain.model.MangaData;
 import com.fet.lineBot.service.ClampService;
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
-import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
-import com.gargoylesoftware.htmlunit.StringWebResponse;
-import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -349,7 +346,9 @@ public class ClampServiceImpl implements ClampService {
           new StringWebResponse(
               "<html><head><title>Test</title></head><body>" + html + "</body></html>", url);
       WebClient client = new WebClient();
-      HtmlPage page = HTMLParser.parseHtml(response, client.getCurrentWindow());
+      WebWindow webWindow = webClient.getCurrentWindow();
+      HtmlPage page = HTMLParser.parseHtml(response, webWindow);
+
       /* 切出包含貼文的 DIV */
       logger.debug(page.asXml());
       List<DomElement> bodyDivList = page.getBody().getByXPath("./div/div/div/div/div");

@@ -12,8 +12,8 @@ public interface BonusPhotoDataRepository extends CrudRepository<BonusPhotoData,
 
     List<BonusPhotoData> findByUserId(String userId);
 
-    @Query(value = "SELECT id, USER_ID, LINE_NAME, PIECE_NAME, LINE_NAME, CHARACTER_NAME, Create_Date FROM BONUS_VOTE_DATA WHERE date_part('month', Create_Date) = :month ",
+    @Query(value = "SELECT id, USER_ID, LINE_NAME, PIECE_NAME, LINE_NAME, CHARACTER_NAME, Create_Date FROM BONUS_VOTE_DATA WHERE date_part('month', Create_Date) = :month AND date_part('year', Create_Date) = :year ",
             nativeQuery = true)
-    List<BonusPhotoData> findByDate(@Param("month") int month);
+    List<BonusPhotoData> findByDate(@Param("month") int month, @Param("year") int year);
 
 }

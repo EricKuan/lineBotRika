@@ -1,5 +1,6 @@
 package com.fet.lineBot.service.impl;
 
+import com.fet.lineBot.domain.model.ClipVideoInfo;
 import com.fet.lineBot.domain.model.YoutubeLiveData;
 import com.fet.lineBot.service.YoutubeService;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -7,10 +8,12 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
+import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.VideoListResponse;
 import com.google.gson.Gson;
+import javassist.compiler.ast.Keyword;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.extern.log4j.Log4j2;
@@ -24,6 +27,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -48,10 +52,16 @@ public class YoutubeServiceImpl implements YoutubeService {
   @Value("${rikaService.titleKeyword}")
   private String titleKeyword;
 
+  // 直播通知用 token
+  @Value("${rikaService.clipKeyword}")
+  private String clipKeyword;
+
   private static final String APPLICATION_NAME = "lineBot";
   private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
   private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_U = new HashMap<>();
   private static Map<String, Timer> TIMER_CACHE_MAP = new HashMap<>();
+  private static List<ClipVideoInfo> CLIP_VIDEO_ID_LIST = new ArrayList<>();
+
 
   @Scheduled(cron = "0 */5 * * * *", zone = "Asia/Taipei")
   public void scheduleClamYoutubeData() {
@@ -149,6 +159,15 @@ public class YoutubeServiceImpl implements YoutubeService {
       throws GeneralSecurityException, IOException {
     SearchListResponse searchListResponse = searchAPI(channelId, "live", "video");
     return transLiveData(channelId, "live", searchListResponse);
+  }
+
+  @Override
+  public List<ClipVideoInfo> getClipVideoIdList() throws GeneralSecurityException, IOException {
+    if(CLIP_VIDEO_ID_LIST.size()<1){
+      searchByKeyword(clipKeyword);
+    }
+
+    return CLIP_VIDEO_ID_LIST;
   }
 
   /**
@@ -291,5 +310,31 @@ public class YoutubeServiceImpl implements YoutubeService {
             .field("imageThumbnail", data.getImgUrl())
             .asString();
     log.debug(response.getBody());
+  }
+
+  @Scheduled(cron = "0 */30 * * * *", zone = "Asia/Taipei")
+  private void cleanClipVideoIdCache(){
+    CLIP_VIDEO_ID_LIST = new ArrayList<>();
+  }
+
+  private void searchByKeyword(String keyWord)
+          throws GeneralSecurityException, IOException {
+    YouTube youtubeService = getService();
+    // Define and execute the API request
+    YouTube.Search.List request = youtubeService.search().list("snippet");
+    SearchListResponse searchResult = request
+            .setKey(DEVELOPER_KEY)
+            .setQ(keyWord)
+            .setMaxResults(Long.valueOf(20))
+            .setFields("items(id/videoId,snippet/title)")
+            .setOrder("date")
+            .execute();
+    searchResult.getItems().stream().forEach(item->{
+      ClipVideoInfo clip = new ClipVideoInfo();
+      clip.setTitle(item.getSnippet().getTitle());
+      clip.setVideoUrl("https://www.youtube.com/embed/" + item.getId().getVideoId());
+      CLIP_VIDEO_ID_LIST.add(clip);
+    });
+
   }
 }

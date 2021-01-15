@@ -1,13 +1,17 @@
 package com.fet.lineBot.controller;
 
 import com.fet.lineBot.domain.model.BonusPhotoData;
+import com.fet.lineBot.domain.model.ClipVideoInfo;
 import com.fet.lineBot.service.BonusPhotoService;
 import com.fet.lineBot.service.ClampService;
+import com.fet.lineBot.service.YoutubeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +21,8 @@ public class TemplateController {
   @Autowired ClampService clampService;
   @Autowired
   BonusPhotoService bonusService;
+  @Autowired
+  YoutubeService youtubeService;
 
   @RequestMapping("/hello/{storyNum}")
   public String hello(Map<String, Object> map, @PathVariable("storyNum") int storyNum) {
@@ -50,4 +56,12 @@ public class TemplateController {
     map.put("voteData", bonusPhotoVoteData);
     return "/voteData";
   }
+
+  @RequestMapping("/clipVideo")
+  public String getClipVideoPage(Map<String, Object> map) throws GeneralSecurityException, IOException {
+    List<ClipVideoInfo> clipVideoIdList = youtubeService.getClipVideoIdList();
+    map.put("clipVideoIdList", clipVideoIdList);
+    return "/clipVideo";
+  }
+
 }

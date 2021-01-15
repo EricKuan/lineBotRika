@@ -53,6 +53,7 @@ rikaService:
   youtubeNotifyToken: ${youtubeNotifyToken}
   voteKeyword: ${voteKeyword}
   titleKeyword: ${titleKeyword}
+  clipKeyword: ${clipKeyword}
 
 spring:
   datasource:
@@ -62,6 +63,7 @@ spring:
     minIdle: 2
     initialSize: 5
     removeAbandoned: true
+
   jpa:
     properties:
       hibernate:

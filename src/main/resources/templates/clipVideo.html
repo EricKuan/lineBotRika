@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <title>本周精華</title>
+    <style>
+        .myfont2 {
+            text-align: center;
+            font-size: large;
+        }
+    </style>
+</head>
+<body>
+
+<div>
+    <li>
+        <div th:each="video:${clipVideoIdList}">
+            <div><p th:text="${video.title}"></p></div>
+            <iframe th:src="${video.videoUrl}" width="560" height="315" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+        </div>
+    </li>
+
+</div>
+
+</body>
+</html>

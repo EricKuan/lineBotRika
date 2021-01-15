@@ -324,6 +324,8 @@ public class YoutubeServiceImpl implements YoutubeService {
     YouTube.Search.List request = youtubeService.search().list("snippet");
     SearchListResponse searchResult = request
             .setKey(DEVELOPER_KEY)
+            .setType("video")
+            .setVideoEmbeddable("true")
             .setQ(keyWord)
             .setMaxResults(Long.valueOf(20))
             .setFields("items(id/videoId,snippet/title)")

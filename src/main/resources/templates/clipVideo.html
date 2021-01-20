@@ -10,20 +10,16 @@
             font-size: large;
         }
         .div {
-            width: 600px;
-            height: 300px;
             position: absolute;
-            top: 50%;
-            left: 50%;
-            margin: -150px 0 0 -300px;
+
         }
     </style>
 </head>
 <body>
 
-<div>
-    <div class="myfont2">發布頁說明<br>本發布頁每 30 分鐘會自動更新，將會自動抓取 youtube 上有標示 <a href="https://www.youtube.com/hashtag/%E6%AB%BB%E9%87%8E%E9%9C%B2" >#櫻野露</a> <a href="https://www.youtube.com/hashtag/%E9%9C%B2%E9%9C%B2%E7%B2%BE%E8%8F%AF">#露露精華</a> 兩種 tag 的影片<br>歡迎各位觀眾加入剪輯烤肉 man 的行列</div>
-        <div th:each="video:${clipVideoIdList}" class="div">
+<div class="myfont2">發布頁說明<br>本發布頁每 30 分鐘會自動更新，將會自動抓取 youtube 上有標示 <a href="https://www.youtube.com/hashtag/%E6%AB%BB%E9%87%8E%E9%9C%B2" >#櫻野露</a> <a href="https://www.youtube.com/hashtag/%E9%9C%B2%E9%9C%B2%E7%B2%BE%E8%8F%AF">#露露精華</a> 兩種 tag 的影片<br>歡迎各位觀眾加入剪輯烤肉 man 的行列</div>
+<div class="div">
+        <div th:each="video:${clipVideoIdList}" >
             <div><p th:text="${video.title}"></p></div>
             <iframe th:src="${video.videoUrl}" width="560" height="315" frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

@@ -319,6 +319,7 @@ public class YoutubeServiceImpl implements YoutubeService {
 
   private void searchByKeyword(String keyWord)
           throws GeneralSecurityException, IOException {
+    log.info("=====start youtube search=====");
     YouTube youtubeService = getService();
     // Define and execute the API request
     YouTube.Search.List request = youtubeService.search().list("snippet");
@@ -337,6 +338,7 @@ public class YoutubeServiceImpl implements YoutubeService {
       clip.setVideoUrl("https://www.youtube.com/embed/" + item.getId().getVideoId());
       CLIP_VIDEO_ID_LIST.add(clip);
     });
-
+    log.info("youtube search result: {}", new Gson().toJson(CLIP_VIDEO_ID_LIST));
+    log.info("=====end youtube search=====");
   }
 }

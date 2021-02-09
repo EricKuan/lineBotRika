@@ -8,12 +8,10 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.VideoListResponse;
 import com.google.gson.Gson;
-import javassist.compiler.ast.Keyword;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.extern.log4j.Log4j2;
@@ -22,12 +20,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -317,10 +313,18 @@ public class YoutubeServiceImpl implements YoutubeService {
   @Scheduled(cron = "0 */30 * * * *", zone = "Asia/Taipei")
   private void cleanClipVideoIdCache(){
     CLIP_VIDEO_ID_LIST = new ArrayList<>();
+    try {
+      searchByKeyword(clipKeyword);
+    } catch (Exception e){
+      log.error(e);
+    }
   }
 
-  private void searchByKeyword(String keyWord)
+  private synchronized void searchByKeyword(String keyWord)
           throws GeneralSecurityException, IOException {
+    if(CLIP_VIDEO_ID_LIST.size()>0){
+      return;
+    }
     log.info("=====start youtube search=====");
     YouTube youtubeService = getService();
     // Define and execute the API request

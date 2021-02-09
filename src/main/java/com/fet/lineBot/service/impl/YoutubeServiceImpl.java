@@ -80,7 +80,7 @@ public class YoutubeServiceImpl implements YoutubeService {
           Calendar nowDate = Calendar.getInstance();
           nowDate.add(Calendar.HOUR_OF_DAY, -1);
           log.info("createTime: {}", channelData.getCreateDate());
-          log.info("newDate: {}", nowDate.getTime());
+          log.info("nowDate: {}", nowDate.getTime());
           log.info("checkDate: {}", channelData.getCreateDate().after(nowDate.getTime()));
           if (channelData.getCreateDate().after(nowDate.getTime())) {
             log.info("== continue ==");
@@ -93,6 +93,8 @@ public class YoutubeServiceImpl implements YoutubeService {
         YOUTUBE_CACHE_MAP_U.put(channelId, upcoming);
         if (upcoming.getLiveDate() != null) {
           Date now = new Date();
+          log.info("liveDate: {}", upcoming.getLiveDate().getTime() );
+          log.info("now: {}", now.getTime() );
           long liveTimeCompare = upcoming.getLiveDate().getTime() - now.getTime();
           log.info("compare Time: {}", liveTimeCompare);
 

@@ -59,7 +59,7 @@ public class YoutubeServiceImpl implements YoutubeService {
   private static List<ClipVideoInfo> CLIP_VIDEO_ID_LIST = new ArrayList<>();
 
 
-  @Scheduled(cron = "0 */5 * * * *", zone = "Asia/Taipei")
+  @Scheduled(cron = "0 */20 * * * *", zone = "Asia/Taipei")
   public void scheduleClamYoutubeData() {
     log.info("scheduled Start at {}", new SimpleDateFormat("yyyyMMdd HH:mm:ss").format(new Date()));
     String[] channelIdList = CHANNEL_ID_LIST.split(",");
@@ -310,15 +310,8 @@ public class YoutubeServiceImpl implements YoutubeService {
     log.debug(response.getBody());
   }
 
-  @Scheduled(cron = "0 */30 * * * *", zone = "Asia/Taipei")
-  private void cleanClipVideoIdCache(){
-    CLIP_VIDEO_ID_LIST = new ArrayList<>();
-    try {
-      searchByKeyword(clipKeyword);
-    } catch (Exception e){
-      log.error(e);
-    }
-  }
+  @Scheduled(cron = "0 * * * * *", zone = "Asia/Taipei")
+  private void cleanClipVideoIdCache(){    CLIP_VIDEO_ID_LIST = new ArrayList<>();  }
 
   private synchronized void searchByKeyword(String keyWord)
           throws GeneralSecurityException, IOException {

@@ -310,7 +310,7 @@ public class YoutubeServiceImpl implements YoutubeService {
     log.debug(response.getBody());
   }
 
-  @Scheduled(cron = "0 * * * * *", zone = "Asia/Taipei")
+  @Scheduled(cron = "0 0 * * * *", zone = "Asia/Taipei")
   private void cleanClipVideoIdCache(){    CLIP_VIDEO_ID_LIST = new ArrayList<>();  }
 
   private synchronized void searchByKeyword(String keyWord)

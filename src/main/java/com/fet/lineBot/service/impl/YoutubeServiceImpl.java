@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -129,8 +130,15 @@ public class YoutubeServiceImpl implements YoutubeService {
                 log.error(ioEx);
             }
         }
-        CheckYoutubeLiveNotifyData rtnData = new CheckYoutubeLiveNotifyData(YOUTUBE_CACHE_MAP_U, TIMER_CACHE_MAP, new Date());
-
+        CheckYoutubeLiveNotifyData rtnData = createNotifyCheckData();
+        return rtnData;
+    }
+    
+    private CheckYoutubeLiveNotifyData createNotifyCheckData() {
+        CheckYoutubeLiveNotifyData rtnData = new CheckYoutubeLiveNotifyData();
+        List<YoutubeLiveData> youtubeCache = YOUTUBE_CACHE_MAP_U.values().stream().collect(Collectors.toList());
+        rtnData.setYOUTUBE_CACHE_MAP_U(youtubeCache);
+        rtnData.setSysdate(new Date());
         return rtnData;
     }
 

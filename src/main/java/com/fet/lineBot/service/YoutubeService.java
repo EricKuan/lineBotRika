@@ -1,5 +1,6 @@
 package com.fet.lineBot.service;
 
+import com.fet.lineBot.domain.model.CheckYoutubeLiveNotifyData;
 import com.fet.lineBot.domain.model.ClipVideoInfo;
 import com.fet.lineBot.domain.model.YoutubeLiveData;
 
@@ -16,4 +17,6 @@ public interface YoutubeService {
       throws GeneralSecurityException, IOException;
 
   List<ClipVideoInfo> getClipVideoIdList() throws GeneralSecurityException, IOException;
+
+  CheckYoutubeLiveNotifyData scheduleClamYoutubeData();
 }

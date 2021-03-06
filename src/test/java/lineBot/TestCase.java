@@ -231,9 +231,9 @@ public class TestCase {
 
         YoutubeServiceImpl youtubeService = new YoutubeServiceImpl();
 
-        YoutubeLiveData live = youtubeService.searchLiveByChannelId("UCl_gCybOJRIgOXw6Qb4qJzQ");
-        System.out.println(new Gson().toJson(live));
-        System.out.println(live.getUrl());
+        List<YoutubeLiveData> live = youtubeService.searchLiveByChannelId("UCl_gCybOJRIgOXw6Qb4qJzQ");
+
+        log.info(new Gson().toJson(live));
     }
 
     @Test

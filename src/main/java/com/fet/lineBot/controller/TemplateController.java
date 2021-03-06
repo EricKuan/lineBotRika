@@ -26,8 +26,7 @@ public class TemplateController {
 
   @RequestMapping("/hello/{storyNum}")
   public String hello(Map<String, Object> map, @PathVariable("storyNum") int storyNum) {
-    List<String> imgList = new ArrayList<String>();
-    imgList = clampService.queryAnotherSide(storyNum);
+    List<String> imgList = clampService.queryAnotherSide(storyNum);
 
     map.put("imgList", imgList);
     map.put("linkBack", "https://linebotrika.herokuapp.com/hello/" + (storyNum + 1));

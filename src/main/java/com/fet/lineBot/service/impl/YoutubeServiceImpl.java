@@ -56,7 +56,7 @@ public class YoutubeServiceImpl implements YoutubeService {
 
     private static final String APPLICATION_NAME = "lineBot";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-    private static Map<String, YoutubeLiveData> YOUTUBE_CACHE_MAP_U = new HashMap<>();
+    private static Map<String, List<YoutubeLiveData>> YOUTUBE_CACHE_MAP_U = new HashMap<>();
     private static Map<String, Timer> TIMER_CACHE_MAP = new HashMap<>();
     private static List<ClipVideoInfo> CLIP_VIDEO_ID_LIST = new ArrayList<>();
 
@@ -79,8 +79,10 @@ public class YoutubeServiceImpl implements YoutubeService {
                 log.info("channelId: {}", channelId);
                 log.info("mapCheck: {}", YOUTUBE_CACHE_MAP_U.containsKey(channelId));
                 if (YOUTUBE_CACHE_MAP_U.containsKey(channelId)) {
-                    YoutubeLiveData channelData = YOUTUBE_CACHE_MAP_U.get(channelId);
-                    log.info("data: {}", new Gson().toJson(channelData));
+                    List<YoutubeLiveData> channelDataList = YOUTUBE_CACHE_MAP_U.get(channelId);
+                    log.info("data: {}", new Gson().toJson(channelDataList));
+                    channelDataList.sort(Comparator.comparing(YoutubeLiveData::getLiveDate));
+                    YoutubeLiveData channelData = channelDataList.get(0);
                     Calendar nowDate = Calendar.getInstance();
                     nowDate.add(Calendar.HOUR_OF_DAY, -1);
                     log.info("createTime: {}", channelData.getCreateDate());
@@ -93,36 +95,40 @@ public class YoutubeServiceImpl implements YoutubeService {
                     YOUTUBE_CACHE_MAP_U.remove(channelId);
                 }
 
-                YoutubeLiveData upcoming = searchUpcomingByChannelId(channelId);
-                YOUTUBE_CACHE_MAP_U.put(channelId, upcoming);
-                if (upcoming.getLiveDate() != null) {
-                    Date now = new Date();
-                    log.info("liveDate: {}", upcoming.getLiveDate().getTime());
-                    log.info("now: {}", now.getTime());
-                    long liveTimeCompare = upcoming.getLiveDate().getTime() - now.getTime();
-                    log.info("compare Time: {}", liveTimeCompare);
+                List<YoutubeLiveData> upcomingList = searchUpcomingByChannelId(channelId);
+                YOUTUBE_CACHE_MAP_U.put(channelId, upcomingList);
+                upcomingList.stream().forEach(upcoming -> {
+                    if (upcoming.getLiveDate() != null) {
+                        String videoId = upcoming.getVideoId();
+                        Date now = new Date();
+                        log.info("liveDate: {}", upcoming.getLiveDate().getTime());
+                        log.info("now: {}", now.getTime());
+                        long liveTimeCompare = upcoming.getLiveDate().getTime() - now.getTime();
+                        log.info("compare Time: {}", liveTimeCompare);
 
-                    log.info(
-                            "upcoming: {}\n title: {}\n url:{}",
-                            upcoming.getChannelId(),
-                            upcoming.getTitle(),
-                            upcoming.getUrl());
-                    log.info("img: {}\n largeImg: {}", upcoming.getImgUrl(), upcoming.getLargeImgUrl());
+                        log.info(
+                                "upcoming: {}\n title: {}\n url:{}",
+                                upcoming.getChannelId(),
+                                upcoming.getTitle(),
+                                upcoming.getUrl());
+                        log.info("img: {}\n largeImg: {}", upcoming.getImgUrl(), upcoming.getLargeImgUrl());
 
-                    /* LIVE 提醒 */
-                    log.info("live notify Timer: {}", liveTimeCompare);
-                    final StringBuilder notify1 = new StringBuilder().append(channelId).append("_L");
-                    if (!TIMER_CACHE_MAP.containsKey(notify1.toString())) {
-                        buildNotifyEvent(upcoming, liveTimeCompare, notify1);
+                        /* LIVE 提醒 */
+                        log.info("live notify Timer: {}", liveTimeCompare);
+                        final StringBuilder notify1 = new StringBuilder().append(videoId).append("_L");
+                        if (!TIMER_CACHE_MAP.containsKey(notify1.toString())) {
+                            buildNotifyEvent(upcoming, liveTimeCompare, notify1);
+                        }
+                        /* 提前提醒 */
+                        final StringBuilder notify2 = new StringBuilder().append(videoId).append("_N");
+                        if (!TIMER_CACHE_MAP.containsKey(notify2.toString())) {
+                            long notifySchedule = liveTimeCompare - notifyTime;
+                            log.info("notify Schedule Timer: {}", notifySchedule);
+                            buildNotifyEvent(upcoming, notifySchedule, notify2);
+                        }
                     }
-                    /* 提前提醒 */
-                    final StringBuilder notify2 = new StringBuilder().append(channelId).append("_N");
-                    if (!TIMER_CACHE_MAP.containsKey(notify2.toString())) {
-                        long notifySchedule = liveTimeCompare - notifyTime;
-                        log.info("notify Schedule Timer: {}", notifySchedule);
-                        buildNotifyEvent(upcoming, notifySchedule, notify2);
-                    }
-                }
+                });
+
 
             } catch (GeneralSecurityException gsEx) {
                 log.error(gsEx);
@@ -133,10 +139,11 @@ public class YoutubeServiceImpl implements YoutubeService {
         CheckYoutubeLiveNotifyData rtnData = createNotifyCheckData();
         return rtnData;
     }
-    
+
     private CheckYoutubeLiveNotifyData createNotifyCheckData() {
         CheckYoutubeLiveNotifyData rtnData = new CheckYoutubeLiveNotifyData();
-        List<YoutubeLiveData> youtubeCache = YOUTUBE_CACHE_MAP_U.values().stream().collect(Collectors.toList());
+        List<YoutubeLiveData> youtubeCache = new ArrayList<>();
+        YOUTUBE_CACHE_MAP_U.values().forEach(youtubeCache::addAll);
         rtnData.setYOUTUBE_CACHE_MAP_U(youtubeCache);
         rtnData.setSysdate(new Date());
         return rtnData;
@@ -161,20 +168,20 @@ public class YoutubeServiceImpl implements YoutubeService {
     }
 
     @Override
-    public YoutubeLiveData searchUpcomingByChannelId(String channelId)
+    public List<YoutubeLiveData> searchUpcomingByChannelId(String channelId)
             throws GeneralSecurityException, IOException {
         if (YOUTUBE_CACHE_MAP_U.containsKey(channelId)) {
-            return null;
+            return new ArrayList<>();
         }
         SearchListResponse searchListResponse = searchAPI(channelId, "upcoming", "video");
         return transLiveData(channelId, "upcoming", searchListResponse);
     }
 
     @Override
-    public YoutubeLiveData searchLiveByChannelId(String channelId)
+    public List<YoutubeLiveData> searchLiveByChannelId(String channelId)
             throws GeneralSecurityException, IOException {
         SearchListResponse searchListResponse = searchAPI(channelId, "live", "video");
-        return transLiveData(channelId, "live", searchListResponse);
+        return transLiveData(channelId, "upcoming", searchListResponse);
     }
 
     @Override
@@ -193,59 +200,65 @@ public class YoutubeServiceImpl implements YoutubeService {
      * @param searchListResponse
      * @return
      */
-    private YoutubeLiveData transLiveData(
-            String channelId, String broadCastType, SearchListResponse searchListResponse)
-            throws GeneralSecurityException, IOException {
-        YoutubeLiveData rtnObj = new YoutubeLiveData();
+    private List<YoutubeLiveData> transLiveData(
+            String channelId, String broadCastType, SearchListResponse searchListResponse) {
+        List<YoutubeLiveData> rtnList = new ArrayList<>();
 
         log.info("response: {}", searchListResponse);
 
-        Optional<SearchResult> result =
-                searchListResponse.getItems().stream()
-                        .filter(item -> Optional.ofNullable(item.getId()).isPresent())
-                        .filter(item -> Optional.ofNullable(item.getId().getVideoId()).isPresent())
-                        .findFirst();
-
-        log.info("titleKeyword:{}, title:{}", titleKeyword, result.get().getSnippet().getTitle());
-        log.info("checkResult: {}", result.isPresent() && StringUtils.containsIgnoreCase(result.get().getSnippet().getTitle(), titleKeyword));
-        if (result.isPresent() && StringUtils.contains(result.get().getSnippet().getTitle(), titleKeyword)) {
-            rtnObj.setChannelId(channelId);
-            rtnObj.setLiveBroadcastContent(broadCastType);
-            rtnObj.setVideoId(result.get().getId().getVideoId());
-            rtnObj.setTitle(result.get().getSnippet().getTitle());
-            rtnObj.setCreateDate(new Date());
-            Optional.ofNullable(result.get().getSnippet().getThumbnails())
-                    .ifPresent(
-                            thumbnail -> {
-                                rtnObj.setImgUrl(thumbnail.getMedium().getUrl());
-                                rtnObj.setLargeImgUrl(thumbnail.getHigh().getUrl());
-                            });
-
-            /* 開始處理 video 日期資訊 */
-            VideoListResponse videoListResponse = searchVideoInfoById(rtnObj.getVideoId());
-            log.debug("video response: {}", videoListResponse);
-            videoListResponse.getItems().stream()
-                    .filter(item -> Optional.ofNullable(item.getLiveStreamingDetails()).isPresent())
-                    .filter(
-                            item ->
-                                    Optional.ofNullable(item.getLiveStreamingDetails().getScheduledStartTime())
-                                            .isPresent())
-                    .findFirst()
-                    .ifPresent(
-                            item -> {
-                                log.debug("dateTime:{}", item.getLiveStreamingDetails().getScheduledStartTime());
-                                log.debug(
-                                        "Date:{}",
-                                        new Date(item.getLiveStreamingDetails().getScheduledStartTime().getValue()));
-                                rtnObj.setLiveDate(
-                                        new Date(item.getLiveStreamingDetails().getScheduledStartTime().getValue()));
-                            });
-        } else {
-            rtnObj.setChannelId(channelId);
-            rtnObj.setCreateDate(new Date());
+        List<SearchResult> youtubeVideoDataList = searchListResponse.getItems().stream()
+                .filter(item -> Optional.ofNullable(item.getId()).isPresent())
+                .filter(item -> Optional.ofNullable(item.getId().getVideoId()).isPresent()).collect(Collectors.toList());
+        if (youtubeVideoDataList.isEmpty()) {
+            return new ArrayList<>();
         }
+        youtubeVideoDataList.forEach(item -> {
+            String title = item.getSnippet().getTitle();
+            log.info("titleKeyword:{}, title:{}", titleKeyword, title);
+            log.info("checkResult: {}", StringUtils.containsIgnoreCase(title, titleKeyword));
+            if (StringUtils.contains(title, titleKeyword)) {
+                YoutubeLiveData data = new YoutubeLiveData();
+                data.setChannelId(channelId);
+                data.setLiveBroadcastContent(broadCastType);
+                data.setVideoId(item.getId().getVideoId());
+                data.setTitle(item.getSnippet().getTitle());
+                data.setCreateDate(new Date());
+                Optional.ofNullable(item.getSnippet().getThumbnails())
+                        .ifPresent(
+                                thumbnail -> {
+                                    data.setImgUrl(thumbnail.getMedium().getUrl());
+                                    data.setLargeImgUrl(thumbnail.getHigh().getUrl());
+                                });
 
-        return rtnObj;
+                /* 開始處理 video 日期資訊 */
+                try {
+                    VideoListResponse videoListResponse = searchVideoInfoById(data.getVideoId());
+                    log.debug("video response: {}", videoListResponse);
+                    videoListResponse.getItems().stream()
+                            .filter(videoInfo -> Optional.ofNullable(videoInfo.getLiveStreamingDetails()).isPresent())
+                            .filter(
+                                    videoInfo ->
+                                            Optional.ofNullable(videoInfo.getLiveStreamingDetails().getScheduledStartTime())
+                                                    .isPresent())
+                            .findFirst()
+                            .ifPresent(
+                                    videoInfo -> {
+                                        log.debug("dateTime:{}", videoInfo.getLiveStreamingDetails().getScheduledStartTime());
+                                        log.debug(
+                                                "Date:{}",
+                                                new Date(videoInfo.getLiveStreamingDetails().getScheduledStartTime().getValue()));
+                                        data.setLiveDate(
+                                                new Date(videoInfo.getLiveStreamingDetails().getScheduledStartTime().getValue()));
+                                    });
+                    rtnList.add(data);
+                } catch (IOException | GeneralSecurityException e) {
+                    log.error(e);
+                }
+            }
+        });
+
+
+        return rtnList;
     }
 
     /**
@@ -280,7 +293,7 @@ public class YoutubeServiceImpl implements YoutubeService {
                 .setKey(DEVELOPER_KEY)
                 .setChannelId(channelId)
 //        .setEventType(eventType)
-                .setMaxResults(Long.valueOf(1))
+                .setMaxResults(Long.valueOf(3))
                 .setFields("items(id/videoId,snippet/title,snippet/thumbnails/medium/url,snippet/thumbnails/high/url)")
                 .setType(type)
                 .setOrder("date")

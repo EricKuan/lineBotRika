@@ -82,6 +82,10 @@ public class YoutubeServiceImpl implements YoutubeService {
                     List<YoutubeLiveData> channelDataList = YOUTUBE_CACHE_MAP_U.get(channelId);
                     log.info("data: {}", new Gson().toJson(channelDataList));
                     channelDataList.sort(Comparator.comparing(YoutubeLiveData::getLiveDate));
+                    if(channelDataList.isEmpty()){
+                        YOUTUBE_CACHE_MAP_U.remove(channelId);
+                        continue;
+                    }
                     YoutubeLiveData channelData = channelDataList.get(0);
                     Calendar nowDate = Calendar.getInstance();
                     nowDate.add(Calendar.HOUR_OF_DAY, -1);

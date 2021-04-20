@@ -34,6 +34,7 @@ import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,6 +50,7 @@ import java.util.concurrent.ExecutionException;
 
 import static java.util.Collections.singletonList;
 
+@Log4j2
 @LineMessageHandler
 public class MessageHandler {
 
@@ -159,6 +161,7 @@ public class MessageHandler {
         if (0 == message.indexOf(IMAGE_KEYWORD)) {
             String[] split = message.split("看到");
             String[] mapping = split[1].split("回");
+            logger.info("image message: message:{}, replyUrl:{}, senderId: {} ",mapping[0], mapping[1], event.getSource().getSenderId());
             rtnMsg =
                     messageService.saveImageMapping(mapping[0], mapping[1], event.getSource().getSenderId());
             reply(event.getReplyToken(), new TextMessage(rtnMsg));

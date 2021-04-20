@@ -71,10 +71,10 @@ public class MessageServiceImpl implements MessageService {
             , replymessage.length() > MAX_LENGTH
             , BLOCK_KEYWORD.indexOf(message) > 0);
     if (StringUtils.hasText(message)
-        || StringUtils.hasText(replymessage)
-        || message.length() > MAX_LENGTH
-        || replymessage.length() > MAX_LENGTH
-        || BLOCK_KEYWORD.indexOf(message) > 0) {
+            || StringUtils.hasText(replymessage)
+            || message.length() > MAX_LENGTH
+            || replymessage.length() > MAX_LENGTH
+            || BLOCK_KEYWORD.indexOf(message) > 0) {
       return "わかんない";
     }
     reply.setMessage(message);
@@ -92,7 +92,7 @@ public class MessageServiceImpl implements MessageService {
     if (reply.size() > 0) {
       replyMessage = reply.get(0);
       if (null == replyMessage.getReplyType()
-          || "Text".equalsIgnoreCase(replyMessage.getReplyType())) {
+              || "Text".equalsIgnoreCase(replyMessage.getReplyType())) {
         rtnMsg = new TextMessage(replyMessage.getReplyMessage());
         return rtnMsg;
       }
@@ -100,8 +100,8 @@ public class MessageServiceImpl implements MessageService {
       if ("Image".equalsIgnoreCase(replyMessage.getReplyType())) {
         try {
           rtnMsg =
-              new ImageMessage(
-                  new URI(replyMessage.getReplyMessage()), new URI(replyMessage.getReplyMessage()));
+                  new ImageMessage(
+                          new URI(replyMessage.getReplyMessage()), new URI(replyMessage.getReplyMessage()));
         } catch (URISyntaxException e) {
           logger.error(e);
           return new TextMessage("錯誤");
@@ -138,15 +138,15 @@ public class MessageServiceImpl implements MessageService {
   public String saveImageMapping(String message, String replyUrl, String senderId) {
     logger.info ("info: message:{}, replymessage:{}, message length:{}, replyMessage Length{}, BLOCK_MESSAGEindex:{}"
             , StringUtils.hasText(message)
-            , StringUtils.hasText(replymessage)
+            , StringUtils.hasText(replyUrl)
             , message.length() > MAX_LENGTH
-            , replymessage.length() > MAX_LENGTH
+            , replyUrl.length() > MAX_LENGTH
             , BLOCK_KEYWORD.indexOf(message) > 0);
     if (StringUtils.hasText(message)
-        || StringUtils.hasText(replyUrl)
-        || message.length() > MAX_LENGTH
-        || replyUrl.length() > MAX_LENGTH
-        || BLOCK_KEYWORD.indexOf(message) > 0) {
+            || StringUtils.hasText(replyUrl)
+            || message.length() > MAX_LENGTH
+            || replyUrl.length() > MAX_LENGTH
+            || BLOCK_KEYWORD.indexOf(message) > 0) {
       return "わかんない";
     }
     ReplyMapping reply = new ReplyMapping();

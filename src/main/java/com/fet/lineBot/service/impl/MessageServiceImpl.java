@@ -137,6 +137,11 @@ public class MessageServiceImpl implements MessageService {
   @Override
   public String saveImageMapping(String message, String replyUrl, String senderId) {
     logger.info ("info: message:{}, replymessage:{}, message length:{}, replyMessage Length{}, BLOCK_MESSAGEindex:{}"
+            , StringUtils.hasText(message)
+            , StringUtils.hasText(replymessage)
+            , message.length() > MAX_LENGTH
+            , replymessage.length() > MAX_LENGTH
+            , BLOCK_KEYWORD.indexOf(message) > 0);
     if (StringUtils.hasText(message)
         || StringUtils.hasText(replyUrl)
         || message.length() > MAX_LENGTH

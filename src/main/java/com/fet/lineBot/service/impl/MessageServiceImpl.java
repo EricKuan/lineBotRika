@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.linecorp.bot.model.message.ImageMessage;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
+import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+@Log4j2
 @Service
 public class MessageServiceImpl implements MessageService {
 
@@ -62,6 +64,12 @@ public class MessageServiceImpl implements MessageService {
   @Override
   public String saveMessageMapping(String message, String replymessage, String senderId) {
     ReplyMapping reply = new ReplyMapping();
+    logger.info ("info: message:{}, replymessage:{}, message length:{}, replyMessage Length{}, BLOCK_MESSAGEindex:{}"
+            , StringUtils.hasText(message)
+            , StringUtils.hasText(replymessage)
+            , message.length() > MAX_LENGTH
+            , replymessage.length() > MAX_LENGTH
+            , BLOCK_KEYWORD.indexOf(message) > 0);
     if (StringUtils.hasText(message)
         || StringUtils.hasText(replymessage)
         || message.length() > MAX_LENGTH

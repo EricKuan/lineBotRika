@@ -70,8 +70,8 @@ public class MessageServiceImpl implements MessageService {
             , message.length() > MAX_LENGTH
             , replymessage.length() > MAX_LENGTH
             , BLOCK_KEYWORD.indexOf(message) > 0);
-    if (StringUtils.hasText(message)
-            || StringUtils.hasText(replymessage)
+    if (!StringUtils.hasText(message)
+            || !StringUtils.hasText(replymessage)
             || message.length() > MAX_LENGTH
             || replymessage.length() > MAX_LENGTH
             || BLOCK_KEYWORD.indexOf(message) > 0) {
@@ -142,8 +142,8 @@ public class MessageServiceImpl implements MessageService {
             , message.length() > MAX_LENGTH
             , replyUrl.length() > MAX_LENGTH
             , BLOCK_KEYWORD.indexOf(message) > 0);
-    if (StringUtils.hasText(message)
-            || StringUtils.hasText(replyUrl)
+    if (!StringUtils.hasText(message)
+            || !StringUtils.hasText(replyUrl)
             || message.length() > MAX_LENGTH
             || replyUrl.length() > MAX_LENGTH
             || BLOCK_KEYWORD.indexOf(message) > 0) {

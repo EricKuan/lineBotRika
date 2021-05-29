@@ -329,7 +329,7 @@ public class ClampServiceImpl implements ClampService {
     return NEWEST_STORY_CACHED_DATA;
   }
 
-  @Scheduled(initialDelay = 120000, fixedRate = 120000)
+  @Scheduled(initialDelay = 120000, fixedRate = 1200000)
   private void getNewestPostBySchedule() throws IOException {
     WebClient webClient = getJSWebClient();
     try {

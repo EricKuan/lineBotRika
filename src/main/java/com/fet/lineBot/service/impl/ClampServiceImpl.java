@@ -15,6 +15,7 @@ import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
+import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +30,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Log4j2
 @Service
 public class ClampServiceImpl implements ClampService {
-
-  private static final Logger logger = LogManager.getLogger(ClampServiceImpl.class);
-
   private static FBPostData NEWEST_STORY_CACHED_DATA = null;
   private static FBPostData NEWEST_POST_CACHED_DATA = null;
 
@@ -74,29 +73,29 @@ public class ClampServiceImpl implements ClampService {
 
       List<HtmlTableRow> elementList = htmlPage.getByXPath("//tr[@class='trT']");
       List<HtmlTableRow> footer = htmlPage.getByXPath("//tr[@class='trFooterT']");
-      //			logger.info(new Gson().toJson(elementList));
-      logger.info("Table Row: " + elementList.size());
+      //			log.info(new Gson().toJson(elementList));
+      log.info("Table Row: " + elementList.size());
       //			投開票所數　已送/應送: 42/17226
-      logger.info(footer.get(0).getCell(0).asText());
+      log.info(footer.get(0).getCell(0).asText());
       String voteBox = footer.get(0).getCell(0).asText();
-      logger.info(voteBox);
-      logger.info(voteBox.split(" ").length);
+      log.info(voteBox);
+      log.info(voteBox.split(" ").length);
       //			for(String box:boxsplit) {
-      //				logger.info(box);
+      //				log.info(box);
       //			}
       String[] ticketBoxs = voteBox.split(" ")[1].split("/");
 
       //			for(String box:ticketBoxs) {
-      //				logger.info("count: " + box);
+      //				log.info("count: " + box);
       //			}
 
       int hanCount;
       int thasCount;
       StringBuilder sb = new StringBuilder();
-      //			logger.info(elementList.get(0).getCell(1).asText());
-      //			logger.info(elementList.get(0).getCell(2).asText());
-      //			logger.info(elementList.get(0).getCell(4).asText());
-      //			logger.info(elementList.get(0).getCell(5).asText());
+      //			log.info(elementList.get(0).getCell(1).asText());
+      //			log.info(elementList.get(0).getCell(2).asText());
+      //			log.info(elementList.get(0).getCell(4).asText());
+      //			log.info(elementList.get(0).getCell(5).asText());
 
       // 宋楚瑜
       sb.append(elementList.get(0).getCell(1).asText());
@@ -108,10 +107,10 @@ public class ClampServiceImpl implements ClampService {
       sb.append(elementList.get(0).getCell(5).asText());
       sb.append("%\n");
 
-      //			logger.info(elementList.get(1).getCell(1).asText());
-      //			logger.info(elementList.get(1).getCell(2).asText());
-      //			logger.info(elementList.get(1).getCell(4).asText());
-      //			logger.info(elementList.get(1).getCell(5).asText());
+      //			log.info(elementList.get(1).getCell(1).asText());
+      //			log.info(elementList.get(1).getCell(2).asText());
+      //			log.info(elementList.get(1).getCell(4).asText());
+      //			log.info(elementList.get(1).getCell(5).asText());
 
       // 韓國瑜
       sb.append(elementList.get(1).getCell(1).asText());
@@ -124,10 +123,10 @@ public class ClampServiceImpl implements ClampService {
       sb.append(elementList.get(1).getCell(5).asText());
       sb.append("%\n");
 
-      //			logger.info(elementList.get(2).getCell(1).asText());
-      //			logger.info(elementList.get(2).getCell(2).asText());
-      //			logger.info(elementList.get(2).getCell(4).asText());
-      //			logger.info(elementList.get(2).getCell(5).asText());
+      //			log.info(elementList.get(2).getCell(1).asText());
+      //			log.info(elementList.get(2).getCell(2).asText());
+      //			log.info(elementList.get(2).getCell(4).asText());
+      //			log.info(elementList.get(2).getCell(5).asText());
 
       // 蔡英文
       sb.append(elementList.get(2).getCell(1).asText());
@@ -165,13 +164,13 @@ public class ClampServiceImpl implements ClampService {
       // if (Integer.valueOf(target.getPriceLimited()) >
       // Integer.valueOf(option.asText())) {
       // select.setSelectedAttribute(option, true);
-      // logger.info("select Change: " + priceList.asXml());
+      // log.info("select Change: " + priceList.asXml());
       // DomElement bidButton = htmlPage2.getElementById("bidButton");
       // HtmlPage htmlPage3 = bidButton.click();
-      // logger.info("bid: " + htmlPage3.asXml());
+      // log.info("bid: " + htmlPage3.asXml());
       // webClient.close();
       // } else {
-      // logger.info("targetPrice: " + option.asText() + " is overLimited. pass");
+      // log.info("targetPrice: " + option.asText() + " is overLimited. pass");
       // webClient.close();
       //
       // }
@@ -179,10 +178,10 @@ public class ClampServiceImpl implements ClampService {
       webClient.waitForBackgroundJavaScript(JS_TIME);
       elementList = htmlPage.getByXPath("//tr[@class='trT']");
       //			for(HtmlTableRow row: elementList) {
-      //				logger.info(row.getCell(0).asText());
-      //				logger.info(row.getCell(1).asText());
-      //				logger.info(row.getCell(2).asText());
-      //				logger.info(row.getCell(3).asText());
+      //				log.info(row.getCell(0).asText());
+      //				log.info(row.getCell(1).asText());
+      //				log.info(row.getCell(2).asText());
+      //				log.info(row.getCell(3).asText());
       //			}
       footer = htmlPage.getByXPath("//tr[@class='trFooterT']");
       ticketBoxs = voteBox.split(" ")[1].split("/");
@@ -252,9 +251,9 @@ public class ClampServiceImpl implements ClampService {
     HtmlPage htmlPage = webClient.getPage(baseUrl);
     webClient.waitForBackgroundJavaScript(JS_TIME);
 
-    //		logger.info(htmlPage.getElementById("mh-chapter-list-ol-0").asXml());
+    //		log.info(htmlPage.getElementById("mh-chapter-list-ol-0").asXml());
     List<DomElement> aList = htmlPage.getByXPath("//ul[@id='mh-chapter-list-ol-0']/li/a");
-    //		logger.info(aList.get(0).getAttribute("href"));
+    //		log.info(aList.get(0).getAttribute("href"));
     List<String> urlList =
         aList.stream()
             .map(element -> "https://manmankan.cc" + element.getAttribute("href"))
@@ -270,7 +269,7 @@ public class ClampServiceImpl implements ClampService {
     for (int i = 1; i < 30; i++) {
       HtmlPage htmlPage = webClient.getPage(url + "#@page=" + i);
       webClient.waitForBackgroundJavaScript(JS_TIME);
-      //			logger.info("IMGUel" +  htmlPage.getElementByName("page_1").getAttribute("src"));
+      //			log.info("IMGUel" +  htmlPage.getElementByName("page_1").getAttribute("src"));
       String imgUrl = htmlPage.getElementByName("page_1").getAttribute("src");
       if (imgUrl.contains("undefined")) {
         break;
@@ -337,7 +336,7 @@ public class ClampServiceImpl implements ClampService {
       HttpResponse<String> responses = Unirest.get(checkPage).asString();
       String body = responses.getBody();
       body = body.substring(9);
-
+      log.info("return json: {}", body);
       JSONObject jsonObj = new JSONObject(body);
       JSONArray array = jsonObj.getJSONArray("actions");
       String html = array.getJSONObject(0).getString("html");
@@ -351,7 +350,7 @@ public class ClampServiceImpl implements ClampService {
       HtmlPage page = parser.parseHtml(response, webWindow);
 
       /* 切出包含貼文的 DIV */
-      logger.debug(page.asXml());
+      log.debug(page.asXml());
       List<DomElement> bodyDivList = page.getBody().getByXPath("./div/div/div/div/div");
       List<DomElement> elementList =
           bodyDivList.stream()
@@ -381,14 +380,7 @@ public class ClampServiceImpl implements ClampService {
         /* 觀察到新貼文時建立快取圖片路徑 */
         if (data.getStoryId() < Long.parseLong(storyId)) {
 
-          String imgUrl = null;
-          /* 切出圖片路徑 */
-          List<DomElement> imgList = element.getByXPath("./div/div/div/a/img");
-          if (imgList.size() > 0) {
-            imgUrl = imgList.get(0).getAttribute("src");
-          }
-          data.setStoryId(Long.valueOf(storyId));
-          data.setImgUrl(imgUrl);
+          findImgFromElement(element, storyId, data);
         }
         /* 處理最新漫畫回的快取 */
         /* 切出包含設定檔中 hashTag 的相關貼文 */
@@ -404,7 +396,7 @@ public class ClampServiceImpl implements ClampService {
           findStoryFromElement(element, storyId);
         }
       }
-      logger.debug(new Gson().toJson(data));
+      log.debug(new Gson().toJson(data));
       /* 處理最新貼文的快取 */
       if (null != NEWEST_POST_CACHED_DATA) {
         /* 更換暫存資料並發送 Line 通知 */
@@ -417,7 +409,7 @@ public class ClampServiceImpl implements ClampService {
       }
 
     } catch (FailingHttpStatusCodeException e) {
-      logger.error(e);
+      log.error(e);
     } finally {
       webClient.close();
     }
@@ -432,14 +424,8 @@ public class ClampServiceImpl implements ClampService {
    */
   private void findStoryFromElement(DomElement element, String storyId) {
     FBPostData storyData = new FBPostData();
-    String imgUrl = null;
-    List<DomElement> imgList = element.getByXPath("./div/div/div/a/img");
-    if (imgList.size() > 0) {
-      imgUrl = imgList.get(0).getAttribute("src");
-    }
-    storyData.setStoryId(Long.valueOf(storyId));
-    storyData.setImgUrl(imgUrl);
-    logger.debug(new Gson().toJson(storyData));
+    findImgFromElement(element, storyId, storyData);
+    log.debug(new Gson().toJson(storyData));
     storyData.setComicFlag(true);
     if (null != NEWEST_STORY_CACHED_DATA) {
       if (storyData.getStoryId() > NEWEST_STORY_CACHED_DATA.getStoryId()) {
@@ -448,6 +434,16 @@ public class ClampServiceImpl implements ClampService {
     } else {
       NEWEST_STORY_CACHED_DATA = storyData;
     }
+  }
+
+  private void findImgFromElement(DomElement element, String storyId, FBPostData storyData) {
+    String imgUrl = null;
+    List<DomElement> imgList = element.getByXPath("./div/div/div/a/img");
+    if (imgList.size() > 0) {
+      imgUrl = imgList.get(0).getAttribute("src");
+    }
+    storyData.setStoryId(Long.valueOf(storyId));
+    storyData.setImgUrl(imgUrl);
   }
 
   private void sendNotify(FBPostData data) {
@@ -459,15 +455,15 @@ public class ClampServiceImpl implements ClampService {
             .field("imageFullsize", data.getImgUrl())
             .field("imageThumbnail", data.getImgUrl())
             .asString();
-    logger.debug(response.getBody());
+    log.debug(response.getBody());
   }
 
   /** 讓 heroku 不會自動休眠 */
   @Scheduled(initialDelay = 120000, fixedRate = 1200000)
   private void renewHeroku() {
-    logger.info("heartbeat");
+    log.info("heartbeat");
     HttpResponse<String> response = Unirest.get(selfLocation).asString();
-    logger.debug(response.getBody());
+    log.debug(response.getBody());
   }
 
   @Override
@@ -479,15 +475,15 @@ public class ClampServiceImpl implements ClampService {
       String baseUrl = "https://www.wenku8.net/novel/1/" + novelNum + "/";
       webClient.waitForBackgroundJavaScript(100);
       HtmlPage page = webClient.getPage(baseUrl);
-      //			logger.info(page.asXml());
+      //			log.info(page.asXml());
       List<DomElement> hrefList = page.getBody().getByXPath("//td[@class=\"ccss\"]/a");
 
       for (DomElement elem : hrefList) {
         String chapterUrl = baseUrl + elem.getAttribute("href");
-        // logger.info(chapterUrl);
+        // log.info(chapterUrl);
         HtmlPage chapterPage = webClient.getPage(chapterUrl);
         webClient.waitForBackgroundJavaScript(500);
-        // logger.info(chapterPage.asXml());
+        // log.info(chapterPage.asXml());
 
         chapterPage.getBody().getByXPath("//div[@id=\"content\"]").stream()
                 .findFirst().ifPresent( dom -> {

@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.linecorp.bot.model.message.ImageMessage;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
+import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+@Log4j2
 @Service
 public class MessageServiceImpl implements MessageService {
 
@@ -62,11 +64,17 @@ public class MessageServiceImpl implements MessageService {
   @Override
   public String saveMessageMapping(String message, String replymessage, String senderId) {
     ReplyMapping reply = new ReplyMapping();
-    if (StringUtils.hasText(message)
-        || StringUtils.hasText(replymessage)
-        || message.length() > MAX_LENGTH
-        || replymessage.length() > MAX_LENGTH
-        || BLOCK_KEYWORD.indexOf(message) > 0) {
+    logger.info ("info: message:{}, replymessage:{}, message length:{}, replyMessage Length{}, BLOCK_MESSAGEindex:{}"
+            , StringUtils.hasText(message)
+            , StringUtils.hasText(replymessage)
+            , message.length() > MAX_LENGTH
+            , replymessage.length() > MAX_LENGTH
+            , BLOCK_KEYWORD.indexOf(message) > 0);
+    if (!StringUtils.hasText(message)
+            || !StringUtils.hasText(replymessage)
+            || message.length() > MAX_LENGTH
+            || replymessage.length() > MAX_LENGTH
+            || BLOCK_KEYWORD.indexOf(message) > 0) {
       return "わかんない";
     }
     reply.setMessage(message);
@@ -84,7 +92,7 @@ public class MessageServiceImpl implements MessageService {
     if (reply.size() > 0) {
       replyMessage = reply.get(0);
       if (null == replyMessage.getReplyType()
-          || "Text".equalsIgnoreCase(replyMessage.getReplyType())) {
+              || "Text".equalsIgnoreCase(replyMessage.getReplyType())) {
         rtnMsg = new TextMessage(replyMessage.getReplyMessage());
         return rtnMsg;
       }
@@ -92,8 +100,8 @@ public class MessageServiceImpl implements MessageService {
       if ("Image".equalsIgnoreCase(replyMessage.getReplyType())) {
         try {
           rtnMsg =
-              new ImageMessage(
-                  new URI(replyMessage.getReplyMessage()), new URI(replyMessage.getReplyMessage()));
+                  new ImageMessage(
+                          new URI(replyMessage.getReplyMessage()), new URI(replyMessage.getReplyMessage()));
         } catch (URISyntaxException e) {
           logger.error(e);
           return new TextMessage("錯誤");
@@ -128,11 +136,17 @@ public class MessageServiceImpl implements MessageService {
 
   @Override
   public String saveImageMapping(String message, String replyUrl, String senderId) {
-    if (StringUtils.hasText(message)
-        || StringUtils.hasText(replyUrl)
-        || message.length() > MAX_LENGTH
-        || replyUrl.length() > MAX_LENGTH
-        || BLOCK_KEYWORD.indexOf(message) > 0) {
+    logger.info ("info: message:{}, replymessage:{}, message length:{}, replyMessage Length{}, BLOCK_MESSAGEindex:{}"
+            , StringUtils.hasText(message)
+            , StringUtils.hasText(replyUrl)
+            , message.length() > MAX_LENGTH
+            , replyUrl.length() > MAX_LENGTH
+            , BLOCK_KEYWORD.indexOf(message) > 0);
+    if (!StringUtils.hasText(message)
+            || !StringUtils.hasText(replyUrl)
+            || message.length() > MAX_LENGTH
+            || replyUrl.length() > MAX_LENGTH
+            || BLOCK_KEYWORD.indexOf(message) > 0) {
       return "わかんない";
     }
     ReplyMapping reply = new ReplyMapping();

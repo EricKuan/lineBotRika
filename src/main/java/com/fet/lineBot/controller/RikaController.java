@@ -71,4 +71,14 @@ public class RikaController {
         rtnMsg = new Gson().toJson(checkYoutubeLiveNotifyData);
         return rtnMsg;
     }
+
+    @CrossOrigin
+    @GetMapping(value = "/facebookWebhook")
+    public ResponseEntity<String> facebookWebhook(HttpServletRequest request) {
+        log.info("event: {}" , new Gson().toJson(request.getAttributeNames()));
+        log.info("event: {}" , new Gson().toJson(request.getParameterMap()));
+        String challenge = request.getParameterMap().get("hub.challenge")[0];
+        log.info(challenge);
+        return new ResponseEntity<>(challenge, HttpStatus.OK);
+    }
 }

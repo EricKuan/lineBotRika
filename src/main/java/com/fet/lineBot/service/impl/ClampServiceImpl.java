@@ -334,6 +334,7 @@ public class ClampServiceImpl implements ClampService {
     WebClient webClient = getJSWebClient();
     try {
       HttpResponse<String> responses = Unirest.get(checkPage).asString();
+      log.info("return response: {}", responses.getBody());
       String body = responses.getBody();
       body = body.substring(9);
       log.info("return json: {}", body);

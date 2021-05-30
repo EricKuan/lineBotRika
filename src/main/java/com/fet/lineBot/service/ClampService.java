@@ -6,23 +6,21 @@ import java.util.List;
 
 public interface ClampService {
 
-  public String queryVoteResult();
-
-  public List<String> queryAnotherSide(int storyNum);
+  List<String> queryAnotherSide(int storyNum);
 
   /**
    * 查詢最新貼文的 FB 連結
    *
    * @return
    */
-  public FBPostData queryFBNewestPost();
+  FBPostData queryFBNewestPost();
 
   /**
    * 查詢最新話的 FB 連結
    *
    * @return
    */
-  public FBPostData queryFBNewestStoryPost();
+  FBPostData queryFBNewestStoryPost();
 
   /**
    * 查詢輕小說文庫的小說
@@ -30,5 +28,12 @@ public interface ClampService {
    * @param novelNum
    * @return
    */
-  public String getNovel(int novelNum);
+  String getNovel(int novelNum);
+
+  /**
+   * 透過伺服器去撈取指定的網址
+   * @param url
+   * @return
+   */
+  String getUrl(String url);
 }

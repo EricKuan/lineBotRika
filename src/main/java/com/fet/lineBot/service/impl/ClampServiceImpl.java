@@ -7,7 +7,6 @@ import com.fet.lineBot.service.ClampService;
 import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
 import com.gargoylesoftware.htmlunit.html.parser.neko.HtmlUnitNekoHtmlParser;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import com.google.gson.Gson;
@@ -16,8 +15,6 @@ import kong.unirest.Unirest;
 import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -53,169 +50,6 @@ public class ClampServiceImpl implements ClampService {
   @Value("${rikaService.checkHashTeg}")
   private String checkHashTeg;
 
-  @Override
-  public String queryVoteResult() {
-    String rtnMsg = "";
-    try {
-      WebClient webClient = new WebClient();
-      webClient.getOptions().setUseInsecureSSL(true);
-      webClient.getOptions().setJavaScriptEnabled(true);
-      webClient.getOptions().setCssEnabled(false);
-      webClient.getOptions().setRedirectEnabled(true);
-      webClient.getOptions().setThrowExceptionOnScriptError(false);
-      webClient.getOptions().setTimeout(10000);
-      webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
-      webClient.getOptions().setDoNotTrackEnabled(true);
-      webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-      HtmlPage htmlPage =
-          webClient.getPage("https://www.cec.gov.tw/pc/zh_TW/P1/n00000000000000000.html");
-      webClient.waitForBackgroundJavaScript(JS_TIME);
-
-      List<HtmlTableRow> elementList = htmlPage.getByXPath("//tr[@class='trT']");
-      List<HtmlTableRow> footer = htmlPage.getByXPath("//tr[@class='trFooterT']");
-      //			log.info(new Gson().toJson(elementList));
-      log.info("Table Row: " + elementList.size());
-      //			投開票所數　已送/應送: 42/17226
-      log.info(footer.get(0).getCell(0).asText());
-      String voteBox = footer.get(0).getCell(0).asText();
-      log.info(voteBox);
-      log.info(voteBox.split(" ").length);
-      //			for(String box:boxsplit) {
-      //				log.info(box);
-      //			}
-      String[] ticketBoxs = voteBox.split(" ")[1].split("/");
-
-      //			for(String box:ticketBoxs) {
-      //				log.info("count: " + box);
-      //			}
-
-      int hanCount;
-      int thasCount;
-      StringBuilder sb = new StringBuilder();
-      //			log.info(elementList.get(0).getCell(1).asText());
-      //			log.info(elementList.get(0).getCell(2).asText());
-      //			log.info(elementList.get(0).getCell(4).asText());
-      //			log.info(elementList.get(0).getCell(5).asText());
-
-      // 宋楚瑜
-      sb.append(elementList.get(0).getCell(1).asText());
-      sb.append("/");
-      sb.append(elementList.get(0).getCell(2).asText(), 0, 3);
-      sb.append("/");
-      sb.append(elementList.get(0).getCell(4).asText());
-      sb.append("/");
-      sb.append(elementList.get(0).getCell(5).asText());
-      sb.append("%\n");
-
-      //			log.info(elementList.get(1).getCell(1).asText());
-      //			log.info(elementList.get(1).getCell(2).asText());
-      //			log.info(elementList.get(1).getCell(4).asText());
-      //			log.info(elementList.get(1).getCell(5).asText());
-
-      // 韓國瑜
-      sb.append(elementList.get(1).getCell(1).asText());
-      sb.append("/");
-      sb.append(elementList.get(1).getCell(2).asText(), 0, 3);
-      sb.append("/");
-      sb.append(elementList.get(1).getCell(4).asText());
-
-      sb.append("/");
-      sb.append(elementList.get(1).getCell(5).asText());
-      sb.append("%\n");
-
-      //			log.info(elementList.get(2).getCell(1).asText());
-      //			log.info(elementList.get(2).getCell(2).asText());
-      //			log.info(elementList.get(2).getCell(4).asText());
-      //			log.info(elementList.get(2).getCell(5).asText());
-
-      // 蔡英文
-      sb.append(elementList.get(2).getCell(1).asText());
-      sb.append("/");
-      sb.append(elementList.get(2).getCell(2).asText(), 0, 3);
-      sb.append("/");
-      sb.append(elementList.get(2).getCell(4).asText());
-      sb.append("/");
-      sb.append(elementList.get(2).getCell(5).asText());
-      sb.append("%\n");
-
-      hanCount = Integer.parseInt(elementList.get(1).getCell(4).asText().replace(",", ""));
-      thasCount = Integer.parseInt(elementList.get(2).getCell(4).asText().replace(",", ""));
-
-      sb.append("\n總機先生目前贏 ").append(hanCount - thasCount).append(" 張選票!\n");
-      sb.append("總統票剩餘Box: ")
-          .append(
-              Integer.parseInt(ticketBoxs[1].substring(0, 5))
-                  - Integer.parseInt(ticketBoxs[0].trim()))
-          .append("\n");
-      // HtmlTextInput account = (HtmlTextInput) htmlPage.getElementById("ACCOUNT");
-      // account.setText(conf.userName);
-      // HtmlPasswordInput passwd = (HtmlPasswordInput)
-      // htmlPage.getElementById("PASSWORD");
-      // passwd.setText(conf.passwd);
-      // htmlPage.executeJavaScript("login()");
-      // webClient.waitForBackgroundJavaScript(1500);
-      // HtmlPage htmlPage2 = (HtmlPage)
-      // htmlPage.getWebClient().getCurrentWindow().getEnclosedPage();
-      //
-      // DomElement priceList = htmlPage2.getElementById("bidprice");
-      //
-      // HtmlSelect select = (HtmlSelect) htmlPage2.getElementById("bidprice");
-      // HtmlOption option = select.getOption(pricePos);
-      // if (Integer.valueOf(target.getPriceLimited()) >
-      // Integer.valueOf(option.asText())) {
-      // select.setSelectedAttribute(option, true);
-      // log.info("select Change: " + priceList.asXml());
-      // DomElement bidButton = htmlPage2.getElementById("bidButton");
-      // HtmlPage htmlPage3 = bidButton.click();
-      // log.info("bid: " + htmlPage3.asXml());
-      // webClient.close();
-      // } else {
-      // log.info("targetPrice: " + option.asText() + " is overLimited. pass");
-      // webClient.close();
-      //
-      // }
-      htmlPage = webClient.getPage("https://www.cec.gov.tw/pc/zh_TW/L4/n00000000000000000.html");
-      webClient.waitForBackgroundJavaScript(JS_TIME);
-      elementList = htmlPage.getByXPath("//tr[@class='trT']");
-      //			for(HtmlTableRow row: elementList) {
-      //				log.info(row.getCell(0).asText());
-      //				log.info(row.getCell(1).asText());
-      //				log.info(row.getCell(2).asText());
-      //				log.info(row.getCell(3).asText());
-      //			}
-      footer = htmlPage.getByXPath("//tr[@class='trFooterT']");
-      ticketBoxs = voteBox.split(" ")[1].split("/");
-      sb.append("\n");
-      sb.append(elementList.get(5).getCell(1).asText());
-      sb.append("/");
-      sb.append(elementList.get(5).getCell(3).asText());
-      sb.append("%\n");
-      sb.append(elementList.get(8).getCell(1).asText());
-      sb.append("/");
-      sb.append(elementList.get(8).getCell(3).asText());
-      sb.append("%\n");
-      sb.append(elementList.get(13).getCell(1).asText());
-      sb.append("/");
-      sb.append(elementList.get(13).getCell(3).asText());
-      sb.append("%\n");
-      sb.append(elementList.get(14).getCell(1).asText());
-      sb.append("/");
-      sb.append(elementList.get(14).getCell(3).asText());
-      sb.append("%\n");
-      sb.append(
-          "政黨票剩餘Box: "
-              + (Integer.valueOf(ticketBoxs[1].substring(0, 5))
-                  - Integer.valueOf(ticketBoxs[0].trim()))
-              + "\n");
-      sb.append("\n心存善念，盡力而為");
-      webClient.close();
-      rtnMsg = sb.toString();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    return rtnMsg;
-  }
 
   public List<String> queryAnotherSide(int storyNum) {
     String baseUrl = "https://manmankan.cc/manhua/41287/";
@@ -503,5 +337,13 @@ public class ClampServiceImpl implements ClampService {
     }
     System.gc();
     return result.toString();
+  }
+
+  @Override
+  public String getUrl(String url) {
+    log.info("URL: {}", url);
+    HttpResponse<String> responses = Unirest.get(url).asString();
+
+    return responses.getBody();
   }
 }

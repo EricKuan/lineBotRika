@@ -8,6 +8,7 @@ import com.fet.lineBot.service.ClampService;
 import com.fet.lineBot.service.MessageService;
 import com.fet.lineBot.service.YoutubeService;
 import com.google.gson.Gson;
+import kong.unirest.json.JSONObject;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,9 +93,26 @@ public class RikaController {
         try {
             body = IOUtils.toString(request.getReader());
             log.info(body);
+
         }catch(IOException e){
             log.error(e);
         }
         return body;
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "/checkUrl")
+    public ResponseEntity<String> checkUrl(HttpServletRequest request) {
+        StringBuilder rtnJsonData = new StringBuilder();
+        try {
+            String url = request.getParameter("url");
+            String response = clampService.getUrl(url);
+            log.info(response);
+            rtnJsonData.append(response);
+        }catch(Exception e){
+            log.error(e);
+            rtnJsonData.append(e.getMessage());
+        }
+        return new ResponseEntity<>(rtnJsonData.toString(), HttpStatus.OK);
     }
 }

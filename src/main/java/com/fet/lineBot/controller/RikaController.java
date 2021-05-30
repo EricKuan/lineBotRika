@@ -9,14 +9,17 @@ import com.fet.lineBot.service.MessageService;
 import com.fet.lineBot.service.YoutubeService;
 import com.google.gson.Gson;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -80,5 +83,18 @@ public class RikaController {
         String challenge = request.getParameterMap().get("hub.challenge")[0];
         log.info(challenge);
         return new ResponseEntity<>(challenge, HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @PostMapping(value = "/facebookWebhook", produces = "application/json" )
+    public String facebookWebhookPost(HttpServletRequest request) {
+        String body=null;
+        try {
+            body = IOUtils.toString(request.getReader());
+            log.info(body);
+        }catch(IOException e){
+            log.error(e);
+        }
+        return body;
     }
 }

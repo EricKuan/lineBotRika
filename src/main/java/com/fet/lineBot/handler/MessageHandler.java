@@ -142,11 +142,6 @@ public class MessageHandler {
             return;
         }
 
-        if (0 == message.indexOf(VOTE)) {
-            rtnMsg = clampService.queryVoteResult();
-            reply(event.getReplyToken(), new TextMessage(rtnMsg));
-            return;
-        }
         if (0 == message.indexOf(HELP_KEYWORD)) {
             rtnMsg =
                     "記住關鍵字:  \n\t@回文字看到 [關鍵字] 回 [回應訊息]\n"

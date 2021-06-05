@@ -11,6 +11,7 @@ import com.gargoylesoftware.htmlunit.html.parser.neko.HtmlUnitNekoHtmlParser;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import com.google.gson.Gson;
+import kong.unirest.GetRequest;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import kong.unirest.json.JSONArray;
@@ -151,18 +152,18 @@ public class ClampServiceImpl implements ClampService {
     webClient.getOptions().setThrowExceptionOnScriptError(false);
     webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
     webClient.getOptions().setTimeout(10000);
-    CookieManager cookiesManager = new CookieManager();
-    JSONObject jObject = new JSONObject(facebookCookie);
-    JSONObject facebookCookies = jObject.getJSONObject(".facebook.com").getJSONObject(".facebook.com");
-    for(String key:facebookCookies.keySet()){
-      JSONObject cookiesJSONObject = facebookCookies.getJSONObject(key);
-
-      Cookie cookie = new Cookie(cookiesJSONObject.getString("domain"),
-              cookiesJSONObject.getString("name"),
-              cookiesJSONObject.getString("value"));
-      cookiesManager.addCookie(cookie);
-    }
-    webClient.setCookieManager(cookiesManager);
+//    CookieManager cookiesManager = new CookieManager();
+//    JSONObject jObject = new JSONObject(facebookCookie);
+//    JSONObject facebookCookies = jObject.getJSONObject(".facebook.com").getJSONObject(".facebook.com");
+//    for(String key:facebookCookies.keySet()){
+//      JSONObject cookiesJSONObject = facebookCookies.getJSONObject(key);
+//
+//      Cookie cookie = new Cookie(cookiesJSONObject.getString("domain"),
+//              cookiesJSONObject.getString("name"),
+//              cookiesJSONObject.getString("value"));
+//      cookiesManager.addCookie(cookie);
+//    }
+//    webClient.setCookieManager(cookiesManager);
     return getWebClient(webClient);
   }
 
@@ -369,12 +370,7 @@ public class ClampServiceImpl implements ClampService {
   @Override
   public String getUrl(String url) {
     log.info("URL: {}", url);
-    WebClient fbWebClient = getFBWebClient();
-    try {
-      HtmlPage page = fbWebClient.getPage(new URL(url));
-      return page.asXml();
-    }catch (java.io.IOException e){
-      return e.getMessage();
-    }
+    HttpResponse<String> getRequest = Unirest.get(url).asString();
+      return getRequest.getBody();
   }
 }

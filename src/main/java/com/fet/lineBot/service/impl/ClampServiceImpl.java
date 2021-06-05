@@ -8,6 +8,7 @@ import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.parser.neko.HtmlUnitNekoHtmlParser;
+import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import com.google.gson.Gson;
 import kong.unirest.HttpResponse;
@@ -49,6 +50,9 @@ public class ClampServiceImpl implements ClampService {
 
   @Value("${rikaService.checkHashTeg}")
   private String checkHashTeg;
+
+  @Value("${rikaService.facebookCookie}")
+  private String facebookCookie;
 
 
   public List<String> queryAnotherSide(int storyNum) {
@@ -139,6 +143,26 @@ public class ClampServiceImpl implements ClampService {
     return getWebClient(webClient);
   }
 
+  private WebClient getFBWebClient() {
+    WebClient webClient = new WebClient();
+    webClient.getOptions().setUseInsecureSSL(true);
+    webClient.getOptions().setJavaScriptEnabled(true);
+
+    CookieManager cookiesManager = new CookieManager();
+    JSONObject jObject = new JSONObject(facebookCookie);
+    JSONObject facebookCookies = jObject.getJSONObject(".facebook.com").getJSONObject(".facebook.com");
+    for(String key:facebookCookies.keySet()){
+      JSONObject cookiesJSONObject = facebookCookies.getJSONObject(key);
+
+      Cookie cookie = new Cookie(cookiesJSONObject.getString("domain"),
+              cookiesJSONObject.getString("name"),
+              cookiesJSONObject.getString("value"));
+      cookiesManager.addCookie(cookie);
+    }
+    webClient.setCookieManager(cookiesManager);
+    return getWebClient(webClient);
+  }
+
   @Override
   public FBPostData queryFBNewestPost() {
     if (null == NEWEST_POST_CACHED_DATA) {
@@ -163,9 +187,9 @@ public class ClampServiceImpl implements ClampService {
     return NEWEST_STORY_CACHED_DATA;
   }
 
-  @Scheduled(initialDelay = 120000, fixedRate = 1200000)
+//  @Scheduled(initialDelay = 120000, fixedRate = 1200000)
   private void getNewestPostBySchedule() throws IOException {
-    WebClient webClient = getJSWebClient();
+    WebClient webClient = getFBWebClient();
     try {
       HttpResponse<String> responses = Unirest.get(checkPage).asString();
       log.info("return response: {}", responses.getBody());
@@ -342,8 +366,12 @@ public class ClampServiceImpl implements ClampService {
   @Override
   public String getUrl(String url) {
     log.info("URL: {}", url);
-    HttpResponse<String> responses = Unirest.get(url).asString();
-
-    return responses.getBody();
+    WebClient fbWebClient = getFBWebClient();
+    try {
+      HtmlPage page = fbWebClient.getPage(new URL(url));
+      return page.asXml();
+    }catch (java.io.IOException e){
+      return e.getMessage();
+    }
   }
 }

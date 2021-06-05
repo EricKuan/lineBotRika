@@ -54,6 +54,7 @@ rikaService:
   voteKeyword: ${voteKeyword}
   titleKeyword: ${titleKeyword}
   clipKeyword: ${clipKeyword}
+  facebookCookie: ${facebookCookie}
 
 spring:
   datasource:

@@ -373,6 +373,10 @@ public class ClampServiceImpl implements ClampService {
         log.info("URL: {}", url);
         log.info("facebookCookie: {}",facebookCookie);
         Unirest.config().getDefaultHeaders().add("cookie", facebookCookie);
+        Unirest.config().getDefaultHeaders().add("Access-Control-Allow-Origin", "*");
+        Unirest.config().getDefaultHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE,HEAD");
+        Unirest.config().getDefaultHeaders().add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+
         HttpResponse<String> getRequest = Unirest.get(url).asString();
         return getRequest.getBody();
     }

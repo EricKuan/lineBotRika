@@ -10,6 +10,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.parser.neko.HtmlUnitNekoHtmlParser;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import com.google.gson.Gson;
+import kong.unirest.Headers;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import kong.unirest.json.JSONArray;
@@ -151,6 +152,7 @@ public class ClampServiceImpl implements ClampService {
         webClient.getOptions().setThrowExceptionOnScriptError(false);
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
         webClient.getOptions().setTimeout(10000);
+        webClient.setJavaScriptTimeout(5000);
 //    CookieManager cookiesManager = new CookieManager();
 //    JSONObject jObject = new JSONObject(facebookCookie);
 //    JSONObject facebookCookies = jObject.getJSONObject(".facebook.com").getJSONObject(".facebook.com");
@@ -163,7 +165,7 @@ public class ClampServiceImpl implements ClampService {
 //      cookiesManager.addCookie(cookie);
 //    }
 //    webClient.setCookieManager(cookiesManager);
-        return getWebClient(webClient);
+        return webClient;
     }
 
     @Override
@@ -369,15 +371,24 @@ public class ClampServiceImpl implements ClampService {
     }
 
     @Override
-    public String getUrl(String url) {
-        log.info("URL: {}", url);
-        log.info("facebookCookie: {}",facebookCookie);
-        Unirest.config().getDefaultHeaders().add("cookie", facebookCookie);
-        Unirest.config().getDefaultHeaders().add("Access-Control-Allow-Origin", "*");
-        Unirest.config().getDefaultHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE,HEAD");
-        Unirest.config().getDefaultHeaders().add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    public String getUrl(String url) throws IOException {
 
-        HttpResponse<String> getRequest = Unirest.get(url).asString();
-        return getRequest.getBody();
+        Unirest.config().setDefaultHeader("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
+        Unirest.config().setDefaultHeader("accept-encoding", "gzip, deflate, br");
+        Unirest.config().setDefaultHeader("accept-language", "zh");
+        Unirest.config().setDefaultHeader("cookie", "fr=1SNCdGXjrqsLkgjIj..Bguyfk.kF.AAA.0.0.Bguyfk.AWW79-EzyXA; sb=5Ce7YHVG4Q_pADbu1ddyq6E_; wd=874x937");
+        Unirest.config().setDefaultHeader("sec-ch-ua", "\" Not;A Brand\";v=\"99\", \"Google Chrome\";v=\"91\", \"Chromium\";v=\"91\"");
+        Unirest.config().setDefaultHeader("sec-ch-ua-mobile", "?0");
+        Unirest.config().setDefaultHeader("sec-fetch-dest", "document");
+        Unirest.config().setDefaultHeader("sec-fetch-mode", "navigate");
+        Unirest.config().setDefaultHeader("sec-fetch-site", "none");
+        Unirest.config().setDefaultHeader("sec-fetch-user", "?1");
+        Unirest.config().setDefaultHeader("upgrade-insecure-requests", "1");
+        Unirest.config().setDefaultHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36");
+
+        HttpResponse<String> stringHttpResponse = Unirest.get("https://www.facebook.com/Wishswing/posts").asString();
+
+
+        return stringHttpResponse.getBody();
     }
 }

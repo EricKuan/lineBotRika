@@ -147,6 +147,7 @@ public class ClampServiceImpl implements ClampService {
     WebClient webClient = new WebClient();
     webClient.getOptions().setUseInsecureSSL(true);
     webClient.getOptions().setJavaScriptEnabled(true);
+    webClient.getOptions().setRedirectEnabled(true);
 
     CookieManager cookiesManager = new CookieManager();
     JSONObject jObject = new JSONObject(facebookCookie);

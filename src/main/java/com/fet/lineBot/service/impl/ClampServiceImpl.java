@@ -148,7 +148,6 @@ public class ClampServiceImpl implements ClampService {
     webClient.getOptions().setUseInsecureSSL(true);
     webClient.getOptions().setJavaScriptEnabled(true);
     webClient.getOptions().setRedirectEnabled(true);
-    webClient.getOptions().setTimeout(5000);
     CookieManager cookiesManager = new CookieManager();
     JSONObject jObject = new JSONObject(facebookCookie);
     JSONObject facebookCookies = jObject.getJSONObject(".facebook.com").getJSONObject(".facebook.com");
@@ -190,7 +189,7 @@ public class ClampServiceImpl implements ClampService {
 
 //  @Scheduled(initialDelay = 120000, fixedRate = 1200000)
   private void getNewestPostBySchedule() throws IOException {
-    WebClient webClient = getFBWebClient();
+    WebClient webClient = getWebClient(getFBWebClient());
     try {
       HttpResponse<String> responses = Unirest.get(checkPage).asString();
       log.info("return response: {}", responses.getBody());

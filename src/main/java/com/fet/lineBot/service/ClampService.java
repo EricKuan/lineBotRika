@@ -2,6 +2,7 @@ package com.fet.lineBot.service;
 
 import com.fet.lineBot.domain.model.FBPostData;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ClampService {
@@ -35,5 +36,5 @@ public interface ClampService {
    * @param url
    * @return
    */
-  String getUrl(String url);
+  String getUrl(String url) throws IOException;
 }

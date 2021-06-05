@@ -192,7 +192,7 @@ public class ClampServiceImpl implements ClampService {
 
 //  @Scheduled(initialDelay = 120000, fixedRate = 1200000)
   private void getNewestPostBySchedule() throws IOException {
-    WebClient webClient = getWebClient(getFBWebClient());
+    WebClient webClient = getFBWebClient();
     try {
       HttpResponse<String> responses = Unirest.get(checkPage).asString();
       log.info("return response: {}", responses.getBody());

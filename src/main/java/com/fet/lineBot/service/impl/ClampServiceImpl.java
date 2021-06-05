@@ -371,6 +371,7 @@ public class ClampServiceImpl implements ClampService {
     @Override
     public String getUrl(String url) {
         log.info("URL: {}", url);
+        log.info("facebookCookie: {}",facebookCookie);
         Unirest.config().getDefaultHeaders().add("set-cookie", facebookCookie);
         HttpResponse<String> getRequest = Unirest.get(url).asString();
         return getRequest.getBody();

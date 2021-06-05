@@ -374,7 +374,7 @@ public class ClampServiceImpl implements ClampService {
     public String getUrl(String url) throws IOException {
 
         Unirest.config().setDefaultHeader("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
-        Unirest.config().setDefaultHeader("accept-encoding", "gzip, deflate, br");
+//        Unirest.config().setDefaultHeader("accept-encoding", "gzip, deflate, br");
         Unirest.config().setDefaultHeader("accept-language", "zh");
         Unirest.config().setDefaultHeader("cookie", "fr=1SNCdGXjrqsLkgjIj..Bguyfk.kF.AAA.0.0.Bguyfk.AWW79-EzyXA; sb=5Ce7YHVG4Q_pADbu1ddyq6E_; wd=874x937");
         Unirest.config().setDefaultHeader("sec-ch-ua", "\" Not;A Brand\";v=\"99\", \"Google Chrome\";v=\"91\", \"Chromium\";v=\"91\"");

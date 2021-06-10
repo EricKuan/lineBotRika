@@ -372,7 +372,7 @@ public class ClampServiceImpl implements ClampService {
     @Override
     public String getUrl(String url) throws IOException {
 
-        WebClient client = new WebClient();
+        WebClient client = getFBWebClient();
         client.addCookie("fr=13Vcqjgnr538ePt8O..BgwfId.m3.AAA.0.0.BgwfId.AWUgnSp8pKU; Expires=Wed, 08 Sep 2021 11:06:04 GMT; Max-Age=7775999; Domain=facebook.com; Path=/; Secure; HttpOnly", new URL("http://www.facebook.com"),null);
         client.addCookie("sb=HfLBYMfWt2mFgJspwXy52Sof; Expires=Sat, 10 Jun 2023 11:06:05 GMT; Max-Age=63072000; Domain=facebook.com; Path=/; Secure; HttpOnly", new URL("http://www.facebook.com"),null);
         client.getOptions().setCssEnabled(false);

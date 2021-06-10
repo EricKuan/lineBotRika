@@ -11,8 +11,9 @@ import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
 import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.action.URIAction.AltUri;
-import com.linecorp.bot.model.event.*;
-import com.linecorp.bot.model.event.message.MessageContent;
+import com.linecorp.bot.model.event.Event;
+import com.linecorp.bot.model.event.MemberJoinedEvent;
+import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.StickerMessageContent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.event.source.GroupSource;
@@ -20,16 +21,14 @@ import com.linecorp.bot.model.event.source.RoomSource;
 import com.linecorp.bot.model.event.source.Source;
 import com.linecorp.bot.model.message.FlexMessage;
 import com.linecorp.bot.model.message.Message;
-import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.flex.component.Box;
+import com.linecorp.bot.model.message.flex.component.Button;
 import com.linecorp.bot.model.message.flex.component.Image;
 import com.linecorp.bot.model.message.flex.component.Text;
 import com.linecorp.bot.model.message.flex.container.Bubble;
 import com.linecorp.bot.model.message.flex.container.Carousel;
 import com.linecorp.bot.model.message.flex.unit.FlexLayout;
-import com.linecorp.bot.model.message.template.ButtonsTemplate;
-import com.linecorp.bot.model.message.template.Template;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
@@ -44,7 +43,6 @@ import org.springframework.beans.factory.annotation.Value;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -156,7 +154,7 @@ public class MessageHandler {
         if (0 == message.indexOf(IMAGE_KEYWORD)) {
             String[] split = message.split("看到");
             String[] mapping = split[1].split("回");
-            logger.info("image message: message:{}, replyUrl:{}, senderId: {} ",mapping[0], mapping[1], event.getSource().getSenderId());
+            logger.info("image message: message:{}, replyUrl:{}, senderId: {} ", mapping[0], mapping[1], event.getSource().getSenderId());
             rtnMsg =
                     messageService.saveImageMapping(mapping[0], mapping[1], event.getSource().getSenderId());
             reply(event.getReplyToken(), new TextMessage(rtnMsg));
@@ -339,19 +337,23 @@ public class MessageHandler {
         URIAction subscription =
                 new URIAction(
                         "訂閱資訊", new URI("http://www.wishstudio.com.tw/97333533038321wish9733.html"), null);
+        Button introductionBtn = Button.builder().action(introduction).build();
+        Button subscriptionBtn = Button.builder().action(subscription).build();
+        Button newestStoryBtn = Button.builder().action(newestStory).build();
+        Button newestPostBtn = Button.builder().action(newestPost).build();
 
-        Template template =
-                ButtonsTemplate.builder()
-                        .title("MENU")
-                        .thumbnailImageUrl(new URI(MENU_IMG_URL))
-                        .text("請選擇指令")
-                        .actions(Arrays.asList(introduction, newestPost, newestStory, subscription))
-                        .build();
+        FlexMessage flex = FlexMessage
+                .builder()
+                .altText("MENU")
+                .contents(
+                        Bubble.builder()
+                                .hero(Image.builder().url(new URI(MENU_IMG_URL)).build())
+                                .footer(Box.builder().contents(Arrays.asList(introductionBtn, subscriptionBtn, newestStoryBtn
+                                        , newestPostBtn)).build()
+                                ).build()
+                ).build();
 
-        TemplateMessage replyTemplateMsg =
-                TemplateMessage.builder().template(template).altText("選單").build();
-
-        reply(token, replyTemplateMsg);
+        reply(token, flex);
     }
 
     @EventMapping

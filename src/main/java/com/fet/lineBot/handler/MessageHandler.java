@@ -348,7 +348,7 @@ public class MessageHandler {
                 .contents(
                         Bubble.builder()
                                 .hero(Image.builder().url(new URI(MENU_IMG_URL)).build())
-                                .footer(Box.builder().contents(Arrays.asList(introductionBtn, subscriptionBtn, newestStoryBtn
+                                .body(Box.builder().contents(Arrays.asList(introductionBtn, subscriptionBtn, newestStoryBtn
                                         , newestPostBtn)).build()
                                 ).build()
                 ).build();

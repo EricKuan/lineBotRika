@@ -4,17 +4,17 @@ import com.fet.lineBot.domain.dao.MangaDataRepository;
 import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.domain.model.MangaData;
 import com.fet.lineBot.service.ClampService;
-import com.gargoylesoftware.htmlunit.*;
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
+import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
+import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.html.parser.neko.HtmlUnitNekoHtmlParser;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import com.google.gson.Gson;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
-import kong.unirest.json.JSONArray;
-import kong.unirest.json.JSONObject;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,8 +23,10 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -195,82 +197,84 @@ public class ClampServiceImpl implements ClampService {
     private void getNewestPostBySchedule() throws IOException {
         WebClient webClient = getFBWebClient();
         try {
-            HttpResponse<String> responses = Unirest.get(checkPage).asString();
-            log.info("return response: {}", responses.getBody());
-            String body = responses.getBody();
-            body = body.substring(9);
-            log.info("return json: {}", body);
-            JSONObject jsonObj = new JSONObject(body);
-            JSONArray array = jsonObj.getJSONArray("actions");
-            String html = array.getJSONObject(0).getString("html");
-            URL url = new URL("http://www.example.com");
-            StringWebResponse response =
-                    new StringWebResponse(
-                            "<html><head><title>Test</title></head><body>" + html + "</body></html>", url);
-            WebClient client = new WebClient();
-            WebWindow webWindow = webClient.getCurrentWindow();
-            HtmlUnitNekoHtmlParser parser = new HtmlUnitNekoHtmlParser();
-            HtmlPage page = parser.parseHtml(response, webWindow);
 
+            HtmlPage page = webClient.getPage("http://www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2FWishswing&width=400&height=700&colorscheme=light&show_faces=true&header=true&stream=true&show_border=true");
+            log.info("page: {}", page.asXml());
             /* 切出包含貼文的 DIV */
-            log.debug(page.asXml());
-            List<DomElement> bodyDivList = page.getBody().getByXPath("./div/div/div/div/div");
-            List<DomElement> elementList =
-                    bodyDivList.stream()
-                            .filter(
-                                    item -> {
-                                        DomElement dom = item;
-                                        return dom.getByXPath("./div[@class=\"story_body_container\"]").size() > 0;
-                                    })
-                            .collect(Collectors.toList());
-            FBPostData data = new FBPostData();
-            for (DomElement element : elementList) {
-                /* 處理貼文 ID */
-                String storyId = null;
-                List<DomElement> storyIdList = element.getByXPath("./div/div/a");
-                if (storyIdList.size() > 0) {
-                    String href = storyIdList.get(0).getAttribute("href");
-                    for (DomElement hyperLink : storyIdList) {
-                        String att = hyperLink.getAttribute("href");
-                        if (att.indexOf("story_fbid") > 0) {
-                            href = att;
-                            break;
-                        }
+            DomElement dom = (DomElement) page.getByXPath("//div[@role=\"feed\"]").get(0);
+
+            for (Object ele : dom.getByXPath("./div")) {
+                FBPostData data = new FBPostData();
+                List<String> hashTag = new ArrayList<>();
+                AtomicReference<String> postUrl = new AtomicReference<>();
+                AtomicReference<String> messageStr = new AtomicReference<>();
+                AtomicReference<String> imgUrl = new AtomicReference<>();
+                log.info("=======");
+                DomElement bigDiv = (DomElement) ele;
+                bigDiv.getByXPath(".//div[@data-testid=\"post_message\"]").stream().forEach(item -> {
+                    DomElement postMessage = (DomElement) item;
+                    DomElement message = (DomElement) postMessage.getByXPath(".//p").get(0);
+                    messageStr.set(message.asText());
+                });
+                bigDiv.getByXPath(".//div[@class=\"mtm\"]/div/a/img").stream().forEach(item -> {
+                    DomElement img = (DomElement) item;
+//                log.info("img: {}",img.getAttribute("src"));
+                    imgUrl.set(img.getAttribute("src"));
+                });
+
+                if (StringUtils.isBlank(imgUrl.get())) {
+
+                    DomElement img = (DomElement) bigDiv.getByXPath(".//div[@class=\"uiScaledImageContainer\"]/img").stream().findFirst().orElse(new DomElement("stage", "stage", null, new HashMap<>()));
+//                log.info("img: {}",img.getAttribute("src"));
+                    imgUrl.set(img.getAttribute("src"));
+                }
+
+                bigDiv.getByXPath(".//a[@target=\"_blank\"]").stream().forEach(item -> {
+                    DomElement aLink = (DomElement) item;
+//                log.info("href: {}", aLink.getAttribute("href"));
+                    if (aLink.getAttribute("href").indexOf("hashtag") > -1) {
+                        String hashtagUr = aLink.getAttribute("href").split("/")[2].split("\\?")[0];
+                        hashTag.add(hashtagUr);
                     }
-                    storyId = href.substring(href.indexOf("=") + 1, href.indexOf("&"));
-                }
 
-                /* 觀察到新貼文時建立快取圖片路徑 */
-                if (data.getStoryId() < Long.parseLong(storyId)) {
+                    if (aLink.getAttribute("href").startsWith("https")) {
+                        postUrl.set(aLink.getAttribute("href"));
+                    }
+                });
 
-                    findImgFromElement(element, storyId, data);
-                }
-                /* 處理最新漫畫回的快取 */
-                /* 切出包含設定檔中 hashTag 的相關貼文 */
+                log.info("message: {}", messageStr.get());
+                log.info("hashTag: {}", new Gson().toJson(hashTag));
+                log.info("imgUrl: {}", imgUrl.get());
+                log.info("postUrl: {}", postUrl.get());
+                /* 處理貼文 ID */
 
-                if (element.getByXPath("./div/div/div/span/p/a/span").stream()
-                        .filter(
-                                (item -> {
-                                    DomElement ele = (DomElement) item;
-                                    return checkHashTeg.equalsIgnoreCase(ele.getTextContent());
-                                }))
-                        .count()
-                        > 0) {
-                    findStoryFromElement(element, storyId);
+                String[] split = postUrl.get().split("/");
+                String storyId = split[split.length - 1];
+                log.info("storyId: {}", storyId);
+                data.setStoryId(Long.parseLong(storyId));
+                data.setImgUrl(imgUrl.get());
+
+                if (hashTag.contains(checkHashTeg)) {
+                    if (null != NEWEST_STORY_CACHED_DATA) {
+                        if (data.getStoryId() > NEWEST_STORY_CACHED_DATA.getStoryId()) {
+                            NEWEST_STORY_CACHED_DATA = data;
+                        }
+                    } else {
+                        NEWEST_STORY_CACHED_DATA = data;
+                    }
                 }
-            }
-            log.debug(new Gson().toJson(data));
-            /* 處理最新貼文的快取 */
-            if (null != NEWEST_POST_CACHED_DATA) {
-                /* 更換暫存資料並發送 Line 通知 */
-                if (data.getStoryId() > NEWEST_POST_CACHED_DATA.getStoryId()) {
+                log.debug(new Gson().toJson(data));
+                /* 處理最新貼文的快取 */
+                if (null != NEWEST_POST_CACHED_DATA) {
+                    /* 更換暫存資料並發送 Line 通知 */
+                    if (data.getStoryId() > NEWEST_POST_CACHED_DATA.getStoryId()) {
+                        NEWEST_POST_CACHED_DATA = data;
+                        sendNotify(NEWEST_POST_CACHED_DATA);
+                    }
+                } else {
                     NEWEST_POST_CACHED_DATA = data;
-                    sendNotify(NEWEST_POST_CACHED_DATA);
                 }
-            } else {
-                NEWEST_POST_CACHED_DATA = data;
             }
-
         } catch (FailingHttpStatusCodeException e) {
             log.error(e);
         } finally {
@@ -373,13 +377,13 @@ public class ClampServiceImpl implements ClampService {
     public String getUrl(String url) throws IOException {
 
         WebClient client = getFBWebClient();
-        client.addCookie("fr=13Vcqjgnr538ePt8O..BgwfId.m3.AAA.0.0.BgwfId.AWUgnSp8pKU; Expires=Wed, 08 Sep 2021 11:06:04 GMT; Max-Age=7775999; Domain=facebook.com; Path=/; Secure; HttpOnly", new URL("http://www.facebook.com"),null);
-        client.addCookie("sb=HfLBYMfWt2mFgJspwXy52Sof; Expires=Sat, 10 Jun 2023 11:06:05 GMT; Max-Age=63072000; Domain=facebook.com; Path=/; Secure; HttpOnly", new URL("http://www.facebook.com"),null);
+        client.addCookie("fr=13Vcqjgnr538ePt8O..BgwfId.m3.AAA.0.0.BgwfId.AWUgnSp8pKU; Expires=Wed, 08 Sep 2021 11:06:04 GMT; Max-Age=7775999; Domain=facebook.com; Path=/; Secure; HttpOnly", new URL("http://www.facebook.com"), null);
+        client.addCookie("sb=HfLBYMfWt2mFgJspwXy52Sof; Expires=Sat, 10 Jun 2023 11:06:05 GMT; Max-Age=63072000; Domain=facebook.com; Path=/; Secure; HttpOnly", new URL("http://www.facebook.com"), null);
         client.getOptions().setCssEnabled(false);
         client.getOptions().setThrowExceptionOnScriptError(false);
         HtmlPage page = client.getPage(url);
 
-        log.info("page: {}",page.asXml());
+        log.info("page: {}", page.asXml());
 
 
         return page.asXml();

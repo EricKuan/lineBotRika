@@ -199,7 +199,7 @@ public class ClampServiceImpl implements ClampService {
         try {
 
             HtmlPage page = webClient.getPage("http://www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2FWishswing&width=400&height=700&colorscheme=light&show_faces=true&header=true&stream=true&show_border=true");
-            log.info("page: {}", page.asXml());
+//            log.info("page: {}", page.asXml());
             /* 切出包含貼文的 DIV */
             DomElement dom = (DomElement) page.getByXPath("//div[@role=\"feed\"]").get(0);
 

@@ -10,7 +10,6 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.parser.neko.HtmlUnitNekoHtmlParser;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import com.google.gson.Gson;
-import kong.unirest.Headers;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import kong.unirest.json.JSONArray;
@@ -373,22 +372,16 @@ public class ClampServiceImpl implements ClampService {
     @Override
     public String getUrl(String url) throws IOException {
 
-        Unirest.config().setDefaultHeader("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
-//        Unirest.config().setDefaultHeader("accept-encoding", "gzip, deflate, br");
-        Unirest.config().setDefaultHeader("accept-language", "zh");
-        Unirest.config().setDefaultHeader("cookie", "fr=1SNCdGXjrqsLkgjIj..Bguyfk.kF.AAA.0.0.Bguyfk.AWW79-EzyXA; sb=5Ce7YHVG4Q_pADbu1ddyq6E_; wd=874x937");
-        Unirest.config().setDefaultHeader("sec-ch-ua", "\" Not;A Brand\";v=\"99\", \"Google Chrome\";v=\"91\", \"Chromium\";v=\"91\"");
-        Unirest.config().setDefaultHeader("sec-ch-ua-mobile", "?0");
-        Unirest.config().setDefaultHeader("sec-fetch-dest", "document");
-        Unirest.config().setDefaultHeader("sec-fetch-mode", "navigate");
-        Unirest.config().setDefaultHeader("sec-fetch-site", "none");
-        Unirest.config().setDefaultHeader("sec-fetch-user", "?1");
-        Unirest.config().setDefaultHeader("upgrade-insecure-requests", "1");
-        Unirest.config().setDefaultHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36");
+        WebClient client = new WebClient();
+        client.addCookie("fr=13Vcqjgnr538ePt8O..BgwfId.m3.AAA.0.0.BgwfId.AWUgnSp8pKU; Expires=Wed, 08 Sep 2021 11:06:04 GMT; Max-Age=7775999; Domain=facebook.com; Path=/; Secure; HttpOnly", new URL("http://www.facebook.com"),null);
+        client.addCookie("sb=HfLBYMfWt2mFgJspwXy52Sof; Expires=Sat, 10 Jun 2023 11:06:05 GMT; Max-Age=63072000; Domain=facebook.com; Path=/; Secure; HttpOnly", new URL("http://www.facebook.com"),null);
+        client.getOptions().setCssEnabled(false);
+        client.getOptions().setThrowExceptionOnScriptError(false);
+        HtmlPage page = client.getPage(url);
 
-        HttpResponse<String> stringHttpResponse = Unirest.get("https://www.facebook.com/Wishswing/posts").asString();
+        log.info("page: {}",page.asXml());
 
 
-        return stringHttpResponse.getBody();
+        return page.asXml();
     }
 }

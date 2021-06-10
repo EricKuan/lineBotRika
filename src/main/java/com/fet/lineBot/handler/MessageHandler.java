@@ -351,7 +351,7 @@ public class MessageHandler {
                                 .body(Box.builder()
                                         .contents(
                                                 Arrays.asList(introductionBtn, subscriptionBtn, newestStoryBtn, newestPostBtn))
-                                        .layout(FlexLayout.BASELINE)
+                                        .layout(FlexLayout.VERTICAL)
                                         .build()
                                 ).build()
                 ).build();

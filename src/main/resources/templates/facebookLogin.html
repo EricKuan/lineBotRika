@@ -77,16 +77,26 @@
             });
 
         }
+        function callFBAPI(){
+            console.log('callFBAPI');
+            FB.api('/Wishswing', function(response) {
+                console.log(response);
+            });
+        }
     </script>
 </head>
 <body>
 
 <div>
-<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+<fb:login-button scope="public_profile,email," onlogin="checkLoginState();">
 </fb:login-button>
 
 </div>
 <div id="status">
+</div>
+<input type = 'button'  onclick="callFBAPI()" value="Click me."></input>
+<div>
+
 </div>
 
 </body>

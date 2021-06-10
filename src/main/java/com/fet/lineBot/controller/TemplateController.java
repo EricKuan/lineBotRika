@@ -63,4 +63,9 @@ public class TemplateController {
     return "/clipVideo";
   }
 
+  @RequestMapping("/facebookLogin")
+  public String getFacenbookLogin() {
+    return "/facebookLogin";
+  }
+
 }

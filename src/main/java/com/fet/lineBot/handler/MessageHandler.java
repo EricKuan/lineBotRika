@@ -348,8 +348,11 @@ public class MessageHandler {
                 .contents(
                         Bubble.builder()
                                 .hero(Image.builder().url(new URI(MENU_IMG_URL)).build())
-                                .body(Box.builder().contents(Arrays.asList(introductionBtn, subscriptionBtn, newestStoryBtn
-                                        , newestPostBtn)).build()
+                                .body(Box.builder()
+                                        .contents(
+                                                Arrays.asList(introductionBtn, subscriptionBtn, newestStoryBtn, newestPostBtn))
+                                        .layout(FlexLayout.BASELINE)
+                                        .build()
                                 ).build()
                 ).build();
 

@@ -65,7 +65,6 @@ public class ClampServiceImpl implements ClampService {
             if (mangaList.size() < 1) {
                 List<String> chapterList = getTopics(baseUrl);
                 pictureUrl = getPicturs(chapterList.get(storyNum));
-                mangaList = new ArrayList<MangaData>();
                 for (int i = 0; i < pictureUrl.size(); i++) {
                     MangaData mangaData = new MangaData();
                     mangaData.setChapterNo(storyNum);
@@ -91,9 +90,7 @@ public class ClampServiceImpl implements ClampService {
         HtmlPage htmlPage = webClient.getPage(baseUrl);
         webClient.waitForBackgroundJavaScript(JS_TIME);
 
-        //		log.info(htmlPage.getElementById("mh-chapter-list-ol-0").asXml());
         List<DomElement> aList = htmlPage.getByXPath("//ul[@id='mh-chapter-list-ol-0']/li/a");
-        //		log.info(aList.get(0).getAttribute("href"));
         List<String> urlList =
                 aList.stream()
                         .map(element -> "https://manmankan.cc" + element.getAttribute("href"))
@@ -109,7 +106,6 @@ public class ClampServiceImpl implements ClampService {
         for (int i = 1; i < 30; i++) {
             HtmlPage htmlPage = webClient.getPage(url + "#@page=" + i);
             webClient.waitForBackgroundJavaScript(JS_TIME);
-            //			log.info("IMGUel" +  htmlPage.getElementByName("page_1").getAttribute("src"));
             String imgUrl = htmlPage.getElementByName("page_1").getAttribute("src");
             if (imgUrl.contains("undefined")) {
                 break;
@@ -154,18 +150,6 @@ public class ClampServiceImpl implements ClampService {
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
         webClient.getOptions().setTimeout(10000);
         webClient.setJavaScriptTimeout(5000);
-//    CookieManager cookiesManager = new CookieManager();
-//    JSONObject jObject = new JSONObject(facebookCookie);
-//    JSONObject facebookCookies = jObject.getJSONObject(".facebook.com").getJSONObject(".facebook.com");
-//    for(String key:facebookCookies.keySet()){
-//      JSONObject cookiesJSONObject = facebookCookies.getJSONObject(key);
-//
-//      Cookie cookie = new Cookie(cookiesJSONObject.getString("domain"),
-//              cookiesJSONObject.getString("name"),
-//              cookiesJSONObject.getString("value"));
-//      cookiesManager.addCookie(cookie);
-//    }
-//    webClient.setCookieManager(cookiesManager);
         return webClient;
     }
 
@@ -193,13 +177,12 @@ public class ClampServiceImpl implements ClampService {
         return NEWEST_STORY_CACHED_DATA;
     }
 
-    @Scheduled(initialDelay = 300000, fixedRate = 1200000)
+    @Scheduled(initialDelay = 120000, fixedRate = 300000)
     private void getNewestPostBySchedule() throws IOException {
         WebClient webClient = getFBWebClient();
         try {
 
             HtmlPage page = webClient.getPage("http://www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2FWishswing&width=400&height=700&colorscheme=light&show_faces=true&header=true&stream=true&show_border=true");
-//            log.info("page: {}", page.asXml());
             /* 切出包含貼文的 DIV */
             DomElement dom = (DomElement) page.getByXPath("//div[@role=\"feed\"]").get(0);
 
@@ -218,20 +201,17 @@ public class ClampServiceImpl implements ClampService {
                 });
                 bigDiv.getByXPath(".//div[@class=\"mtm\"]/div/a/img").stream().forEach(item -> {
                     DomElement img = (DomElement) item;
-//                log.info("img: {}",img.getAttribute("src"));
                     imgUrl.set(img.getAttribute("src"));
                 });
 
                 if (StringUtils.isBlank(imgUrl.get())) {
 
                     DomElement img = (DomElement) bigDiv.getByXPath(".//div[@class=\"uiScaledImageContainer\"]/img").stream().findFirst().orElse(new DomElement("stage", "stage", null, new HashMap<>()));
-//                log.info("img: {}",img.getAttribute("src"));
                     imgUrl.set(img.getAttribute("src"));
                 }
 
                 bigDiv.getByXPath(".//a[@target=\"_blank\"]").stream().forEach(item -> {
                     DomElement aLink = (DomElement) item;
-//                log.info("href: {}", aLink.getAttribute("href"));
                     if (aLink.getAttribute("href").indexOf("hashtag") > -1) {
                         String hashtagUr = aLink.getAttribute("href").split("/")[2].split("\\?")[0];
                         hashTag.add(hashtagUr);
@@ -275,43 +255,15 @@ public class ClampServiceImpl implements ClampService {
                     NEWEST_POST_CACHED_DATA = data;
                 }
             }
-        } catch (FailingHttpStatusCodeException e) {
-            log.error(e);
+        } catch (Exception e) {
+            log.error(e.getMessage());
         } finally {
-            webClient.close();
+            Optional.ofNullable(webClient).ifPresent(WebClient::close);
         }
+
         System.gc();
     }
 
-    /**
-     * 找出 img 網址
-     *
-     * @param element
-     * @param storyId
-     */
-    private void findStoryFromElement(DomElement element, String storyId) {
-        FBPostData storyData = new FBPostData();
-        findImgFromElement(element, storyId, storyData);
-        log.debug(new Gson().toJson(storyData));
-        storyData.setComicFlag(true);
-        if (null != NEWEST_STORY_CACHED_DATA) {
-            if (storyData.getStoryId() > NEWEST_STORY_CACHED_DATA.getStoryId()) {
-                NEWEST_STORY_CACHED_DATA = storyData;
-            }
-        } else {
-            NEWEST_STORY_CACHED_DATA = storyData;
-        }
-    }
-
-    private void findImgFromElement(DomElement element, String storyId, FBPostData storyData) {
-        String imgUrl = null;
-        List<DomElement> imgList = element.getByXPath("./div/div/div/a/img");
-        if (imgList.size() > 0) {
-            imgUrl = imgList.get(0).getAttribute("src");
-        }
-        storyData.setStoryId(Long.valueOf(storyId));
-        storyData.setImgUrl(imgUrl);
-    }
 
     private void sendNotify(FBPostData data) {
         HttpResponse<String> response =
@@ -338,21 +290,18 @@ public class ClampServiceImpl implements ClampService {
     @Override
     public String getNovel(int novelNum) {
         WebClient webClient = null;
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         try {
             webClient = getWebClient();
             String baseUrl = "https://www.wenku8.net/novel/1/" + novelNum + "/";
             webClient.waitForBackgroundJavaScript(100);
             HtmlPage page = webClient.getPage(baseUrl);
-            //			log.info(page.asXml());
             List<DomElement> hrefList = page.getBody().getByXPath("//td[@class=\"ccss\"]/a");
 
             for (DomElement elem : hrefList) {
                 String chapterUrl = baseUrl + elem.getAttribute("href");
-                // log.info(chapterUrl);
                 HtmlPage chapterPage = webClient.getPage(chapterUrl);
                 webClient.waitForBackgroundJavaScript(500);
-                // log.info(chapterPage.asXml());
 
                 chapterPage.getBody().getByXPath("//div[@id=\"content\"]").stream()
                         .findFirst().ifPresent(dom -> {
@@ -368,6 +317,7 @@ public class ClampServiceImpl implements ClampService {
             return e.getMessage();
         } finally {
             Optional.ofNullable(webClient).ifPresent(WebClient::close);
+            Optional.ofNullable(result).ifPresent(item -> item = null);
         }
         System.gc();
         return result.toString();
@@ -377,15 +327,21 @@ public class ClampServiceImpl implements ClampService {
     public String getUrl(String url) throws IOException {
 
         WebClient client = getFBWebClient();
-        client.addCookie("fr=13Vcqjgnr538ePt8O..BgwfId.m3.AAA.0.0.BgwfId.AWUgnSp8pKU; Expires=Wed, 08 Sep 2021 11:06:04 GMT; Max-Age=7775999; Domain=facebook.com; Path=/; Secure; HttpOnly", new URL("http://www.facebook.com"), null);
-        client.addCookie("sb=HfLBYMfWt2mFgJspwXy52Sof; Expires=Sat, 10 Jun 2023 11:06:05 GMT; Max-Age=63072000; Domain=facebook.com; Path=/; Secure; HttpOnly", new URL("http://www.facebook.com"), null);
-        client.getOptions().setCssEnabled(false);
-        client.getOptions().setThrowExceptionOnScriptError(false);
-        HtmlPage page = client.getPage(url);
+        try {
+            client.addCookie("fr=13Vcqjgnr538ePt8O..BgwfId.m3.AAA.0.0.BgwfId.AWUgnSp8pKU; Expires=Wed, 08 Sep 2021 11:06:04 GMT; Max-Age=7775999; Domain=facebook.com; Path=/; Secure; HttpOnly", new URL("http://www.facebook.com"), null);
+            client.addCookie("sb=HfLBYMfWt2mFgJspwXy52Sof; Expires=Sat, 10 Jun 2023 11:06:05 GMT; Max-Age=63072000; Domain=facebook.com; Path=/; Secure; HttpOnly", new URL("http://www.facebook.com"), null);
+            client.getOptions().setCssEnabled(false);
+            client.getOptions().setThrowExceptionOnScriptError(false);
+            HtmlPage page = client.getPage(url);
 
-        log.info("page: {}", page.asXml());
+            log.info("page: {}", page.asXml());
 
 
-        return page.asXml();
+            return page.asXml();
+        }catch (Exception e){
+            return null;
+        }finally {
+            Optional.ofNullable(client).ifPresent(WebClient::close);
+        }
     }
 }

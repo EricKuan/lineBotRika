@@ -60,6 +60,8 @@ public class YoutubeServiceImpl implements YoutubeService {
     private static Map<String, Timer> TIMER_CACHE_MAP = new HashMap<>();
     private static List<ClipVideoInfo> CLIP_VIDEO_ID_LIST = new ArrayList<>();
 
+    private static final String SEARCH_TYPE = "video";
+
     @Scheduled(cron = "0 */20 * * * *", zone = "Asia/Taipei")
     private void scheduleCheckYoutubeLive() {
         CheckYoutubeLiveNotifyData checkYoutubeLiveNotifyData = scheduleClamYoutubeData();
@@ -177,20 +179,20 @@ public class YoutubeServiceImpl implements YoutubeService {
         if (YOUTUBE_CACHE_MAP_U.containsKey(channelId)) {
             return new ArrayList<>();
         }
-        SearchListResponse searchListResponse = searchAPI(channelId, "upcoming", "video");
+        SearchListResponse searchListResponse = searchAPI(channelId, "upcoming", SEARCH_TYPE);
         return transLiveData(channelId, "upcoming", searchListResponse);
     }
 
     @Override
     public List<YoutubeLiveData> searchLiveByChannelId(String channelId)
             throws GeneralSecurityException, IOException {
-        SearchListResponse searchListResponse = searchAPI(channelId, "live", "video");
+        SearchListResponse searchListResponse = searchAPI(channelId, "live", SEARCH_TYPE);
         return transLiveData(channelId, "upcoming", searchListResponse);
     }
 
     @Override
     public List<ClipVideoInfo> getClipVideoIdList() throws GeneralSecurityException, IOException {
-        if (CLIP_VIDEO_ID_LIST.size() < 1) {
+        if (!CLIP_VIDEO_ID_LIST.isEmpty()) {
             searchByKeyword(clipKeyword);
         }
 
@@ -346,13 +348,13 @@ public class YoutubeServiceImpl implements YoutubeService {
     }
 
     @Scheduled(cron = "0 0 * * * *", zone = "Asia/Taipei")
-    private void cleanClipVideoIdCache() {
+    private static void cleanClipVideoIdCache() {
         CLIP_VIDEO_ID_LIST = new ArrayList<>();
     }
 
     private synchronized void searchByKeyword(String keyWord)
             throws GeneralSecurityException, IOException {
-        if (CLIP_VIDEO_ID_LIST.size() > 0) {
+        if (!CLIP_VIDEO_ID_LIST.isEmpty()) {
             return;
         }
         log.info("=====start youtube search=====");

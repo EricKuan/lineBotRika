@@ -192,7 +192,7 @@ public class YoutubeServiceImpl implements YoutubeService {
 
     @Override
     public List<ClipVideoInfo> getClipVideoIdList() throws GeneralSecurityException, IOException {
-        if (!CLIP_VIDEO_ID_LIST.isEmpty()) {
+        if (CLIP_VIDEO_ID_LIST.isEmpty()) {
             searchByKeyword(clipKeyword);
         }
 

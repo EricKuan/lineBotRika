@@ -2,10 +2,12 @@ package com.fet.lineBot.handler;
 
 import com.fet.lineBot.domain.dao.BonusPhotoDataRepository;
 import com.fet.lineBot.domain.dao.MemberDataRepository;
+import com.fet.lineBot.domain.model.CheckYoutubeLiveNotifyData;
 import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.service.BonusPhotoService;
 import com.fet.lineBot.service.ClampService;
 import com.fet.lineBot.service.MessageService;
+import com.fet.lineBot.service.YoutubeService;
 import com.google.gson.Gson;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
@@ -44,6 +46,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import static java.util.Collections.singletonList;
@@ -58,6 +61,9 @@ public class MessageHandler {
     MessageService messageService;
     @Autowired
     ClampService clampService;
+
+    @Autowired
+    YoutubeService youtubeService;
 
     @Autowired
     BonusPhotoService bonusPhotoService;
@@ -337,10 +343,20 @@ public class MessageHandler {
         URIAction subscription =
                 new URIAction(
                         "訂閱資訊", new URI("http://www.wishstudio.com.tw/97333533038321wish9733.html"), null);
+
+        StringBuilder url = new StringBuilder();
+        CheckYoutubeLiveNotifyData checkYoutubeLiveNotifyData = youtubeService.scheduleClamYoutubeData();
+        Optional.of(checkYoutubeLiveNotifyData.getYOUTUBE_CACHE_MAP_U()).ifPresent(item -> {
+            url.append("https://www.youtube.com/watch?v=").append(item.get(0).getVideoId());
+        });
+        URIAction youtubeNewest =
+                new URIAction(
+                        "youtube 傳送門", new URI(url.toString()), null);
         Button introductionBtn = Button.builder().action(introduction).build();
         Button subscriptionBtn = Button.builder().action(subscription).build();
         Button newestStoryBtn = Button.builder().action(newestStory).build();
         Button newestPostBtn = Button.builder().action(newestPost).build();
+        Button youtubeNewestBtn = Button.builder().action(youtubeNewest).build();
 
         FlexMessage flex = FlexMessage
                 .builder()
@@ -350,7 +366,7 @@ public class MessageHandler {
                                 .hero(Image.builder().url(new URI(MENU_IMG_URL)).build())
                                 .body(Box.builder()
                                         .contents(
-                                                Arrays.asList(introductionBtn, subscriptionBtn, newestStoryBtn, newestPostBtn))
+                                                Arrays.asList(introductionBtn, subscriptionBtn, newestStoryBtn, newestPostBtn, youtubeNewestBtn))
                                         .layout(FlexLayout.VERTICAL)
                                         .build()
                                 ).build()

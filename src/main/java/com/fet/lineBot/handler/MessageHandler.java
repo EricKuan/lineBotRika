@@ -349,7 +349,7 @@ public class MessageHandler {
         StringBuilder url = new StringBuilder();
         CheckYoutubeLiveNotifyData checkYoutubeLiveNotifyData = youtubeService.scheduleClamYoutubeData();
         Optional.of(checkYoutubeLiveNotifyData.getYOUTUBE_CACHE_MAP_U()).ifPresent(item -> {
-            YoutubeLiveData youtubeLiveData = item.stream().max(Comparator.comparing(YoutubeLiveData::getLiveDate)).get();
+            YoutubeLiveData youtubeLiveData = item.stream().max(Comparator.comparing(YoutubeLiveData::getCreateDate)).get();
             url.append("https://www.youtube.com/watch?v=").append(youtubeLiveData.getVideoId());
         });
         URIAction youtubeNewest =

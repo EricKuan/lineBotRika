@@ -82,7 +82,6 @@ public class YoutubeServiceImpl implements YoutubeService {
                 log.info("mapCheck: {}", YOUTUBE_CACHE_MAP_U.containsKey(channelId));
                 if (YOUTUBE_CACHE_MAP_U.containsKey(channelId)) {
                     List<YoutubeLiveData> channelDataList = YOUTUBE_CACHE_MAP_U.get(channelId);
-                    channelDataList.stream().filter(item -> item.getLiveDate()==null).forEach(item -> item.setLiveDate(new Date()));
                     log.info("data: {}", new Gson().toJson(channelDataList));
                     channelDataList.sort(Comparator.comparing(YoutubeLiveData::getLiveDate));
                     if(channelDataList.isEmpty()){
@@ -229,7 +228,7 @@ public class YoutubeServiceImpl implements YoutubeService {
                 data.setLiveBroadcastContent(broadCastType);
                 data.setVideoId(item.getId().getVideoId());
                 data.setTitle(item.getSnippet().getTitle());
-                data.setCreateDate(new Date());
+                data.setCreateDate(new Date(item.getSnippet().getPublishedAt().getValue()));
                 Optional.ofNullable(item.getSnippet().getThumbnails())
                         .ifPresent(
                                 thumbnail -> {
@@ -257,6 +256,9 @@ public class YoutubeServiceImpl implements YoutubeService {
                                         data.setLiveDate(
                                                 new Date(videoInfo.getLiveStreamingDetails().getScheduledStartTime().getValue()));
                                     });
+                    if(null == data.getLiveDate()){
+                        data.setLiveDate(data.getCreateDate());
+                    }
                     rtnList.add(data);
                 } catch (IOException | GeneralSecurityException e) {
                     log.error(e);

@@ -4,6 +4,7 @@ import com.fet.lineBot.domain.dao.BonusPhotoDataRepository;
 import com.fet.lineBot.domain.dao.MemberDataRepository;
 import com.fet.lineBot.domain.model.CheckYoutubeLiveNotifyData;
 import com.fet.lineBot.domain.model.FBPostData;
+import com.fet.lineBot.domain.model.YoutubeLiveData;
 import com.fet.lineBot.service.BonusPhotoService;
 import com.fet.lineBot.service.ClampService;
 import com.fet.lineBot.service.MessageService;
@@ -45,6 +46,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -347,7 +349,8 @@ public class MessageHandler {
         StringBuilder url = new StringBuilder();
         CheckYoutubeLiveNotifyData checkYoutubeLiveNotifyData = youtubeService.scheduleClamYoutubeData();
         Optional.of(checkYoutubeLiveNotifyData.getYOUTUBE_CACHE_MAP_U()).ifPresent(item -> {
-            url.append("https://www.youtube.com/watch?v=").append(item.get(0).getVideoId());
+            YoutubeLiveData youtubeLiveData = item.stream().max(Comparator.comparing(YoutubeLiveData::getLiveDate)).get();
+            url.append("https://www.youtube.com/watch?v=").append(youtubeLiveData.getVideoId());
         });
         URIAction youtubeNewest =
                 new URIAction(

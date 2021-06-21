@@ -82,6 +82,7 @@ public class YoutubeServiceImpl implements YoutubeService {
                 log.info("mapCheck: {}", YOUTUBE_CACHE_MAP_U.containsKey(channelId));
                 if (YOUTUBE_CACHE_MAP_U.containsKey(channelId)) {
                     List<YoutubeLiveData> channelDataList = YOUTUBE_CACHE_MAP_U.get(channelId);
+                    channelDataList.stream().filter(item -> item.getLiveDate()==null).forEach(item -> item.setLiveDate(new Date()));
                     log.info("data: {}", new Gson().toJson(channelDataList));
                     channelDataList.sort(Comparator.comparing(YoutubeLiveData::getLiveDate));
                     if(channelDataList.isEmpty()){

@@ -4,6 +4,8 @@ import com.fet.lineBot.domain.model.CheckYoutubeLiveNotifyData;
 import com.fet.lineBot.domain.model.ClipVideoInfo;
 import com.fet.lineBot.domain.model.YoutubeLiveData;
 import com.fet.lineBot.service.YoutubeService;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -15,6 +17,8 @@ import com.google.api.services.youtube.model.VideoListResponse;
 import com.google.gson.Gson;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
+import kong.unirest.json.JSONArray;
+import kong.unirest.json.JSONObject;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,7 +54,7 @@ public class YoutubeServiceImpl implements YoutubeService {
     @Value("${rikaService.titleKeyword}")
     private String titleKeyword;
 
-    // 直播通知用 token
+    // 查詢用網址設定
     @Value("${rikaService.clipKeyword}")
     private String clipKeyword;
 
@@ -361,25 +365,58 @@ public class YoutubeServiceImpl implements YoutubeService {
             return;
         }
         log.info("=====start youtube search=====");
-        YouTube youtubeService = getService();
-        // Define and execute the API request
-        YouTube.Search.List request = youtubeService.search().list("snippet");
-        SearchListResponse searchResult = request
-                .setKey(DEVELOPER_KEY)
-                .setType("video")
-//                .setVideoEmbeddable("true")
-                .setQ(keyWord)
-                .setMaxResults(Long.valueOf(20))
-                .setFields("items(id/videoId,snippet/title)")
-                .setOrder("date")
-                .execute();
-        searchResult.getItems().stream().forEach(item -> {
-            ClipVideoInfo clip = new ClipVideoInfo();
-            clip.setTitle(item.getSnippet().getTitle());
-            clip.setVideoUrl("https://www.youtube.com/embed/" + item.getId().getVideoId());
-            CLIP_VIDEO_ID_LIST.add(clip);
-        });
-        log.info("youtube search result: {}", new Gson().toJson(CLIP_VIDEO_ID_LIST));
+        WebClient client = createWebClient();
+        try{
+            client.getOptions().setThrowExceptionOnScriptError(false);
+            HtmlPage page = client.getPage(clipKeyword);
+            String ytInitialData = StringUtils.substringBetween( page.asXml(), "var ytInitialData = ", "</script>");
+            ytInitialData = ytInitialData.replace("};", "}");
+            ytInitialData = ytInitialData.replace("//]]>", "");
+            JSONObject response = new JSONObject(ytInitialData);
+            JSONArray contents = response.getJSONObject("contents").getJSONObject("twoColumnSearchResultsRenderer")
+                    .getJSONObject("primaryContents").getJSONObject("sectionListRenderer")
+                    .getJSONArray("contents");
+            JSONObject itemSectionRenderer = null;
+            for(int i=0,index=contents.length() ;i<index;i++){
+                if(contents.getJSONObject(i).has("itemSectionRenderer")) {
+                    itemSectionRenderer = contents.getJSONObject(i).getJSONObject("itemSectionRenderer");
+                }
+            }
+            if(itemSectionRenderer!=null){
+                JSONArray rendererJSONArray = itemSectionRenderer.getJSONArray("contents");
+                List<JSONObject> videoRendererList = new ArrayList<JSONObject>();
+                for(int i=0,index=rendererJSONArray.length() ;i<index;i++){
+                    if(rendererJSONArray.getJSONObject(i).has("videoRenderer")){
+                        videoRendererList.add(rendererJSONArray.getJSONObject(i).getJSONObject("videoRenderer"));
+                    }
+                }
+//                log.info("videoRendererList: {}", new Gson().toJson(videoRendererList));
+                videoRendererList.stream().forEach(item -> {
+                    ClipVideoInfo clip = new ClipVideoInfo();
+                    clip.setTitle(item.getJSONObject("title").getJSONArray("runs").getJSONObject(0).getString("text"));
+                    clip.setVideoUrl("https://www.youtube.com/embed/" + item.getString("videoId"));
+                    CLIP_VIDEO_ID_LIST.add(clip);
+                });
+            }
+
+        }catch( Exception e ){
+            log.error(e);
+        }finally {
+            Optional.ofNullable(client).ifPresent(WebClient::close);
+        }
         log.info("=====end youtube search=====");
+    }
+
+    private WebClient createWebClient() {
+        WebClient webClient = new WebClient();
+        webClient.getOptions().setUseInsecureSSL(true);
+        webClient.getOptions().setJavaScriptEnabled(false);
+        webClient.getOptions().setCssEnabled(false);
+        webClient.getOptions().setRedirectEnabled(true);
+        webClient.getOptions().setThrowExceptionOnScriptError(false);
+        webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+        webClient.getOptions().setTimeout(10000);
+        webClient.setJavaScriptTimeout(5000);
+        return webClient;
     }
 }

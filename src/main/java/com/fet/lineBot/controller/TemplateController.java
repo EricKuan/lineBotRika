@@ -58,8 +58,14 @@ public class TemplateController {
 
   @RequestMapping("/clipVideo")
   public String getClipVideoPage(Map<String, Object> map) throws GeneralSecurityException, IOException {
-    List<ClipVideoInfo> clipVideoIdList = youtubeService.getClipVideoIdList();
-    map.put("clipVideoIdList", clipVideoIdList);
+    try {
+      List<ClipVideoInfo> clipVideoIdList = youtubeService.getClipVideoIdList();
+      map.put("clipVideoIdList", clipVideoIdList);
+      map.put("youtubeCheck", true);
+    } catch(Exception e){
+      map.put("clipVideoIdList", new ArrayList<String>());
+      map.put("youtubeCheck", false);
+    }
     return "/clipVideo";
   }
 

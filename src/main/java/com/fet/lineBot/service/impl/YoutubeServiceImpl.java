@@ -367,7 +367,7 @@ public class YoutubeServiceImpl implements YoutubeService {
         SearchListResponse searchResult = request
                 .setKey(DEVELOPER_KEY)
                 .setType("video")
-                .setVideoEmbeddable("true")
+//                .setVideoEmbeddable("true")
                 .setQ(keyWord)
                 .setMaxResults(Long.valueOf(20))
                 .setFields("items(id/videoId,snippet/title)")

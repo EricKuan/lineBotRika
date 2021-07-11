@@ -347,14 +347,24 @@ public class MessageHandler {
                         "訂閱資訊", new URI("http://www.wishstudio.com.tw/97333533038321wish9733.html"), null);
 
         StringBuilder url = new StringBuilder();
-        CheckYoutubeLiveNotifyData checkYoutubeLiveNotifyData = youtubeService.scheduleClamYoutubeData();
-        Optional.of(checkYoutubeLiveNotifyData.getYOUTUBE_CACHE_MAP_U()).ifPresent(item -> {
-            YoutubeLiveData youtubeLiveData = item.stream().max(Comparator.comparing(YoutubeLiveData::getCreateDate)).get();
-            url.append("https://www.youtube.com/watch?v=").append(youtubeLiveData.getVideoId());
-        });
-        URIAction youtubeNewest =
-                new URIAction(
-                        "youtube 傳送門", new URI(url.toString()), null);
+        URIAction youtubeNewest;
+        try {
+            CheckYoutubeLiveNotifyData checkYoutubeLiveNotifyData = youtubeService.scheduleClamYoutubeData();
+            Optional.of(checkYoutubeLiveNotifyData.getYOUTUBE_CACHE_MAP_U()).ifPresent(item -> {
+                YoutubeLiveData youtubeLiveData = item.stream().max(Comparator.comparing(YoutubeLiveData::getCreateDate)).get();
+                url.append("https://www.youtube.com/watch?v=").append(youtubeLiveData.getVideoId());
+            });
+            youtubeNewest =
+                    new URIAction(
+                            "youtube 傳送門", new URI(url.toString()), null);
+        } catch(Exception e){
+            logger.error(e);
+            youtubeNewest =
+                    new URIAction(
+                            "youtube 傳送門(暫時封閉)", new URI(url.toString()), null);
+
+        }
+
         Button introductionBtn = Button.builder().action(introduction).build();
         Button subscriptionBtn = Button.builder().action(subscription).build();
         Button newestStoryBtn = Button.builder().action(newestStory).build();

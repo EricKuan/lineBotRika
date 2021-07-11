@@ -5,6 +5,7 @@ import com.fet.lineBot.domain.model.ClipVideoInfo;
 import com.fet.lineBot.service.BonusPhotoService;
 import com.fet.lineBot.service.ClampService;
 import com.fet.lineBot.service.YoutubeService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
+@Log4j2
 public class TemplateController {
   @Autowired ClampService clampService;
   @Autowired
@@ -58,8 +60,15 @@ public class TemplateController {
 
   @RequestMapping("/clipVideo")
   public String getClipVideoPage(Map<String, Object> map) throws GeneralSecurityException, IOException {
-    List<ClipVideoInfo> clipVideoIdList = youtubeService.getClipVideoIdList();
-    map.put("clipVideoIdList", clipVideoIdList);
+    try {
+      List<ClipVideoInfo> clipVideoIdList = youtubeService.getClipVideoIdList();
+      map.put("clipVideoIdList", clipVideoIdList);
+      map.put("youtubeCheck", true);
+    } catch(Exception e){
+      log.error(e);
+      map.put("clipVideoIdList", new ArrayList<String>());
+      map.put("youtubeCheck", false);
+    }
     return "/clipVideo";
   }
 

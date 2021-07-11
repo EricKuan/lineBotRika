@@ -395,6 +395,17 @@ public class YoutubeServiceImpl implements YoutubeService {
                     ClipVideoInfo clip = new ClipVideoInfo();
                     clip.setTitle(item.getJSONObject("title").getJSONArray("runs").getJSONObject(0).getString("text"));
                     clip.setVideoUrl("https://www.youtube.com/embed/" + item.getString("videoId"));
+                    JSONArray thumbnails = item.getJSONObject("thumbnail").getJSONArray("thumbnails");
+                    int width=0;
+                    for(int i=0, index = thumbnails.length(); i< index;i++){
+                        JSONObject thumbnailItem = thumbnails.getJSONObject(i);
+                        if(thumbnailItem.has("width")
+                                && thumbnailItem.has("url")
+                                && thumbnailItem.getInt("width")>width) {
+                            width = thumbnailItem.getInt("width");
+                            clip.setThumbnail(thumbnailItem.getString("url"));
+                        }
+                    }
                     CLIP_VIDEO_ID_LIST.add(clip);
                 });
             }

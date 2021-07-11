@@ -301,7 +301,7 @@ public class YoutubeServiceImpl implements YoutubeService {
         return request
                 .setKey(DEVELOPER_KEY)
                 .setChannelId(channelId)
-//        .setEventType(eventType)
+                .setEventType(eventType)
                 .setMaxResults(Long.valueOf(3))
                 .setFields("items(id/videoId,snippet/title,snippet/publishedAt,snippet/thumbnails/medium/url,snippet/thumbnails/high/url)")
                 .setType(type)

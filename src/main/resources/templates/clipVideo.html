@@ -3,40 +3,40 @@
       xmlns:th="http://www.thymeleaf.org"
 >
 <head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
     <title>精華剪輯</title>
     <style>
         .myfont2 {
             text-align: center;
             font-size: large;
         }
-        .div {
-            position: absolute;
-        }
-        .innerDiv {
-            border-style:solid;
-        }
+
+
     </style>
 </head>
 <body>
 
-<div class="myfont2">發布頁說明<br>本發布頁每 30 分鐘會自動更新，將會自動抓取 youtube 上有標示 <a href="https://www.youtube.com/hashtag/%E6%AB%BB%E9%87%8E%E9%9C%B2" >#櫻野露</a> <a href="https://www.youtube.com/hashtag/%E9%9C%B2%E9%9C%B2%E7%B2%BE%E8%8F%AF">#露露精華</a> 兩種 tag 的影片<br>歡迎各位觀眾加入剪輯烤肉 man 的行列</div>
+<div class="page-header"><h1>發布頁說明</h1></div>
+<p>本發布頁每 30 分鐘會自動更新，將會自動抓取 youtube 上有標示 <a href="https://www.youtube.com/hashtag/%E6%AB%BB%E9%87%8E%E9%9C%B2" >#櫻野露</a> <a href="https://www.youtube.com/hashtag/%E9%9C%B2%E9%9C%B2%E7%B2%BE%E8%8F%AF">#露露精華</a> 兩種 tag 的影片<br>歡迎各位觀眾加入剪輯烤肉 man 的行列</p>
 
 <div th:if="${youtubeCheck} != true ">
 <p>Youtube Search Service 額度達到上限，請稍後再進行查詢</p>
 </div>
 
 <div th:if="${youtubeCheck} == true ">
-<div class="div">
-        <div th:each="video:${clipVideoIdList}" >
-            <div class="innerDiv">
+<div class="container">
+    <div class="row .row-cols-auto">
+        <div th:each="video:${clipVideoIdList}" class="col border" >
+            <div>
                 <p th:text="${video.title}"></p>
-            <iframe th:src="${video.videoUrl}" width="560" height="315" frameborder="0"
+                <iframe th:src="${video.videoUrl}" width="560" height="315" frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen></iframe>
             </div>
         </div>
+    </div>
 </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
 </body>
 </html>

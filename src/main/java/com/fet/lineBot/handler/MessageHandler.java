@@ -361,7 +361,7 @@ public class MessageHandler {
             logger.error(e);
             youtubeNewest =
                     new URIAction(
-                            "youtube 傳送門(暫時封閉)", new URI(url.toString()), null);
+                            "youtube 傳送門(暫時封閉)", new URI("https://www.youtube.com/c/%E6%AB%BB%E9%87%8E%E9%9C%B2"), null);
 
         }
 

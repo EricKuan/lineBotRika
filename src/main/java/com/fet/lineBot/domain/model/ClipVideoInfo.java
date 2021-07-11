@@ -6,4 +6,5 @@ import lombok.Data;
 public class ClipVideoInfo {
     private String videoUrl;
     private String title;
+    private String thumbnail;
 }

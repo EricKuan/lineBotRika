@@ -258,6 +258,7 @@ public class ClampServiceImpl implements ClampService {
             }
         } catch (Exception e) {
             log.error(e.getMessage());
+            NEWEST_STORY_CACHED_DATA = NEWEST_POST_CACHED_DATA;
         } finally {
             Optional.ofNullable(webClient).ifPresent(WebClient::close);
         }

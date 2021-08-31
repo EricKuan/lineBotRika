@@ -175,7 +175,11 @@ public class ClampServiceImpl implements ClampService {
                 e.printStackTrace();
             }
         }
-        return NEWEST_STORY_CACHED_DATA;
+        if( null == NEWEST_STORY_CACHED_DATA) {
+            return NEWEST_POST_CACHED_DATA;
+        }else {
+            return NEWEST_STORY_CACHED_DATA;
+        }
     }
 
     @Scheduled(initialDelay = 120000, fixedRate = 300000)

@@ -322,19 +322,19 @@ public class MessageHandler {
 
     private void replyMenuMsg(String token) throws URISyntaxException {
 
-        FBPostData fbPostData = clampService.queryFBNewestStoryPost();
-        URIAction newestStory =
-                new URIAction(
-                        "漫畫最新回",
-                        new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId()),
-                        null);
-
-        fbPostData = clampService.queryFBNewestPost();
-        URIAction newestPost =
-                new URIAction(
-                        "最新貼文",
-                        new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId()),
-                        null);
+//        FBPostData fbPostData = clampService.queryFBNewestStoryPost();
+//        URIAction newestStory =
+//                new URIAction(
+//                        "漫畫最新回",
+//                        new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId()),
+//                        null);
+//
+//        fbPostData = clampService.queryFBNewestPost();
+//        URIAction newestPost =
+//                new URIAction(
+//                        "最新貼文",
+//                        new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId()),
+//                        null);
 
         URIAction introduction =
                 new URIAction(
@@ -357,7 +357,7 @@ public class MessageHandler {
             youtubeNewest =
                     new URIAction(
                             "youtube 傳送門", new URI(url.toString()), null);
-        } catch(Exception e){
+        } catch (Exception e) {
             logger.error(e);
             youtubeNewest =
                     new URIAction(
@@ -367,8 +367,6 @@ public class MessageHandler {
 
         Button introductionBtn = Button.builder().action(introduction).build();
         Button subscriptionBtn = Button.builder().action(subscription).build();
-        Button newestStoryBtn = Button.builder().action(newestStory).build();
-        Button newestPostBtn = Button.builder().action(newestPost).build();
         Button youtubeNewestBtn = Button.builder().action(youtubeNewest).build();
 
         FlexMessage flex = FlexMessage
@@ -379,7 +377,7 @@ public class MessageHandler {
                                 .hero(Image.builder().url(new URI(MENU_IMG_URL)).build())
                                 .body(Box.builder()
                                         .contents(
-                                                Arrays.asList(introductionBtn, subscriptionBtn, newestStoryBtn, newestPostBtn, youtubeNewestBtn))
+                                                Arrays.asList(introductionBtn, subscriptionBtn, youtubeNewestBtn))
                                         .layout(FlexLayout.VERTICAL)
                                         .build()
                                 ).build()

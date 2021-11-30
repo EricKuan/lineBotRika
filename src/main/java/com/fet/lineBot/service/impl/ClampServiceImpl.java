@@ -182,7 +182,7 @@ public class ClampServiceImpl implements ClampService {
         }
     }
 
-    @Scheduled(initialDelay = 120000, fixedRate = 300000)
+//    @Scheduled(initialDelay = 120000, fixedRate = 300000)
     private void getNewestPostBySchedule() throws IOException {
         WebClient webClient = getFBWebClient();
         try {

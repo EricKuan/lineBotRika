@@ -60,7 +60,7 @@ public class RikaController {
         try {
             FBPostData fbPostData = clampService.queryFBNewestPost();
             rtnJsonData.append(new Gson().toJson(fbPostData));
-        }catch(Exception e){
+        } catch (Exception e) {
             log.error(e);
             rtnJsonData.append(e.getMessage());
         }
@@ -69,7 +69,7 @@ public class RikaController {
 
     @CrossOrigin
     @GetMapping(value = "/checkYoutube", produces = "application/json")
-    public String checkYoutube(){
+    public String checkYoutube() {
         String rtnMsg = null;
         CheckYoutubeLiveNotifyData checkYoutubeLiveNotifyData = youtubeService.scheduleClamYoutubeData();
         rtnMsg = new Gson().toJson(checkYoutubeLiveNotifyData);
@@ -79,22 +79,22 @@ public class RikaController {
     @CrossOrigin
     @GetMapping(value = "/facebookWebhook")
     public ResponseEntity<String> facebookWebhook(HttpServletRequest request) {
-        log.info("event: {}" , new Gson().toJson(request.getAttributeNames()));
-        log.info("event: {}" , new Gson().toJson(request.getParameterMap()));
+        log.info("event: {}", new Gson().toJson(request.getAttributeNames()));
+        log.info("event: {}", new Gson().toJson(request.getParameterMap()));
         String challenge = request.getParameterMap().get("hub.challenge")[0];
         log.info(challenge);
         return new ResponseEntity<>(challenge, HttpStatus.OK);
     }
 
     @CrossOrigin
-    @PostMapping(value = "/facebookWebhook", produces = "application/json" )
+    @PostMapping(value = "/facebookWebhook", produces = "application/json")
     public String facebookWebhookPost(HttpServletRequest request) {
-        String body=null;
+        String body = null;
         try {
             body = IOUtils.toString(request.getReader());
             log.info(body);
 
-        }catch(IOException e){
+        } catch (IOException e) {
             log.error(e);
         }
         return body;
@@ -109,7 +109,7 @@ public class RikaController {
             String response = clampService.getUrl(url);
             log.info(response);
             rtnJsonData.append(response);
-        }catch(Exception e){
+        } catch (Exception e) {
             log.error(e);
             rtnJsonData.append(e.getMessage());
         }

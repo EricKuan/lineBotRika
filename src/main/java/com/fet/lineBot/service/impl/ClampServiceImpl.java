@@ -4,7 +4,6 @@ import com.fet.lineBot.domain.dao.MangaDataRepository;
 import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.domain.model.MangaData;
 import com.fet.lineBot.service.ClampService;
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
@@ -202,7 +201,7 @@ public class ClampServiceImpl implements ClampService {
                 bigDiv.getByXPath(".//div[@data-testid=\"post_message\"]").stream().forEach(item -> {
                     DomElement postMessage = (DomElement) item;
                     DomElement message = (DomElement) postMessage.getByXPath(".//p").get(0);
-                    messageStr.set(message.asText());
+                    messageStr.set(message.asNormalizedText());
                 });
                 bigDiv.getByXPath(".//div[@class=\"mtm\"]/div/a/img").stream().forEach(item -> {
                     DomElement img = (DomElement) item;
@@ -312,8 +311,8 @@ public class ClampServiceImpl implements ClampService {
                 chapterPage.getBody().getByXPath("//div[@id=\"content\"]").stream()
                         .findFirst().ifPresent(dom -> {
                     DomElement content = (DomElement) dom;
-                    String original = content.asText();
-                    String translation = ZhConverterUtil.convertToTraditional(original);
+                    String original = content.asNormalizedText();
+                    String translation = ZhConverterUtil.toTraditional(original);
                     result.append(translation);
                 });
 

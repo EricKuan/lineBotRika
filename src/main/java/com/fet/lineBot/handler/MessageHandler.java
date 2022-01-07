@@ -45,10 +45,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static java.util.Collections.singletonList;
@@ -322,19 +319,6 @@ public class MessageHandler {
 
     private void replyMenuMsg(String token) throws URISyntaxException {
 
-//        FBPostData fbPostData = clampService.queryFBNewestStoryPost();
-//        URIAction newestStory =
-//                new URIAction(
-//                        "漫畫最新回",
-//                        new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId()),
-//                        null);
-//
-//        fbPostData = clampService.queryFBNewestPost();
-//        URIAction newestPost =
-//                new URIAction(
-//                        "最新貼文",
-//                        new URI("https://www.facebook.com/Wishswing/posts/" + fbPostData.getStoryId()),
-//                        null);
 
         URIAction introduction =
                 new URIAction(
@@ -365,9 +349,21 @@ public class MessageHandler {
 
         }
 
+        /* 每月福利圖投票處裡 */
+        Calendar nowDate = Calendar.getInstance();
+        StringBuilder voteUrl = new StringBuilder("https://linebotrika.herokuapp.com/voteData/");
+        voteUrl.append(nowDate.get(Calendar.YEAR))
+                .append("/")
+                .append(nowDate.get(Calendar.MONTH) + 1);
+
+        URIAction bonusPhotoUrl =
+                new URIAction(
+                        "每月福利圖投票", new URI(voteUrl.toString()), null);
+
         Button introductionBtn = Button.builder().action(introduction).build();
         Button subscriptionBtn = Button.builder().action(subscription).build();
         Button youtubeNewestBtn = Button.builder().action(youtubeNewest).build();
+        Button bonusPhotoBtn = Button.builder().action(bonusPhotoUrl).build();
 
         FlexMessage flex = FlexMessage
                 .builder()
@@ -377,7 +373,7 @@ public class MessageHandler {
                                 .hero(Image.builder().url(new URI(MENU_IMG_URL)).build())
                                 .body(Box.builder()
                                         .contents(
-                                                Arrays.asList(introductionBtn, subscriptionBtn, youtubeNewestBtn))
+                                                Arrays.asList(introductionBtn, subscriptionBtn, youtubeNewestBtn, bonusPhotoBtn))
                                         .layout(FlexLayout.VERTICAL)
                                         .build()
                                 ).build()

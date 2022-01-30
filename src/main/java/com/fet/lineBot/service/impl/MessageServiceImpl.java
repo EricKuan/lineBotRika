@@ -102,7 +102,7 @@ public class MessageServiceImpl implements MessageService {
 
             if ("Image".equalsIgnoreCase(replyMessage.getReplyType())) {
                 try {
-                    if (replyMessage.getReplyMessage().endsWith("gif")) {
+                    if (replyMessage.getReplyMessage().endsWith("gif")||replyMessage.getReplyMessage().endsWith("mp4")) {
                         rtnMsg =
                                 new VideoMessage(
                                         new URI(replyMessage.getReplyMessage()), new URI(replyMessage.getReplyMessage()));

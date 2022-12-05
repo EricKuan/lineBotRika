@@ -7,14 +7,21 @@ import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.domain.model.YoutubeLiveData;
 import com.fet.lineBot.service.BonusPhotoService;
 import com.fet.lineBot.service.ClampService;
+import com.fet.lineBot.service.TwitterService;
 import com.fet.lineBot.service.YoutubeService;
 import com.fet.lineBot.service.impl.ClampServiceImpl;
+import com.fet.lineBot.service.impl.TwitterServiceImpl;
 import com.fet.lineBot.service.impl.YoutubeServiceImpl;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.google.gson.Gson;
+import com.twitter.clientlib.ApiException;
+import com.twitter.clientlib.TwitterCredentialsBearer;
+import com.twitter.clientlib.api.TwitterApi;
+import com.twitter.clientlib.model.Get2UsersIdTweetsResponse;
+import com.twitter.clientlib.model.Tweet;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.extern.log4j.Log4j2;
@@ -33,7 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@SpringBootTest(classes = Application.class)
+//@SpringBootTest(classes = Application.class)
 @WebAppConfiguration
 @Log4j2
 public class TestCase {
@@ -159,7 +166,7 @@ public class TestCase {
     public void test10() throws JSONException, IOException {
         HttpResponse<String> responses =
                 Unirest.get(
-                        "https://www.facebook.com/Wishswing")
+                        "https://www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2FWishswing&width=400&height=700&colorscheme=light&show_faces=true&header=true&stream=true&show_border=true")
                         .asString();
         log.info("response: {}", responses.getBody());
     }
@@ -201,12 +208,36 @@ public class TestCase {
 
     @Test
     public void test15()throws IOException {
+        String bearerToken = "";
+        TwitterCredentialsBearer credentials = new TwitterCredentialsBearer(bearerToken);
+        TwitterApi apiInstance = new TwitterApi(credentials);
 
+        String id = "";
+        try {
+            Get2UsersIdTweetsResponse result = apiInstance.tweets().usersIdTweets(id)
+                    .maxResults(5)
+                    .execute();
+            result.getData().get(0).getId();
+            result.getData().get(0).getText();
+            log.info("result: {}" , new Gson().toJson(result));
+        } catch (ApiException e) {
+            System.err.println("Exception when calling TweetsApi#usersIdTweets");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
     }
 
     @Test
     public void test16() throws JSONException, IOException {
 
+        TwitterServiceImpl twitterService = new TwitterServiceImpl();
+        Get2UsersIdTweetsResponse tweetList = twitterService.getTweetList();
+        Tweet newestTweet = twitterService.getNewestTweet();
+
+        log.info("tweetList: {}" , new Gson().toJson(tweetList));
+        log.info("newestTweet: {}" , new Gson().toJson(newestTweet));
 
     }
 }

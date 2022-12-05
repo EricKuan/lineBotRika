@@ -15,7 +15,7 @@
 
 
 line.bot:
-  channel-token:  ${channel-token}
+  channel-token: ${channel-token}
   channel-secret: ${channel-secret}
   handler.path: /callback
 
@@ -82,3 +82,8 @@ spring:
     mode: HTML5
     encoding: UTF-8
     cache: false
+
+twitter:
+  bearerToken: ${bearerToken}
+  maxResult: ${maxResult}
+  twitterId: ${twitterId}

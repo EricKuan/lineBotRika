@@ -5,10 +5,7 @@ import com.fet.lineBot.domain.dao.MemberDataRepository;
 import com.fet.lineBot.domain.model.CheckYoutubeLiveNotifyData;
 import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.domain.model.YoutubeLiveData;
-import com.fet.lineBot.service.BonusPhotoService;
-import com.fet.lineBot.service.ClampService;
-import com.fet.lineBot.service.MessageService;
-import com.fet.lineBot.service.YoutubeService;
+import com.fet.lineBot.service.*;
 import com.google.gson.Gson;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.ReplyMessage;
@@ -35,6 +32,7 @@ import com.linecorp.bot.model.message.flex.unit.FlexLayout;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
+import com.twitter.clientlib.model.Tweet;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -76,6 +74,9 @@ public class MessageHandler {
     @Autowired
     BonusPhotoDataRepository bonusPhotoDataRepo;
 
+    @Autowired
+    TwitterService twitterService;
+
     @Value("${rikaService.helpKeyword}")
     private String HELP_KEYWORD;
 
@@ -95,7 +96,7 @@ public class MessageHandler {
     private String IMAGE_KEYWORD;
 
     @Value("${rikaService.fbNewestPost}")
-    private String FB_NEWEST_POST;
+    private String TWEET_NEWEST_POST;
 
     @Value("${rikaService.fbNewestStory}")
     private String FB_NEWEST_STORY;
@@ -117,6 +118,8 @@ public class MessageHandler {
 
     @Value("${rikaService.voteKeyword}")
     private String VOTE_KEYWORD;
+
+
 
 
     @EventMapping
@@ -187,19 +190,17 @@ public class MessageHandler {
             }
         }
 
-        if (0 == message.indexOf(FB_NEWEST_POST)) {
+        if (0 == message.indexOf(TWEET_NEWEST_POST)) {
             try {
-                FBPostData fbPostData = clampService.queryFBNewestPost();
-                Text content = Text.builder().text("FB最新貼文").build();
-                Image image;
-                if (StringUtils.isNotBlank(fbPostData.getImgUrl())) {
-                    image = Image.builder().url(new URI(fbPostData.getImgUrl())).build();
-                } else {
-                    image = Image.builder().url(new URI(DEFAULT_IMG_URL)).build();
-                }
-
-                Bubble bubble = buildBoxBodyData(fbPostData, content, image);
-                FlexMessage flexMessage = FlexMessage.builder().altText("FB最新貼文").contents(bubble).build();
+                Tweet newestTweet = twitterService.getNewestTweet();
+                Text content = Text.builder().text("推特最新貼文").build();
+                Box body =
+                        Box.builder().contents(Arrays.asList(content)).layout(FlexLayout.VERTICAL).build();
+                URI uri = new URI("https://twitter.com/sakuranoruu/status/" + newestTweet.getId());
+                AltUri altUri = new AltUri(uri);
+                URIAction action = new URIAction("see more", uri, altUri);
+                Bubble bubble = Bubble.builder().body(body).action(action).build();
+                FlexMessage flexMessage = FlexMessage.builder().altText("推特最新貼文").contents(bubble).build();
                 BotApiResponse apiResponse =
                         lineMessagingClient
                                 .replyMessage(new ReplyMessage(event.getReplyToken(), flexMessage, false))

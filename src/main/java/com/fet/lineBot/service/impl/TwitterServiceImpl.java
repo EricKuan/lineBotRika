@@ -1,6 +1,5 @@
 package com.fet.lineBot.service.impl;
 
-import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.service.TwitterService;
 import com.google.gson.Gson;
 import com.twitter.clientlib.ApiException;
@@ -41,20 +40,24 @@ public class TwitterServiceImpl implements TwitterService {
     @Override
     public Tweet getNewestTweet() {
         if(!Optional.ofNullable(NEWEST_POST_CACHED_DATA).isPresent()) {
-            Get2UsersIdTweetsResponse tweetList = getTweetList();
-            AtomicReference<Tweet> newestTweet = new AtomicReference<Tweet>();
-            Optional.ofNullable(tweetList).ifPresent(
-                    item -> {
-                        newestTweet.set(item.getData().stream().filter(tweet -> {
-                            return !StringUtils.startsWithIgnoreCase(tweet.getText(), "RT" );
-                        }).max(Comparator.comparing(Tweet::getId)).orElse(new Tweet()));
-                    }
-
-            );
-            NEWEST_POST_CACHED_DATA = newestTweet.get();
+            NEWEST_POST_CACHED_DATA = foundNotRTTweet();
         }
 
         return NEWEST_POST_CACHED_DATA;
+    }
+
+    private Tweet foundNotRTTweet() {
+        Get2UsersIdTweetsResponse tweetList = getTweetList();
+        AtomicReference<Tweet> newestTweet = new AtomicReference<Tweet>();
+        Optional.ofNullable(tweetList).ifPresent(
+                item -> {
+                    newestTweet.set(item.getData().stream().filter(tweet -> {
+                        return !StringUtils.startsWithIgnoreCase(tweet.getText(), "RT" );
+                    }).max(Comparator.comparing(Tweet::getId)).orElse(new Tweet()));
+                }
+
+        );
+        return newestTweet.get();
     }
 
     @Override
@@ -81,7 +84,7 @@ public class TwitterServiceImpl implements TwitterService {
     // 自動查詢新推文
     @Scheduled(initialDelay = 120000, fixedRate = 600000)
     private void scheduledTweet(){
-        Tweet newestTweet = getNewestTweet();
+        Tweet newestTweet = foundNotRTTweet();
         if(!Optional.ofNullable(NEWEST_POST_CACHED_DATA).isPresent()){
             NEWEST_POST_CACHED_DATA = newestTweet;
             return;
@@ -91,6 +94,7 @@ public class TwitterServiceImpl implements TwitterService {
         Long newTweetId = Long.valueOf(newestTweet.getId());
 
         if(newTweetId>oldTweetId){
+            log.info("[new tweet] {}", newestTweet.getText());
             NEWEST_POST_CACHED_DATA = newestTweet;
             sendNotify(newestTweet);
         }

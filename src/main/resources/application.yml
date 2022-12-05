@@ -59,8 +59,8 @@ rikaService:
 spring:
   datasource:
     driverClassName: org.postgresql.Driver
-    maxActive: 5
-    maxIdle: 2
+    maxActive: 2
+    maxIdle: 1
     minIdle: 1
     initialSize: 1
     removeAbandoned: true

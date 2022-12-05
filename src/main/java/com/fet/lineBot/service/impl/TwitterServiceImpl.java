@@ -14,6 +14,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Comparator;
 import java.util.Optional;
@@ -44,7 +45,9 @@ public class TwitterServiceImpl implements TwitterService {
             AtomicReference<Tweet> newestTweet = new AtomicReference<Tweet>();
             Optional.ofNullable(tweetList).ifPresent(
                     item -> {
-                        newestTweet.set(item.getData().stream().max(Comparator.comparing(Tweet::getId)).orElse(new Tweet()));
+                        newestTweet.set(item.getData().stream().filter(tweet -> {
+                            return !StringUtils.startsWithIgnoreCase(tweet.getText(), "RT" );
+                        }).max(Comparator.comparing(Tweet::getId)).orElse(new Tweet()));
                     }
 
             );

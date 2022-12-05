@@ -193,14 +193,14 @@ public class MessageHandler {
         if (0 == message.indexOf(TWEET_NEWEST_POST)) {
             try {
                 Tweet newestTweet = twitterService.getNewestTweet();
-                Text content = Text.builder().text("推特最新貼文").build();
+                Text content = Text.builder().text(newestTweet.getText()).build();
                 Box body =
                         Box.builder().contents(Arrays.asList(content)).layout(FlexLayout.VERTICAL).build();
                 URI uri = new URI("https://twitter.com/sakuranoruu/status/" + newestTweet.getId());
                 AltUri altUri = new AltUri(uri);
                 URIAction action = new URIAction("see more", uri, altUri);
                 Bubble bubble = Bubble.builder().body(body).action(action).build();
-                FlexMessage flexMessage = FlexMessage.builder().altText("推特最新貼文").contents(bubble).build();
+                FlexMessage flexMessage = FlexMessage.builder().altText(newestTweet.getText()).contents(bubble).build();
                 BotApiResponse apiResponse =
                         lineMessagingClient
                                 .replyMessage(new ReplyMessage(event.getReplyToken(), flexMessage, false))

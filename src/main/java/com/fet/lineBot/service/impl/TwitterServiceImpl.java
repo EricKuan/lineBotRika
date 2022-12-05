@@ -87,8 +87,8 @@ public class TwitterServiceImpl implements TwitterService {
             return;
         }
 
-        Integer oldTweetId = Integer.valueOf(NEWEST_POST_CACHED_DATA.getId());
-        Integer newTweetId = Integer.valueOf(newestTweet.getId());
+        Long oldTweetId = Long.valueOf(NEWEST_POST_CACHED_DATA.getId());
+        Long newTweetId = Long.valueOf(newestTweet.getId());
 
         if(newTweetId>oldTweetId){
             NEWEST_POST_CACHED_DATA = newestTweet;

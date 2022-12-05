@@ -59,15 +59,16 @@ rikaService:
 spring:
   datasource:
     driverClassName: org.postgresql.Driver
-    maxActive: 10
-    maxIdle: 5
-    minIdle: 2
-    initialSize: 5
+    maxActive: 5
+    maxIdle: 2
+    minIdle: 1
+    initialSize: 1
     removeAbandoned: true
-    url: jdbc:postgresql://ec2-50-19-221-38.compute-1.amazonaws.com:5432/d639n4t27s458q
+    url: ${dbUrl}
     hikari:
-      password: 5dca6394e6e380c00064b5b3cabb98c126ea57f33442d2ceead7ddade2e8736e
-      username: vjwylgyixkxyfg
+      username: ${dbAccount}
+      password: ${dbPasswd}
+
   jpa:
     properties:
       hibernate:

@@ -120,8 +120,6 @@ public class MessageHandler {
     private String VOTE_KEYWORD;
 
 
-
-
     @EventMapping
     public void handleTextMessageEvent(MessageEvent<TextMessageContent> event)
             throws URISyntaxException {
@@ -191,27 +189,9 @@ public class MessageHandler {
         }
 
         if (0 == message.indexOf(TWEET_NEWEST_POST)) {
-            try {
-                Tweet newestTweet = twitterService.getNewestTweet();
-                Text content = Text.builder().text(newestTweet.getText()).build();
-                Box body =
-                        Box.builder().contents(Arrays.asList(content)).layout(FlexLayout.VERTICAL).build();
-                URI uri = new URI("https://twitter.com/sakuranoruu/status/" + newestTweet.getId());
-                AltUri altUri = new AltUri(uri);
-                URIAction action = new URIAction("see more", uri, altUri);
-                Bubble bubble = Bubble.builder().body(body).action(action).build();
-                FlexMessage flexMessage = FlexMessage.builder().altText(newestTweet.getText()).contents(bubble).build();
-                BotApiResponse apiResponse =
-                        lineMessagingClient
-                                .replyMessage(new ReplyMessage(event.getReplyToken(), flexMessage, false))
-                                .get();
-                logger.info("Sent messages: {}", apiResponse);
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            } catch (URISyntaxException e) {
-                logger.error(e);
-                e.printStackTrace();
-            }
+
+            Tweet newestTweet = twitterService.getNewestTweet();
+            reply(event.getReplyToken(), new TextMessage(newestTweet.getText()));
             return;
         }
 

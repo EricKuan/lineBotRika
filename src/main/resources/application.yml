@@ -65,7 +65,6 @@ spring:
       password: ${dbPasswd}
       maximum-pool-size: 2
       minimum-idle: 1
-      .
 
   jpa:
     properties:

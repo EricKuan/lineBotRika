@@ -52,7 +52,7 @@ public class TwitterServiceImpl implements TwitterService {
         Optional.ofNullable(tweetList).ifPresent(
                 item -> {
                     newestTweet.set(item.getData().stream().filter(tweet -> {
-                        return !StringUtils.startsWithIgnoreCase(tweet.getText(), "RT" );
+                        return (!StringUtils.startsWithIgnoreCase(tweet.getText(), "RT" ) || !StringUtils.startsWithIgnoreCase(tweet.getText(), "@" ));
                     }).max(Comparator.comparing(Tweet::getId)).orElse(new Tweet()));
                 }
 

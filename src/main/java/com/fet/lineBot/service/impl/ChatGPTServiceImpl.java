@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class ChatGPTServiceImpl implements ChatGPTService {
     @Value("${rikaService.chatGPTKey}")
     private String chatGPTKey;
+
     @Override
     public Message returnChatGPT(String message) {
 
@@ -35,7 +36,8 @@ public class ChatGPTServiceImpl implements ChatGPTService {
                     .okHttpClient(okHttpClient)
                     .build();
             //聊天模型：gpt-3.5
-            com.unfbx.chatgpt.entity.chat.Message chatMessage = com.unfbx.chatgpt.entity.chat.Message.builder().role(com.unfbx.chatgpt.entity.chat.Message.Role.USER).content("你好啊我的伙伴！").build();
+            com.unfbx.chatgpt.entity.chat.Message chatMessage = com.unfbx.chatgpt.entity.chat.Message.builder().role(com.unfbx.chatgpt.entity.chat.Message.Role.USER)
+                    .content(message).build();
             ChatCompletion chatCompletion = ChatCompletion.builder().messages(Arrays.asList(chatMessage)).build();
             ChatCompletionResponse chatCompletionResponse = openAiClient.chatCompletion(chatCompletion);
             chatCompletionResponse.getChoices().forEach(e -> {
@@ -44,7 +46,7 @@ public class ChatGPTServiceImpl implements ChatGPTService {
             String content = chatCompletionResponse.getChoices().stream().findFirst().get().getMessage().getContent();
 
             rtnMsg = new TextMessage(content);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error(e);
             e.printStackTrace();
             rtnMsg = new TextMessage("計算逾時或 token 超用");

@@ -8,6 +8,7 @@ import com.unfbx.chatgpt.entity.chat.ChatCompletion;
 import com.unfbx.chatgpt.entity.chat.ChatCompletionResponse;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.OkHttpClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -16,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Log4j2
 public class ChatGPTServiceImpl implements ChatGPTService {
+    @Value("${rikaService.chetGPTKey}")
+    private String chetGPTKey;
     @Override
     public Message returnChatGPT(String message) {
 
@@ -28,7 +31,7 @@ public class ChatGPTServiceImpl implements ChatGPTService {
                     .readTimeout(50, TimeUnit.SECONDS)//自定义超时时间
                     .build();
             OpenAiClient openAiClient = OpenAiClient.builder()
-                    .apiKey(Arrays.asList("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"))
+                    .apiKey(Arrays.asList(chetGPTKey))
                     .okHttpClient(okHttpClient)
                     .build();
             //聊天模型：gpt-3.5

@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Log4j2
 public class ChatGPTServiceImpl implements ChatGPTService {
-    @Value("${rikaService.chetGPTKey}")
-    private String chetGPTKey;
+    @Value("${rikaService.chatGPTKey}")
+    private String chatGPTKey;
     @Override
     public Message returnChatGPT(String message) {
 
@@ -31,7 +31,7 @@ public class ChatGPTServiceImpl implements ChatGPTService {
                     .readTimeout(50, TimeUnit.SECONDS)//自定义超时时间
                     .build();
             OpenAiClient openAiClient = OpenAiClient.builder()
-                    .apiKey(Arrays.asList(chetGPTKey))
+                    .apiKey(Arrays.asList(chatGPTKey))
                     .okHttpClient(okHttpClient)
                     .build();
             //聊天模型：gpt-3.5

@@ -76,6 +76,8 @@ public class MessageHandler {
 
     @Autowired
     TwitterService twitterService;
+    @Autowired
+    ChatGPTService chatGPTService;
 
     @Value("${rikaService.helpKeyword}")
     private String HELP_KEYWORD;
@@ -118,6 +120,9 @@ public class MessageHandler {
 
     @Value("${rikaService.voteKeyword}")
     private String VOTE_KEYWORD;
+
+    @Value("${rikaService.chatKeyword}")
+    private String CHAT_KEYWORD;
 
 
     @EventMapping
@@ -281,6 +286,12 @@ public class MessageHandler {
 
         }
 
+        if (message.startsWith(CHAT_KEYWORD)) {
+            String inputMsg = message.replace(CHAT_KEYWORD, "");
+            Message returnChatGPT = chatGPTService.returnChatGPT(inputMsg);
+            reply(event.getReplyToken(), returnChatGPT);
+            return;
+        }
 
         Message rtnMsgObj = messageService.queryReplyMessage(message);
         if (rtnMsgObj != null) {

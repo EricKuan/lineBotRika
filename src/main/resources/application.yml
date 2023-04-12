@@ -55,7 +55,7 @@ rikaService:
   titleKeyword: ${titleKeyword}
   clipKeyword: ${clipKeyword}
   facebookCookie: ${facebookCookie}
-  chetGPTKey: ${chetGPTKey}
+  chatGPTKey: ${chatGPTKey}
   chatKeyword: ${chatKeyword}
 
 spring:

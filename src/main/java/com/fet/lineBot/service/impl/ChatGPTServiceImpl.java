@@ -53,7 +53,7 @@ public class ChatGPTServiceImpl implements ChatGPTService {
 
         Message rtnMsg;
         try {
-            OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(40, TimeUnit.SECONDS).writeTimeout(40, TimeUnit.SECONDS).readTimeout(50, TimeUnit.SECONDS).build();
+            OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(40, TimeUnit.SECONDS).writeTimeout(120, TimeUnit.SECONDS).readTimeout(120, TimeUnit.SECONDS).build();
             OpenAiClient openAiClient = OpenAiClient.builder().apiKey(Arrays.asList(chatGPTKey)).okHttpClient(okHttpClient).build();
             //聊天模型：gpt-3.5
             com.unfbx.chatgpt.entity.chat.Message chatMessage = com.unfbx.chatgpt.entity.chat.Message.builder().role(com.unfbx.chatgpt.entity.chat.Message.Role.USER).content(message).build();

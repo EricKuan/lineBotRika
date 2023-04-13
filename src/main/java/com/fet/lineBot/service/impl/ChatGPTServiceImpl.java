@@ -53,20 +53,11 @@ public class ChatGPTServiceImpl implements ChatGPTService {
 
         Message rtnMsg;
         try {
-            OkHttpClient okHttpClient = new OkHttpClient
-                    .Builder()
-                    .connectTimeout(40, TimeUnit.SECONDS)
-                    .writeTimeout(40, TimeUnit.SECONDS)
-                    .readTimeout(50, TimeUnit.SECONDS)
-                    .build();
-            OpenAiClient openAiClient = OpenAiClient.builder()
-                    .apiKey(Arrays.asList(chatGPTKey))
-                    .okHttpClient(okHttpClient)
-                    .build();
+            OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(40, TimeUnit.SECONDS).writeTimeout(40, TimeUnit.SECONDS).readTimeout(50, TimeUnit.SECONDS).build();
+            OpenAiClient openAiClient = OpenAiClient.builder().apiKey(Arrays.asList(chatGPTKey)).okHttpClient(okHttpClient).build();
             //聊天模型：gpt-3.5
-            com.unfbx.chatgpt.entity.chat.Message chatMessage = com.unfbx.chatgpt.entity.chat.Message.builder().role(com.unfbx.chatgpt.entity.chat.Message.Role.USER)
-                    .content(message).build();
-            ChatCompletion chatCompletion = ChatCompletion.builder().messages(Arrays.asList(chatMessage)).build();
+            com.unfbx.chatgpt.entity.chat.Message chatMessage = com.unfbx.chatgpt.entity.chat.Message.builder().role(com.unfbx.chatgpt.entity.chat.Message.Role.USER).content(message).build();
+            ChatCompletion chatCompletion = ChatCompletion.builder().messages(Arrays.asList(chatMessage)).maxTokens(300).temperature(0.5).build();
             ChatCompletionResponse chatCompletionResponse = openAiClient.chatCompletion(chatCompletion);
             chatCompletionResponse.getChoices().forEach(e -> {
                 log.info(e.getMessage().getContent());

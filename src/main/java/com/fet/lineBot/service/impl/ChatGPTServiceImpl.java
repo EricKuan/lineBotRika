@@ -75,7 +75,7 @@ public class ChatGPTServiceImpl implements ChatGPTService {
 
             StringBuilder rtnBuffer = new StringBuilder();
             if (StringUtils.isNotBlank(displayName)) {
-                rtnBuffer.append("回答 [").append(displayName).append("] ");
+                rtnBuffer.append("回答 [").append(displayName).append("] \n");
             }
             rtnBuffer.append(content);
 

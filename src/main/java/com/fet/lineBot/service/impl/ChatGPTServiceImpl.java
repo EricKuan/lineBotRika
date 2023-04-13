@@ -35,8 +35,6 @@ public class ChatGPTServiceImpl implements ChatGPTService {
     @Autowired
     private LineMessagingClient lineMessagingClient;
 
-    private List<com.unfbx.chatgpt.entity.chat.Message> historyMessage = new ArrayList<>();
-
     @Override
     public Message returnChatGPT(MessageEvent<TextMessageContent> event, String message) {
         Source source = event.getSource();
@@ -62,7 +60,6 @@ public class ChatGPTServiceImpl implements ChatGPTService {
             //聊天模型：gpt-3.5
             com.unfbx.chatgpt.entity.chat.Message chatMessage = com.unfbx.chatgpt.entity.chat.Message.builder().role(com.unfbx.chatgpt.entity.chat.Message.Role.USER).content(message).build();
             List<com.unfbx.chatgpt.entity.chat.Message> inputMessageList = new ArrayList<>();
-            inputMessageList.addAll(historyMessage);
             inputMessageList.add(chatMessage);
 
             ChatCompletion chatCompletion = ChatCompletion.builder().messages(inputMessageList).maxTokens(500).temperature(0.5).build();
@@ -71,10 +68,6 @@ public class ChatGPTServiceImpl implements ChatGPTService {
                 log.info(e.getMessage().getContent());
             });
             String content = chatCompletionResponse.getChoices().stream().findFirst().get().getMessage().getContent();
-            historyMessage.add(chatCompletionResponse.getChoices().stream().findFirst().get().getMessage());
-            if(historyMessage.size()>10){
-                historyMessage.remove(0);
-            }
             StringBuilder rtnBuffer = new StringBuilder();
             if (StringUtils.isNotBlank(displayName)) {
                 rtnBuffer.append("回答 [").append(displayName).append("] \n");

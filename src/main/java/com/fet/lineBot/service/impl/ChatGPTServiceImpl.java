@@ -1,17 +1,27 @@
 package com.fet.lineBot.service.impl;
 
 import com.fet.lineBot.service.ChatGPTService;
+import com.linecorp.bot.client.LineMessagingClient;
+import com.linecorp.bot.model.event.MessageEvent;
+import com.linecorp.bot.model.event.message.TextMessageContent;
+import com.linecorp.bot.model.event.source.GroupSource;
+import com.linecorp.bot.model.event.source.Source;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
+import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.unfbx.chatgpt.OpenAiClient;
 import com.unfbx.chatgpt.entity.chat.ChatCompletion;
 import com.unfbx.chatgpt.entity.chat.ChatCompletionResponse;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.OkHttpClient;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -20,16 +30,34 @@ public class ChatGPTServiceImpl implements ChatGPTService {
     @Value("${rikaService.chatGPTKey}")
     private String chatGPTKey;
 
+    @Autowired
+    private LineMessagingClient lineMessagingClient;
+
     @Override
-    public Message returnChatGPT(String message) {
+    public Message returnChatGPT(MessageEvent<TextMessageContent> event, String message) {
+        Source source = event.getSource();
+        String displayName = null;
+        if (source instanceof GroupSource) {
+            String groupId = ((GroupSource) source).getGroupId();
+            String userId = source.getUserId();
+            CompletableFuture<UserProfileResponse> memberProfile = lineMessagingClient.getGroupMemberProfile(groupId, userId);
+
+            try {
+                displayName = memberProfile.get().getDisplayName();
+            } catch (ExecutionException | InterruptedException e) {
+                log.error(e);
+                e.printStackTrace();
+
+            }
+        }
 
         Message rtnMsg;
         try {
             OkHttpClient okHttpClient = new OkHttpClient
                     .Builder()
-                    .connectTimeout(40, TimeUnit.SECONDS)//自定义超时时间
-                    .writeTimeout(40, TimeUnit.SECONDS)//自定义超时时间
-                    .readTimeout(50, TimeUnit.SECONDS)//自定义超时时间
+                    .connectTimeout(40, TimeUnit.SECONDS)
+                    .writeTimeout(40, TimeUnit.SECONDS)
+                    .readTimeout(50, TimeUnit.SECONDS)
                     .build();
             OpenAiClient openAiClient = OpenAiClient.builder()
                     .apiKey(Arrays.asList(chatGPTKey))
@@ -45,7 +73,14 @@ public class ChatGPTServiceImpl implements ChatGPTService {
             });
             String content = chatCompletionResponse.getChoices().stream().findFirst().get().getMessage().getContent();
 
-            rtnMsg = new TextMessage(content);
+            StringBuilder rtnBuffer = new StringBuilder();
+            if (StringUtils.isNotBlank(displayName)) {
+                rtnBuffer.append("回答 [").append(displayName).append("] ");
+            }
+            rtnBuffer.append(content);
+
+            rtnMsg = new TextMessage(rtnBuffer.toString());
+
         } catch (Exception e) {
             log.error(e);
             e.printStackTrace();

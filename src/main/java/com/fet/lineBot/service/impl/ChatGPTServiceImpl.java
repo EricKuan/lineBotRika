@@ -62,7 +62,7 @@ public class ChatGPTServiceImpl implements ChatGPTService {
             List<com.unfbx.chatgpt.entity.chat.Message> inputMessageList = new ArrayList<>();
             inputMessageList.add(chatMessage);
 
-            ChatCompletion chatCompletion = ChatCompletion.builder().messages(inputMessageList).maxTokens(500).temperature(0.5).build();
+            ChatCompletion chatCompletion = ChatCompletion.builder().messages(inputMessageList).temperature(0.5).build();
             ChatCompletionResponse chatCompletionResponse = openAiClient.chatCompletion(chatCompletion);
             chatCompletionResponse.getChoices().forEach(e -> {
                 log.info(e.getMessage().getContent());

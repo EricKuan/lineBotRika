@@ -29,7 +29,6 @@ import com.linecorp.bot.model.message.flex.component.Text;
 import com.linecorp.bot.model.message.flex.container.Bubble;
 import com.linecorp.bot.model.message.flex.container.Carousel;
 import com.linecorp.bot.model.message.flex.unit.FlexLayout;
-import com.linecorp.bot.model.profile.UserProfileResponse;
 import com.linecorp.bot.model.response.BotApiResponse;
 import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
@@ -45,7 +44,6 @@ import org.springframework.beans.factory.annotation.Value;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static java.util.Collections.singletonList;
@@ -79,7 +77,7 @@ public class MessageHandler {
     @Autowired
     TwitterService twitterService;
     @Autowired
-    ChatGPTService chatGPTService;
+    GoogleBardService googleBardService;
 
     @Value("${rikaService.helpKeyword}")
     private String HELP_KEYWORD;
@@ -290,7 +288,7 @@ public class MessageHandler {
 
         if (message.startsWith(CHAT_KEYWORD)) {
             String inputMsg = message.replace(CHAT_KEYWORD, "");
-            Message returnChatGPT = chatGPTService.returnChatGPT(event, inputMsg);
+            Message returnChatGPT = googleBardService.returnChatGPT(event, inputMsg);
             reply(event.getReplyToken(), returnChatGPT);
             return;
         }

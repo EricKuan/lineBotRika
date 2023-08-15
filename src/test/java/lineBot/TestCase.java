@@ -1,13 +1,11 @@
 package lineBot;
 
-import com.fet.lineBot.Application;
 import com.fet.lineBot.domain.dao.BonusPhotoDataRepository;
 import com.fet.lineBot.domain.model.BonusPhotoData;
 import com.fet.lineBot.domain.model.FBPostData;
 import com.fet.lineBot.domain.model.YoutubeLiveData;
 import com.fet.lineBot.service.BonusPhotoService;
 import com.fet.lineBot.service.ClampService;
-import com.fet.lineBot.service.TwitterService;
 import com.fet.lineBot.service.YoutubeService;
 import com.fet.lineBot.service.impl.ClampServiceImpl;
 import com.fet.lineBot.service.impl.TwitterServiceImpl;
@@ -17,6 +15,9 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.google.gson.Gson;
+import com.pkslow.ai.AIClient;
+import com.pkslow.ai.GoogleBardClient;
+import com.pkslow.ai.domain.Answer;
 import com.twitter.clientlib.ApiException;
 import com.twitter.clientlib.TwitterCredentialsBearer;
 import com.twitter.clientlib.api.TwitterApi;
@@ -29,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.io.File;
@@ -56,6 +57,8 @@ public class TestCase {
     @Autowired
     YoutubeService youtubeService;
 
+    @Value("${rikaService.chatGPTKey}")
+    private String chatGPTKey;
 
     @Test
     public void test02() {
@@ -239,5 +242,14 @@ public class TestCase {
         log.info("tweetList: {}" , new Gson().toJson(tweetList));
         log.info("newestTweet: {}" , new Gson().toJson(newestTweet));
 
+    }
+
+    @Test
+    public void test18() throws JSONException, IOException {
+
+        AIClient client = new GoogleBardClient("");
+        Answer answer = client.ask("如何使用 java 呼叫 brad api");
+
+        log.info("answer: {}", answer.getChosenAnswer());
     }
 }

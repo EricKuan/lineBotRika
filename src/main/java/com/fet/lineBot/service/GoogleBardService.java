@@ -4,6 +4,6 @@ import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
 import com.linecorp.bot.model.message.Message;
 
-public interface ChatGPTService {
+public interface GoogleBardService {
     Message returnChatGPT(MessageEvent<TextMessageContent> event, String message);
 }

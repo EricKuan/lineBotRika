@@ -1,6 +1,6 @@
 package com.fet.lineBot.service.impl;
 
-import com.fet.lineBot.service.ChatGPTService;
+import com.fet.lineBot.service.GoogleBardService;
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.event.MessageEvent;
 import com.linecorp.bot.model.event.message.TextMessageContent;
@@ -9,28 +9,23 @@ import com.linecorp.bot.model.event.source.Source;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.profile.UserProfileResponse;
-import com.unfbx.chatgpt.OpenAiClient;
-import com.unfbx.chatgpt.entity.chat.ChatCompletion;
-import com.unfbx.chatgpt.entity.chat.ChatCompletionResponse;
+import com.pkslow.ai.AIClient;
+import com.pkslow.ai.GoogleBardClient;
+import com.pkslow.ai.domain.Answer;
 import lombok.extern.log4j.Log4j2;
-import okhttp3.OkHttpClient;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Log4j2
-public class ChatGPTServiceImpl implements ChatGPTService {
+public class GoogleBardServiceImpl implements GoogleBardService {
     @Value("${rikaService.chatGPTKey}")
-    private String chatGPTKey;
+    private String googleBardApiKey;
 
     @Autowired
     private LineMessagingClient lineMessagingClient;
@@ -55,28 +50,19 @@ public class ChatGPTServiceImpl implements ChatGPTService {
 
         Message rtnMsg;
         try {
-            OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(40, TimeUnit.SECONDS).writeTimeout(120, TimeUnit.SECONDS).readTimeout(120, TimeUnit.SECONDS).build();
-            OpenAiClient openAiClient = OpenAiClient.builder().apiKey(Arrays.asList(chatGPTKey)).okHttpClient(okHttpClient).build();
-            //聊天模型：gpt-3.5
-            com.unfbx.chatgpt.entity.chat.Message chatMessage = com.unfbx.chatgpt.entity.chat.Message.builder().role(com.unfbx.chatgpt.entity.chat.Message.Role.USER).content(message).build();
-            List<com.unfbx.chatgpt.entity.chat.Message> inputMessageList = new ArrayList<>();
-            inputMessageList.add(chatMessage);
+            // 建立 google API client
+            AIClient client = new GoogleBardClient(googleBardApiKey);
+            // 輸入問題並取得答案
+            Answer answer = client.ask(message);
 
-            ChatCompletion chatCompletion = ChatCompletion.builder()
-                .messages(inputMessageList)
-                .model(ChatCompletion.Model.GPT_3_5_TURBO.getName())
-                .temperature(0.5)
-                .build();
-            ChatCompletionResponse chatCompletionResponse = openAiClient.chatCompletion(chatCompletion);
-            chatCompletionResponse.getChoices().forEach(e -> {
-                log.info(e.getMessage().getContent());
-            });
-            String content = chatCompletionResponse.getChoices().stream().findFirst().get().getMessage().getContent();
+            log.info("answer: {}", answer.getChosenAnswer());
+
+            // 將答案回應至 line msg 中
             StringBuilder rtnBuffer = new StringBuilder();
             if (StringUtils.isNotBlank(displayName)) {
                 rtnBuffer.append("回答 [").append(displayName).append("] \n");
             }
-            rtnBuffer.append(content);
+            rtnBuffer.append(answer.getChosenAnswer());
 
             rtnMsg = new TextMessage(rtnBuffer.toString());
 

@@ -73,6 +73,7 @@ spring:
       keepaliveTime: 30000
       maxLifetime: 180000
       auto-commit: true
+      maximumPoolSize: 2
 
   jpa:
     properties:

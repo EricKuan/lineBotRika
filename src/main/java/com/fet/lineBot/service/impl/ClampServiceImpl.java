@@ -384,7 +384,11 @@ public class ClampServiceImpl implements ClampService {
       cellList = page.getByXPath("/html/body/div[2]/table/tbody/tr[3]/td[5]");
       String hoPercent = cellList.get(0).asNormalizedText();
       sb.append("侯").append(" 得票數: ").append(hoTicket).append(" 得票%: ").append(hoPercent).append("\n");
-      sb.append(total);
+
+
+
+
+
 
       if (StringUtils.isNotBlank(sb.toString())) {
         response = sb.toString();
@@ -431,6 +435,13 @@ public class ClampServiceImpl implements ClampService {
       String hoPercent = cellList.get(0).asNormalizedText();
       sb.append("中國國民黨").append(" 得票數: ").append(hoTicket).append(" 得票%: ").append(hoPercent).append("\n");
       sb.append(total);
+      String trim = total.split(":")[1].trim();
+      String[] ticketArray = trim.split("/");
+      Integer opened = Integer.valueOf(ticketArray[0]);
+      Integer boxed = Integer.valueOf(ticketArray[1]);
+
+      float openedPercent = (float) opened / boxed;
+      sb.append("\n已開票所百分比： ").append(openedPercent);
 
       if (StringUtils.isNotBlank(sb.toString())) {
         response = sb.toString();

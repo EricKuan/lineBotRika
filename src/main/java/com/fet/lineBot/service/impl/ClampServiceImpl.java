@@ -349,4 +349,24 @@ public class ClampServiceImpl implements ClampService {
             Optional.ofNullable(client).ifPresent(WebClient::close);
         }
     }
+
+    @Override
+    public String getVoteResult() {
+        String url = "https://vote2024.cec.gov.tw/zh-TW/indexP.html";
+        String response = "unKnow";
+        try {
+            String votePageData = getUrl(url);
+            log.info("xml : {}", response);
+            if(StringUtils.isNotBlank(votePageData)){
+                response = "已連線至中選會網站";
+            }
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        return response;
+    }
 }

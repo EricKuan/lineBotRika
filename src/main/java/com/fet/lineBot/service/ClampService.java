@@ -40,4 +40,6 @@ public interface ClampService {
 
 
   String getVoteResult()  ;
+
+  String getVoteResultForPolitical()  ;
 }

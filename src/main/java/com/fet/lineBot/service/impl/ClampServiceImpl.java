@@ -398,4 +398,50 @@ public class ClampServiceImpl implements ClampService {
 
     return response;
   }
+
+  @Override
+  public String getVoteResultForPolitical() {
+    String url = "https://vote2024.cec.gov.tw/zh-TW/L4/00000000000000000.html";
+    String response = "unKnow";
+    try {
+      WebClient client = getFBWebClient();
+      client.addCookie("fr=13Vcqjgnr538ePt8O..BgwfId.m3.AAA.0.0.BgwfId.AWUgnSp8pKU; Expires=Wed, 08 Sep 2021 11:06:04 GMT; Max-Age=7775999; Domain=facebook.com; Path=/; Secure; HttpOnly", new URL("http://www.facebook.com"), null);
+      client.addCookie("sb=HfLBYMfWt2mFgJspwXy52Sof; Expires=Sat, 10 Jun 2023 11:06:05 GMT; Max-Age=63072000; Domain=facebook.com; Path=/; Secure; HttpOnly", new URL("http://www.facebook.com"), null);
+      client.getOptions().setCssEnabled(false);
+      client.getOptions().setThrowExceptionOnScriptError(false);
+      HtmlPage page = client.getPage(url);
+
+      List<HtmlDivision> elementList = page.getByXPath("/html/body/div[1]/div[3]/div");
+      StringBuilder sb = new StringBuilder();
+      String total = elementList.get(0).asNormalizedText();
+
+      List<HtmlTableDataCell> cellList = page.getByXPath("/html/body/div[2]/table/tbody/tr[3]/td[3]");
+      String koTicket = cellList.get(0).asNormalizedText();
+      cellList = page.getByXPath("/html/body/div[2]/table/tbody/tr[3]/td[4]");
+      String koPercent = cellList.get(0).asNormalizedText();
+      sb.append("台灣民眾黨").append(" 得票數: ").append(koTicket).append(" 得票%: ").append(koPercent).append("\n");
+      cellList = page.getByXPath("/html/body/div[2]/table/tbody/tr[12]/td[3]");
+      String laiTicket = cellList.get(0).asNormalizedText();
+      cellList = page.getByXPath("/html/body/div[2]/table/tbody/tr[12]/td[4]");
+      String laiPercent = cellList.get(0).asNormalizedText();
+      sb.append("民主進步黨").append(" 得票數: ").append(laiTicket).append(" 得票%: ").append(laiPercent).append("\n");
+      cellList = page.getByXPath("/html/body/div[2]/table/tbody/tr[15]/td[3]");
+      String hoTicket = cellList.get(0).asNormalizedText();
+      cellList = page.getByXPath("/html/body/div[2]/table/tbody/tr[15]/td[4]");
+      String hoPercent = cellList.get(0).asNormalizedText();
+      sb.append("中國國民黨").append(" 得票數: ").append(hoTicket).append(" 得票%: ").append(hoPercent).append("\n");
+      sb.append(total);
+
+      if (StringUtils.isNotBlank(sb.toString())) {
+        response = sb.toString();
+      }
+
+
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+
+    return response;
+  }
 }

@@ -1,5 +1,6 @@
 package lineBot;
 
+import com.fet.lineBot.Application;
 import com.fet.lineBot.domain.dao.BonusPhotoDataRepository;
 import com.fet.lineBot.domain.model.BonusPhotoData;
 import com.fet.lineBot.domain.model.FBPostData;
@@ -27,21 +28,34 @@ import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//@SpringBootTest(classes = Application.class)
+@SpringBootTest(classes = Application.class)
 @WebAppConfiguration
 @Log4j2
 public class TestCase {
@@ -247,9 +261,57 @@ public class TestCase {
     @Test
     public void test18() throws JSONException, IOException {
 
-        AIClient client = new GoogleBardClient("");
+        AIClient client = new GoogleBardClient("ZAgUwOXtgtONcYz3p64xnZYBcvgdlqZ0swffPoxHwiQwa53LxeF_2lzLbua-IxWc9NYQOg.;sidts-CjEBSAxbGZDB2CAkHYNe5sJDv-x9jr8ETUmPFEKCQutGgwNdUfehw8JOPCofQHai9o0JEAA");
         Answer answer = client.ask("如何使用 java 呼叫 brad api");
 
         log.info("answer: {}", answer.getChosenAnswer());
+    }
+
+    /** 驗證 twitter API */
+    @Test
+    public void test19() throws URISyntaxException, IOException {
+        String tweetResponse = null;
+
+        String ids = "235549538";
+        String bearerToken = "AAAAAAAAAAAAAAAAAAAAAK3vVwEAAAAAR2%2FVh1puEqXhA%2B5LheCIe7PvpEQ%3DyYgDG889lsRN0ZTDeX0JEbToWHDiSZmWaYL8kAsyrgWToA9E7d";
+
+        CloseableHttpClient httpClient = HttpClients.custom()
+            .setDefaultRequestConfig(RequestConfig.custom()
+                .setCookieSpec(CookieSpecs.STANDARD).build())
+            .build();
+
+        URIBuilder uriBuilder = new URIBuilder("https://api.twitter.com/2/tweets");
+
+
+
+        ArrayList<NameValuePair> queryParameters;
+        queryParameters = new ArrayList<>();
+        queryParameters.add(new BasicNameValuePair("ids", ids));
+        queryParameters.add(new BasicNameValuePair("tweet.fields", "created_at"));
+        uriBuilder.addParameters(queryParameters);
+
+
+
+        HttpGet httpGet = new HttpGet(uriBuilder.build());
+        httpGet.setHeader("Authorization", String.format("Bearer %s", bearerToken));
+        httpGet.setHeader("Content-Type", "application/json");
+
+        CloseableHttpResponse response = httpClient.execute(httpGet);
+        HttpEntity entity = response.getEntity();
+        if (null != entity) {
+            tweetResponse = EntityUtils.toString(entity, "UTF-8");
+        }
+        log.info("tweetResponse: {}", tweetResponse);
+    }
+
+    /**
+     * 撈取中選會網頁資料
+     * @throws URISyntaxException
+     * @throws IOException
+     */
+    @Test
+    public void test20() throws URISyntaxException, IOException {
+        String voteResult = clampService.getVoteResult();
+        log.info("voteResult:{}", voteResult);
     }
 }

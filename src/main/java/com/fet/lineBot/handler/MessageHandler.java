@@ -293,6 +293,13 @@ public class MessageHandler {
             return;
         }
 
+        if(message.startsWith(VOTE)){
+            String rtnVoteResult = clampService.getVoteResult();
+            reply(event.getReplyToken(), new TextMessage(rtnVoteResult));
+            return;
+
+        }
+
         Message rtnMsgObj = messageService.queryReplyMessage(message);
         if (rtnMsgObj != null) {
             reply(event.getReplyToken(), messageService.queryReplyMessage(message));

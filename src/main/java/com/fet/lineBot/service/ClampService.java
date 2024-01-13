@@ -37,4 +37,7 @@ public interface ClampService {
    * @return
    */
   String getUrl(String url) throws IOException;
+
+
+  String getVoteResult()  ;
 }

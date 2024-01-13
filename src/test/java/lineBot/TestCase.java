@@ -313,5 +313,8 @@ public class TestCase {
     public void test20() throws URISyntaxException, IOException {
         String voteResult = clampService.getVoteResult();
         log.info("voteResult:{}", voteResult);
+
+        String voteResultForPolitical = clampService.getVoteResultForPolitical();
+        log.info("voteResultForPolitical:{}", voteResultForPolitical);
     }
 }

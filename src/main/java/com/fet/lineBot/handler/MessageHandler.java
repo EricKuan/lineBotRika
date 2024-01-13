@@ -295,7 +295,9 @@ public class MessageHandler {
 
         if(message.startsWith(VOTE)){
             String rtnVoteResult = clampService.getVoteResult();
-            reply(event.getReplyToken(), new TextMessage(rtnVoteResult));
+            String rtnVoteResultPolitical = clampService.getVoteResultForPolitical();
+
+            reply(event.getReplyToken(), new TextMessage(rtnVoteResult + "\n---\n" + rtnVoteResultPolitical));
             return;
 
         }

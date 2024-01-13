@@ -373,21 +373,17 @@ public class ClampServiceImpl implements ClampService {
       String koTicket = cellList.get(0).asNormalizedText();
       cellList = page.getByXPath("/html/body/div[2]/table/tbody/tr[1]/td[5]");
       String koPercent = cellList.get(0).asNormalizedText();
-      sb.append("柯").append(" 得票數: ").append(koTicket).append(" 得票%: ").append(koPercent).append("\n");
+      sb.append("柯文哲").append(" 得票數: ").append(koTicket).append(" 得票%: ").append(koPercent).append("\n");
       cellList = page.getByXPath("/html/body/div[2]/table/tbody/tr[2]/td[4]");
       String laiTicket = cellList.get(0).asNormalizedText();
       cellList = page.getByXPath("/html/body/div[2]/table/tbody/tr[2]/td[5]");
       String laiPercent = cellList.get(0).asNormalizedText();
-      sb.append("賴").append(" 得票數: ").append(laiTicket).append(" 得票%: ").append(laiPercent).append("\n");
+      sb.append("賴清德").append(" 得票數: ").append(laiTicket).append(" 得票%: ").append(laiPercent).append("\n");
       cellList = page.getByXPath("/html/body/div[2]/table/tbody/tr[3]/td[4]");
       String hoTicket = cellList.get(0).asNormalizedText();
       cellList = page.getByXPath("/html/body/div[2]/table/tbody/tr[3]/td[5]");
       String hoPercent = cellList.get(0).asNormalizedText();
-      sb.append("侯").append(" 得票數: ").append(hoTicket).append(" 得票%: ").append(hoPercent).append("\n");
-
-
-
-
+      sb.append("侯友宜").append(" 得票數: ").append(hoTicket).append(" 得票%: ").append(hoPercent);
 
 
       if (StringUtils.isNotBlank(sb.toString())) {

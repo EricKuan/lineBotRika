@@ -56,7 +56,6 @@ public class GoogleBardServiceImpl implements GoogleBardService {
             RequestBody body = RequestBody.create(MediaType.parse("application/json"), "{\"contents\":[{\"parts\":[{\"text\":\"" + message +"\"}]}]}");
             Request request = new Request.Builder()
                 .url(API_URL + googleBardApiKey)
-                .header("Authorization", "Bearer " + googleBardApiKey)
                 .post(body)
                 .build();
             try (Response response = client.newCall(request).execute()) {

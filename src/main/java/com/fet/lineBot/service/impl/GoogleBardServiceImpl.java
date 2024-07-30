@@ -63,8 +63,11 @@ public class GoogleBardServiceImpl implements GoogleBardService {
                     throw new IOException("Unexpected code " + response);
                 }
                 String responseBody = response.body().string();
+                log.info("responseBody: {}", responseBody);
                 JSONObject jsonObject = new JSONObject(responseBody);
-                String text = jsonObject.getJSONArray("candidates").getJSONObject(0).getJSONArray("parts").getJSONObject(0).getString("text");
+                String text = jsonObject.getJSONArray("candidates").getJSONObject(0)
+                    .getJSONObject("content").getJSONArray("parts").getJSONObject(0)
+                    .getString("text");
                 log.info("answer: {}", text);
 
                 // 將答案回應至 line msg 中

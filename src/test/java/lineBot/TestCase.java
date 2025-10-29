@@ -16,9 +16,6 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.google.gson.Gson;
-import com.pkslow.ai.AIClient;
-import com.pkslow.ai.GoogleBardClient;
-import com.pkslow.ai.domain.Answer;
 import com.twitter.clientlib.ApiException;
 import com.twitter.clientlib.TwitterCredentialsBearer;
 import com.twitter.clientlib.api.TwitterApi;
@@ -258,14 +255,7 @@ public class TestCase {
 
     }
 
-    @Test
-    public void test18() throws JSONException, IOException {
 
-        AIClient client = new GoogleBardClient("ZAgUwOXtgtONcYz3p64xnZYBcvgdlqZ0swffPoxHwiQwa53LxeF_2lzLbua-IxWc9NYQOg.;sidts-CjEBSAxbGZDB2CAkHYNe5sJDv-x9jr8ETUmPFEKCQutGgwNdUfehw8JOPCofQHai9o0JEAA");
-        Answer answer = client.ask("如何使用 java 呼叫 brad api");
-
-        log.info("answer: {}", answer.getChosenAnswer());
-    }
 
     /** 驗證 twitter API */
     @Test

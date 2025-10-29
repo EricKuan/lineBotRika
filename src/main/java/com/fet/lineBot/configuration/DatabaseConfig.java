@@ -18,6 +18,8 @@ public class DatabaseConfig {
   private String userName;
   @Value("${spring.datasource.hikari.password}")
   private String passwd;
+  @Value("${spring.datasource.hikari.maximumPoolSize}")
+  private int maximumPoolSize;
 
   @Bean
   public DataSource dataSource() {
@@ -25,6 +27,8 @@ public class DatabaseConfig {
     config.setJdbcUrl(dbUrl);
     config.setUsername(userName);
     config.setPassword(passwd);
+    config.setMaximumPoolSize(maximumPoolSize);
+    config.setMinimumIdle(0);
     return new HikariDataSource(config);
   }
 }

@@ -9,15 +9,15 @@ import com.linecorp.bot.model.event.source.Source;
 import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.profile.UserProfileResponse;
-import com.pkslow.ai.AIClient;
-import com.pkslow.ai.GoogleBardClient;
-import com.pkslow.ai.domain.Answer;
 import lombok.extern.log4j.Log4j2;
+import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -26,6 +26,8 @@ import java.util.concurrent.ExecutionException;
 public class GoogleBardServiceImpl implements GoogleBardService {
     @Value("${rikaService.chatGPTKey}")
     private String googleBardApiKey;
+    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=";
+
 
     @Autowired
     private LineMessagingClient lineMessagingClient;
@@ -50,22 +52,33 @@ public class GoogleBardServiceImpl implements GoogleBardService {
 
         Message rtnMsg;
         try {
-            // 建立 google API client
-            AIClient client = new GoogleBardClient(googleBardApiKey);
-            // 輸入問題並取得答案
-            Answer answer = client.ask(message);
+            OkHttpClient client = new OkHttpClient();
+            RequestBody body = RequestBody.create(MediaType.parse("application/json"), "{\"contents\":[{\"parts\":[{\"text\":\"" + message +"\"}]}]}");
+            Request request = new Request.Builder()
+                .url(API_URL + googleBardApiKey)
+                .post(body)
+                .build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response);
+                }
+                String responseBody = response.body().string();
+                log.info("responseBody: {}", responseBody);
+                JSONObject jsonObject = new JSONObject(responseBody);
+                String text = jsonObject.getJSONArray("candidates").getJSONObject(0)
+                    .getJSONObject("content").getJSONArray("parts").getJSONObject(0)
+                    .getString("text");
+                log.info("answer: {}", text);
 
-            log.info("answer: {}", answer.getChosenAnswer());
+                // 將答案回應至 line msg 中
+                StringBuilder rtnBuffer = new StringBuilder();
+                if (StringUtils.isNotBlank(displayName)) {
+                    rtnBuffer.append("回答 [").append(displayName).append("] \n");
+                }
+                rtnBuffer.append(text);
 
-            // 將答案回應至 line msg 中
-            StringBuilder rtnBuffer = new StringBuilder();
-            if (StringUtils.isNotBlank(displayName)) {
-                rtnBuffer.append("回答 [").append(displayName).append("] \n");
+                rtnMsg = new TextMessage(rtnBuffer.toString());
             }
-            rtnBuffer.append(answer.getChosenAnswer());
-
-            rtnMsg = new TextMessage(rtnBuffer.toString());
-
         } catch (Exception e) {
             log.error(e);
             e.printStackTrace();

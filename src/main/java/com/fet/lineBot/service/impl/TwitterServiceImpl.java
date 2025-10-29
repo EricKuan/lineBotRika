@@ -82,7 +82,7 @@ public class TwitterServiceImpl implements TwitterService {
     }
 
     // 自動查詢新推文
-    @Scheduled(initialDelay = 120000, fixedRate = 600000)
+//    @Scheduled(initialDelay = 120000, fixedRate = 600000)
     private void scheduledTweet(){
         Tweet newestTweet = foundNotRTTweet();
         if(!Optional.ofNullable(NEWEST_POST_CACHED_DATA).isPresent()){
